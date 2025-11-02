@@ -1,0 +1,16 @@
+FROM oven/bun:alpine AS builder
+
+WORKDIR /app
+
+COPY .env .
+
+WORKDIR /app/frontend
+
+COPY ./frontend/bun.lock ./
+COPY ./frontend/package.json ./
+
+RUN bun install
+
+COPY ./frontend/ .
+
+EXPOSE 3000

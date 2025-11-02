@@ -1,0 +1,21 @@
+{
+  "projectName": "frontend",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "bun",
+  "addOnOptions": {},
+  "git": true,
+  "version": 1,
+  "framework": "react-cra",
+  "chosenAddOns": [
+    "biome",
+    "compiler",
+    "form",
+    "shadcn",
+    "t3env",
+    "table",
+    "tanstack-query",
+    "storybook"
+  ]
+}
