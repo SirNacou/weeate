@@ -18,7 +18,14 @@ function App() {
 
   return (
     <div className="text-center">
-      <Button onClick={Get}>Click that</Button>
+      <Button
+        onClick={(e) => {
+          e.preventDefault();
+          Get();
+        }}
+      >
+        Click this
+      </Button>
     </div>
   );
 }

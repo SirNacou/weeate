@@ -12,6 +12,7 @@ services:
       - .env
     depends_on:
       - postgres
+    restart: on-failure
 
   postgres:
     image: postgres:18-alpine
@@ -22,7 +23,7 @@ services:
     #  - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
-    restart: unless-stopped
+    restart: on-failure
     shm_size: 128mb
 
   frontend:
@@ -44,7 +45,7 @@ services:
       - ./frontend/:/app/frontend/
       - /app/frontend/node_modules
       - ./env:/app/
-    restart: unless-stopped
+    restart: on-failure
 
 volumes:
   db_data:

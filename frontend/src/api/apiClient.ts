@@ -56,13 +56,13 @@ apiClient.interceptors.response.use(
         const authKeys = Object.keys(localStorage).filter(
           (key) => key.startsWith("sb-") && key.includes("-auth-token")
         );
-        authKeys.forEach((key) => localStorage.removeItem(key));
+        // authKeys.forEach((key) => localStorage.removeItem(key));
 
-        if (window.location.pathname !== "/login") {
-          window.location.href = `/login?redirect=${encodeURIComponent(
-            window.location.pathname
-          )}`;
-        }
+        // if (window.location.pathname !== "/login") {
+        //   window.location.href = `/login?redirect=${encodeURIComponent(
+        //     window.location.pathname
+        //   )}`;
+        // }
       }
 
       if (status === 500) {
