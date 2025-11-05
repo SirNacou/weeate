@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 export const supabase = createClient(
   env.VITE_SUPABASE_URL,
-  env.VITE_SUPABASE_ANON_KEY
+  env.VITE_SUPABASE_API_KEY
 );
 
 export interface SupabaseAuthState {

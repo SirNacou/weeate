@@ -1,4 +1,4 @@
-package infra_auth
+package auth
 
 import (
 	"errors"
@@ -7,23 +7,23 @@ import (
 	"gorm.io/gorm"
 )
 
-type userRepository struct {
+type GormUserRepository struct {
 	db *gorm.DB
 }
 
 func NewUserRepository(db *gorm.DB) domain_auth.UserRepository {
-	return &userRepository{db: db}
+	return &GormUserRepository{db: db}
 }
 
-func (r *userRepository) WithTx(tx *gorm.DB) domain_auth.UserRepository {
-	return &userRepository{db: tx}
+func (r *GormUserRepository) WithTx(tx *gorm.DB) domain_auth.UserRepository {
+	return &GormUserRepository{db: tx}
 }
 
-func (r *userRepository) CreateUser(user *domain_auth.User) error {
+func (r *GormUserRepository) CreateUser(user *domain_auth.User) error {
 	return r.db.Create(user).Error
 }
 
-func (r *userRepository) GetUserByUsername(username string) (*domain_auth.User, error) {
+func (r *GormUserRepository) GetUserByUsername(username string) (*domain_auth.User, error) {
 	var user domain_auth.User
 	if err := r.db.Where(&domain_auth.User{Username: username}).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -35,6 +35,6 @@ func (r *userRepository) GetUserByUsername(username string) (*domain_auth.User, 
 	return &user, nil
 }
 
-func (r *userRepository) DeleteUser(id uint) error {
+func (r *GormUserRepository) DeleteUser(id uint) error {
 	return r.db.Delete(&domain_auth.User{}, &domain_auth.User{Model: gorm.Model{ID: id}}).Error
 }

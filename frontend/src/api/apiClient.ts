@@ -1,7 +1,7 @@
 import { env } from "@/env";
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 
-const BASE_URL = env.VITE_BACKEND_URL || "http://localhost:8080/api";
+const BASE_URL = env.VITE_BACKEND_URL || "http://localhost:8080";
 
 const apiClient = axios.create({
   baseURL: BASE_URL,

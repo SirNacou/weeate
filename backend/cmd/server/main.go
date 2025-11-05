@@ -6,12 +6,17 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	echojwt "github.com/labstack/echo-jwt/v4"
-	"github.com/lestrrat-go/jwx/jwk"
+	"github.com/lestrrat-go/httprc/v3"
+	"github.com/lestrrat-go/httprc/v3/errsink"
+	"github.com/lestrrat-go/httprc/v3/tracesink"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 
 	api_auth "github.com/SirNacou/weeate/backend/internal/api/auth"
 	app_auth "github.com/SirNacou/weeate/backend/internal/app/auth"
@@ -70,14 +75,27 @@ func main() {
 				return nil, err
 			}
 
+			jwkCache, err := jwk.NewCache(ctx, httprc.NewClient(
+				httprc.WithErrorSink(errsink.NewSlog(slog.Default())),
+				httprc.WithHTTPClient(e.AutoTLSManager.Client.HTTPClient),
+				httprc.WithTraceSink(tracesink.NewSlog(slog.Default())),
+			))
+			if err != nil {
+				return nil, err
+			}
+
+			if err = jwkCache.Register(ctx, pubKeyUrl, jwk.WithMaxInterval(10*time.Minute)); err != nil {
+				return nil, err
+			}
+
+			set, err := jwkCache.Lookup(ctx, pubKeyUrl)
+			if err != nil {
+				return nil, err
+			}
+
 			keyID, ok := t.Header["kid"].(string)
 			if !ok {
 				return nil, errors.New("expecting JWT header to have a key ID in the kid field")
-			}
-
-			set, err := jwk.Fetch(ctx, pubKeyUrl)
-			if err != nil {
-				return nil, err
 			}
 
 			key, found := set.LookupKeyID(keyID)
@@ -85,14 +103,15 @@ func main() {
 				return nil, fmt.Errorf("unable to find key %q", keyID)
 			}
 
-			k, err := key.PublicKey()
+			publicKey, err := key.PublicKey()
 			if err != nil {
-				return nil, errors.New("unable to get public key")
+				return nil, fmt.Errorf("unable to extract public key: %w", err)
 			}
 
-			var ecdsaK ecdsa.PublicKey
-			err = k.Raw(&ecdsaK)
-			return &ecdsaK, err
+			ecdsaPubKey := &ecdsa.PublicKey{}
+			jwk.Export(publicKey, ecdsaPubKey)
+
+			return ecdsaPubKey, nil
 		},
 	}))
 

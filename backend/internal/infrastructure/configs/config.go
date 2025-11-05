@@ -7,14 +7,16 @@ import (
 )
 
 type Config struct {
-	PORT                 int    `env:"PORT" envDefault:"8080"`
-	Timezone             string `env:"TZ" envDefault:"UTC"`
-	DBHost               string `env:"DB_HOST" envDefault:"localhost"`
-	DBPort               int    `env:"DB_PORT" envDefault:"5432"`
-	DBUser               string `env:"DB_USER" envDefault:"weeate_user"`
-	DBPassword           string `env:"DB_PASSWORD" envDefault:"weeate_password"`
-	DBName               string `env:"DB_NAME" envDefault:"weeate_db"`
-	SUPABASE_PROJECT_URL string `env:"SUPABASE_PROJECT_URL" required:"true"`
+	PORT              int    `env:"PORT" envDefault:"8080"`
+	Timezone          string `env:"TZ" envDefault:"UTC"`
+	DBHost            string `env:"DB_HOST" envDefault:"localhost"`
+	DBPort            int    `env:"DB_PORT" envDefault:"5432"`
+	DBUser            string `env:"DB_USER" envDefault:"weeate_user"`
+	DBPassword        string `env:"DB_PASSWORD" envDefault:"weeate_password"`
+	DBName            string `env:"DB_NAME" envDefault:"weeate_db"`
+	SUPABASE_URL      string `env:"SUPABASE_URL" required:"true"`
+	SUPABASE_AUTH_URL string `env:"SUPABASE_AUTH_URL" required:"true"`
+	SUPABASE_API_KEY  string `env:"SUPABASE_AUTH_URL" required:"true"`
 }
 
 func LoadConfig() (Config, error) {
