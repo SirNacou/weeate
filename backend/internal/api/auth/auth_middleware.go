@@ -47,6 +47,9 @@ func NewAuthMiddleware(ctx context.Context, config config.Config) (*AuthMiddlewa
 }
 
 func (m *AuthMiddleware) Handle(c *fiber.Ctx) error {
+	if c.IsFromLocal() && (c.Path() == "/docs" || c.Path() == "openapi.json") {
+		return c.Next()
+	}
 	authCookie := c.Cookies(m.cookieName)
 
 	if !strings.HasPrefix(authCookie, "base64-") {

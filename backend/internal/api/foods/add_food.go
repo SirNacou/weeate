@@ -1,8 +1,10 @@
 package foods
 
 import (
+	"context"
+
 	"github.com/SirNacou/weeate/backend/internal/app/foods"
-	"github.com/gofiber/fiber/v2"
+	"github.com/danielgtaylor/huma/v2"
 )
 
 type AddFoodRequest struct {
@@ -24,13 +26,16 @@ func NewAddFoodEndpoint(addFoodHdl foods.AddFoodCommandHandler) *AddFoodEndpoint
 	}
 }
 
-func (e *AddFoodEndpoint) AddFood(c *fiber.Ctx) error {
-	result, err := e.addFoodHandler.Handle(c.UserContext(), foods.AddFoodCommand{})
+func (e *AddFoodEndpoint) AddFood(ctx context.Context, req *struct {
+	AddFoodRequest
+},
+) (*AddFoodResponse, error) {
+	result, err := e.addFoodHandler.Handle(ctx, foods.AddFoodCommand{})
 	if err != nil {
-		return c.Status(fiber.ErrBadRequest.Code).SendString(err.Error())
+		return nil, huma.Error400BadRequest("", err)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(AddFoodResponse{
+	return &AddFoodResponse{
 		FoodID: result.FoodID.String(),
-	})
+	}, nil
 }

@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -57,19 +59,20 @@ func main() {
 	}
 	app.Use(authware.Handle)
 
+	api := humafiber.New(app, huma.DefaultConfig("Weeate API", "v1.0.0"))
+
 	repos := repositories.NewRepositories(db)
 	handlers := application.NewHandlers(&repos)
 	foodsEndpoint := foods.NewFoodsEndpoint(handlers)
 
-	foodsEndpoint.Register(app)
+	foodsEndpoint.Register(api)
 
-	app.Get("/", func(ctx *fiber.Ctx) error {
+	huma.Get(api, "/", func(ctx context.Context, i *struct{}) (*auth.User, error) {
 		user, err := auth.GetUserContext(ctx)
 		if err != nil {
-			return ctx.Status(http.StatusUnauthorized).SendString(err.Error())
+			return nil, huma.Error401Unauthorized("Unauthorized", err)
 		}
-		ctx.Status(http.StatusOK).JSON(user)
-		return ctx.Send(ctx.Body())
+		return &user, nil
 	})
 
 	if err := app.Listen(fmt.Sprintf(":%v", config.PORT)); err != nil {

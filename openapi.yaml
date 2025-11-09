@@ -1,56 +1,7 @@
-openapi: 3.1.1
-info:
-  title: Generated API
-  description: |2-
-
-    Copyright 2025 Ehab Terra. Licensed under the Apache License 2.0. See LICENSE and NOTICE.
-  version: 1.0.0
-  contact:
-    name: Ehab
-    url: https://ehabterra.github.io/
-    email: ehabterra@hotmail.com
-  license:
-    name: ""
-paths:
-  /:
-    get:
-      operationId: github.com/SirNacou/weeate/backend/cmd/server.FuncLit:C:\Users\solus\Code\Personal\weeate\backend\cmd\server\main.go:66:15
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/github.com_SirNacou_weeate_backend_internal_api_auth.User'
-  /foods/:
-    get:
-      tags:
-        - /foods
-      operationId: github.com/SirNacou/weeate/backend/internal/api/foods.GetFoodEndpoint.GetFoods
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/github.com_SirNacou_weeate_backend_internal_app_foods.GetFoodsQueryResult'
-    post:
-      tags:
-        - /foods
-      operationId: github.com/SirNacou/weeate/backend/internal/api/foods.AddFoodEndpoint.AddFood
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/github.com_SirNacou_weeate_backend_internal_api_foods.AddFoodResponse'
 components:
   schemas:
-    github.com_SirNacou_weeate_backend_internal_api_auth.AppMetadata:
-      type: object
+    AppMetadata:
+      additionalProperties: false
       properties:
         avatar_url:
           type: string
@@ -59,11 +10,121 @@ components:
         provider:
           type: string
         providers:
-          type: array
           items:
             type: string
-    github.com_SirNacou_weeate_backend_internal_api_auth.Identity:
+          type:
+            - array
+            - "null"
+      required:
+        - avatar_url
+        - display_name
+        - provider
+        - providers
       type: object
+    ErrorDetail:
+      additionalProperties: false
+      properties:
+        location:
+          description: Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id'
+          type: string
+        message:
+          description: Error message text
+          type: string
+        value:
+          description: The value at the given location
+      type: object
+    ErrorModel:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://example.com/schemas/ErrorModel.json
+          format: uri
+          readOnly: true
+          type: string
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          examples:
+            - Property foo is required but is missing.
+          type: string
+        errors:
+          description: Optional list of individual error details
+          items:
+            $ref: "#/components/schemas/ErrorDetail"
+          type:
+            - array
+            - "null"
+        instance:
+          description: A URI reference that identifies the specific occurrence of the problem.
+          examples:
+            - https://example.com/error-log/abc123
+          format: uri
+          type: string
+        status:
+          description: HTTP status code
+          examples:
+            - 400
+          format: int64
+          type: integer
+        title:
+          description: A short, human-readable summary of the problem type. This value should not change between occurrences of the error.
+          examples:
+            - Bad Request
+          type: string
+        type:
+          default: about:blank
+          description: A URI reference to human-readable documentation for the error.
+          examples:
+            - https://example.com/errors/example
+          format: uri
+          type: string
+      type: object
+    GetFoodsResponse:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://example.com/schemas/GetFoodsResponse.json
+          format: uri
+          readOnly: true
+          type: string
+        result:
+          items:
+            $ref: "#/components/schemas/GetFoodsResponseItem"
+          type:
+            - array
+            - "null"
+      required:
+        - result
+      type: object
+    GetFoodsResponseItem:
+      additionalProperties: false
+      properties:
+        description:
+          type: string
+        id:
+          type: string
+        image_url:
+          type: string
+        name:
+          type: string
+        price:
+          format: double
+          type: number
+        user_id:
+          type: string
+      required:
+        - id
+        - name
+        - image_url
+        - description
+        - price
+        - user_id
+      type: object
+    Identity:
+      additionalProperties: false
       properties:
         created_at:
           type: string
@@ -72,7 +133,7 @@ components:
         id:
           type: string
         identity_data:
-          $ref: '#/components/schemas/github.com_SirNacou_weeate_backend_internal_api_auth.IdentityData'
+          $ref: "#/components/schemas/IdentityData"
         identity_id:
           type: string
         last_sign_in_at:
@@ -83,8 +144,19 @@ components:
           type: string
         user_id:
           type: string
-    github.com_SirNacou_weeate_backend_internal_api_auth.IdentityData:
+      required:
+        - identity_id
+        - id
+        - user_id
+        - identity_data
+        - provider
+        - last_sign_in_at
+        - created_at
+        - updated_at
+        - email
       type: object
+    IdentityData:
+      additionalProperties: false
       properties:
         email:
           type: string
@@ -94,65 +166,122 @@ components:
           type: boolean
         sub:
           type: string
-    github.com_SirNacou_weeate_backend_internal_api_auth.User:
+      required:
+        - email
+        - email_verified
+        - phone_verified
+        - sub
       type: object
-      properties:
-        app_metadata:
-          $ref: '#/components/schemas/github.com_SirNacou_weeate_backend_internal_api_auth.AppMetadata'
-        aud:
-          type: string
-        confirmed_at:
-          type: string
-        created_at:
-          type: string
-        email:
-          type: string
-        email_confirmed_at:
-          type: string
-        id:
-          type: string
-        identities:
-          type: array
-          items:
-            $ref: '#/components/schemas/github.com_SirNacou_weeate_backend_internal_api_auth.Identity'
-        is_anonymous:
-          type: boolean
-        last_sign_in_at:
-          type: string
-        phone:
-          type: string
-        role:
-          type: string
-        updated_at:
-          type: string
-        user_metadata:
-          $ref: '#/components/schemas/github.com_SirNacou_weeate_backend_internal_api_auth.UserMetadata'
-    github.com_SirNacou_weeate_backend_internal_api_auth.UserMetadata:
-      type: object
+    UserMetadata:
+      additionalProperties: false
       properties:
         email_verified:
           type: boolean
-    github.com_SirNacou_weeate_backend_internal_api_foods.AddFoodResponse:
+      required:
+        - email_verified
       type: object
-      properties:
-        food_id:
-          type: string
-    github.com_SirNacou_weeate_backend_internal_app_foods.GetFoodsQueryResult:
-      type: object
-      properties:
-        description:
-          type: string
-        id:
-          type: string
-          format: byte
-          maxLength: 16
-        image_url:
-          type: string
-        name:
-          type: string
-        price:
-          type: number
-        user_id:
-          type: string
-          format: byte
-          maxLength: 16
+info:
+  title: Weeate API
+  version: v1.0.0
+openapi: 3.1.0
+paths:
+  /:
+    get:
+      operationId: get
+      responses:
+        "204":
+          description: No Content
+          headers:
+            AppMetadata:
+              schema:
+                $ref: "#/components/schemas/AppMetadata"
+            Audience:
+              schema:
+                type: string
+            ConfirmedAt:
+              schema:
+                type: string
+            CreatedAt:
+              schema:
+                type: string
+            Email:
+              schema:
+                type: string
+            EmailConfirmedAt:
+              schema:
+                type: string
+            ID:
+              schema:
+                type: string
+            Identities:
+              schema:
+                $ref: "#/components/schemas/Identity"
+            IdentityData:
+              schema:
+                $ref: "#/components/schemas/IdentityData"
+            IdentityID:
+              schema:
+                type: string
+            IsAnonymous:
+              schema:
+                type: boolean
+            LastSignInAt:
+              schema:
+                type: string
+            Phone:
+              schema:
+                type: string
+            Provider:
+              schema:
+                type: string
+            Role:
+              schema:
+                type: string
+            UpdatedAt:
+              schema:
+                type: string
+            UserID:
+              schema:
+                type: string
+            UserMetadata:
+              schema:
+                $ref: "#/components/schemas/UserMetadata"
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      summary: Get
+  /foods/:
+    get:
+      description: Retrieve a list of foods.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetFoodsResponse"
+          description: OK
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      summary: Get List Foods
+    post:
+      responses:
+        "200":
+          description: OK
+          headers:
+            FoodID:
+              schema:
+                type: string
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      summary: Add new food

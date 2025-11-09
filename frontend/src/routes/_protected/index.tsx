@@ -1,5 +1,6 @@
-import apiClient from "@/api/api-client";
+import { getFoodsOptions } from "@/client/@tanstack/react-query.gen";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Zap,
@@ -10,9 +11,20 @@ import {
   Sparkles,
 } from "lucide-react";
 
-export const Route = createFileRoute("/_protected/")({ component: App });
+export const Route = createFileRoute("/_protected/")({
+  loader: ({ context }) => {
+    return context.queryClient.ensureQueryData(getFoodsOptions());
+  },
+  component: App,
+});
 
 function App() {
+  const initialData = Route.useLoaderData();
+  const { data, refetch } = useQuery({
+    ...getFoodsOptions(),
+    initialData,
+  });
+
   const features = [
     {
       icon: <Zap className="w-12 h-12 text-cyan-400" />,
@@ -72,9 +84,8 @@ function App() {
             <Button
               onClick={(e) => {
                 e.preventDefault();
-                apiClient.get("/foods").then((res) => {
-                  console.log(res.data);
-                });
+                refetch();
+                console.log(data);
               }}
             >
               Click

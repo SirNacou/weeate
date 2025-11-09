@@ -1,9 +1,8 @@
 package auth
 
 import (
+	"context"
 	"errors"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 // SupabaseSession represents the complete session object
@@ -69,8 +68,8 @@ type IdentityData struct {
 	Subject       string `json:"sub"`
 }
 
-func GetUserContext(ctx *fiber.Ctx) (User, error) {
-	user := ctx.UserContext().Value("user")
+func GetUserContext(ctx context.Context) (User, error) {
+	user := ctx.Value("user")
 
 	u, ok := user.(User)
 	if !ok {
