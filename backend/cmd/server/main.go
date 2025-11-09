@@ -2,129 +2,77 @@ package main
 
 import (
 	"context"
-	"crypto/ecdsa"
-	"errors"
 	"fmt"
 	"log"
-	"log/slog"
 	"net/http"
-	"net/url"
-	"time"
+	"strings"
 
-	"github.com/golang-jwt/jwt/v5"
-	echojwt "github.com/labstack/echo-jwt/v4"
-	"github.com/lestrrat-go/httprc/v3"
-	"github.com/lestrrat-go/httprc/v3/errsink"
-	"github.com/lestrrat-go/httprc/v3/tracesink"
-	"github.com/lestrrat-go/jwx/v3/jwk"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 
-	api_auth "github.com/SirNacou/weeate/backend/internal/api/auth"
-	app_auth "github.com/SirNacou/weeate/backend/internal/app/auth"
-	domain_auth "github.com/SirNacou/weeate/backend/internal/domain/auth"
+	"github.com/SirNacou/weeate/backend/internal/api/auth"
+	"github.com/SirNacou/weeate/backend/internal/api/foods"
+	application "github.com/SirNacou/weeate/backend/internal/app"
+	domain "github.com/SirNacou/weeate/backend/internal/domain"
 	config "github.com/SirNacou/weeate/backend/internal/infrastructure/configs"
 	"github.com/SirNacou/weeate/backend/internal/infrastructure/db"
-	infra_auth "github.com/SirNacou/weeate/backend/internal/infrastructure/repositories/auth"
+	"github.com/SirNacou/weeate/backend/internal/infrastructure/repositories"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
-	cfg, err := config.LoadConfig()
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	e := echo.New()
-
-	db, err := db.ConnectToPostgres(ctx, cfg)
+	// Setup configuration
+	config, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	db.AutoMigrate(&domain_auth.User{})
+	// Database connection
+	db, err := db.ConnectToPostgres(ctx, config)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	userRepo := infra_auth.NewUserRepository(db)
+	db.AutoMigrate(&domain.Food{})
 
-	registerCH := app_auth.NewRegisterCommandHandler(userRepo)
-	loginCH := app_auth.NewLoginCommandHandler(userRepo)
-	deleteUserCH := app_auth.NewDeleteUserCommandHandler(userRepo)
+	// Initialize Fiber app
+	app := fiber.New()
 
-	e.Use(middleware.LoggerWithConfig(middleware.DefaultLoggerConfig))
+	app.Use(logger.New(logger.ConfigDefault))
 
-	// Add CORS middleware
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:3001", "https://weeate.nacou.uk"},
-		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch, http.MethodOptions},
-		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     strings.Join([]string{"http://localhost:3000", "http://localhost:3001", "https://weeate.nacou.uk"}, ", "),
+		AllowMethods:     strings.Join([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch, http.MethodOptions}, ", "),
+		AllowHeaders:     strings.Join([]string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization}, ", "),
 		AllowCredentials: true,
 	}))
 
-	e.Use(echojwt.WithConfig(echojwt.Config{
-		KeyFunc: func(t *jwt.Token) (any, error) {
-			ctx := context.Background()
-			iss, err := t.Claims.GetIssuer()
-			if err != nil {
-				return nil, err
-			}
-
-			pubKeyUrl, err := url.JoinPath(iss, ".well-known/jwks.json")
-			if err != nil {
-				return nil, err
-			}
-
-			jwkCache, err := jwk.NewCache(ctx, httprc.NewClient(
-				httprc.WithErrorSink(errsink.NewSlog(slog.Default())),
-				httprc.WithHTTPClient(e.AutoTLSManager.Client.HTTPClient),
-				httprc.WithTraceSink(tracesink.NewSlog(slog.Default())),
-			))
-			if err != nil {
-				return nil, err
-			}
-
-			if err = jwkCache.Register(ctx, pubKeyUrl, jwk.WithMaxInterval(10*time.Minute)); err != nil {
-				return nil, err
-			}
-
-			set, err := jwkCache.Lookup(ctx, pubKeyUrl)
-			if err != nil {
-				return nil, err
-			}
-
-			keyID, ok := t.Header["kid"].(string)
-			if !ok {
-				return nil, errors.New("expecting JWT header to have a key ID in the kid field")
-			}
-
-			key, found := set.LookupKeyID(keyID)
-			if !found {
-				return nil, fmt.Errorf("unable to find key %q", keyID)
-			}
-
-			publicKey, err := key.PublicKey()
-			if err != nil {
-				return nil, fmt.Errorf("unable to extract public key: %w", err)
-			}
-
-			ecdsaPubKey := &ecdsa.PublicKey{}
-			jwk.Export(publicKey, ecdsaPubKey)
-
-			return ecdsaPubKey, nil
-		},
-	}))
-
-	authEndpoint := api_auth.NewAuthEndpoint(*registerCH, *loginCH, *deleteUserCH)
-
-	err = api_auth.RegisterAuthEndpoint(e, *authEndpoint)
+	authware, err := auth.NewAuthMiddleware(ctx, config)
 	if err != nil {
-		e.Logger.Fatal(err)
+		log.Fatalln(err)
 	}
+	app.Use(authware.Handle)
 
-	e.GET("/", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, c.Get("user"))
+	repos := repositories.NewRepositories(db)
+	handlers := application.NewHandlers(&repos)
+	foodsEndpoint := foods.NewFoodsEndpoint(handlers)
+
+	foodsEndpoint.Register(app)
+
+	app.Get("/", func(ctx *fiber.Ctx) error {
+		user, err := auth.GetUserContext(ctx)
+		if err != nil {
+			return ctx.Status(http.StatusUnauthorized).SendString(err.Error())
+		}
+		ctx.Status(http.StatusOK).JSON(user)
+		return ctx.Send(ctx.Body())
 	})
 
-	e.Logger.Fatal(e.Start(":8080"))
+	if err := app.Listen(fmt.Sprintf(":%v", config.PORT)); err != nil {
+		log.Fatalf("Failed to run server: %v", err)
+	}
 }

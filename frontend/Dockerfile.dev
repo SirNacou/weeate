@@ -1,4 +1,4 @@
-FROM oven/bun:alpine AS builder
+FROM oven/bun AS builder
 
 WORKDIR /app
 
@@ -9,8 +9,10 @@ WORKDIR /app/frontend
 COPY ./frontend/bun.lock ./
 COPY ./frontend/package.json ./
 
-RUN bun install
+RUN bun install --frozen-lockfile
 
-COPY ./frontend/ .
+COPY ./frontend/ ./
 
 EXPOSE 3000
+
+CMD [ "bun", "run", "dev" ]

@@ -9,110 +9,531 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as AuthRouteImport } from './routes/_auth'
-import { Route as AuthIndexRouteImport } from './routes/_auth/index'
-import { Route as AuthPollsRouteImport } from './routes/_auth/polls'
+import { Route as ProtectedRouteImport } from './routes/_protected'
+import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
+import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
+import { Route as DemoStorybookRouteImport } from './routes/demo/storybook'
+import { Route as AuthErrorRouteImport } from './routes/auth/error'
+import { Route as AuthConfirmRouteImport } from './routes/auth/confirm'
+import { Route as ProtectedProtectedRouteImport } from './routes/_protected/protected'
+import { Route as AuthUpdatePasswordRouteImport } from './routes/_auth/update-password'
+import { Route as AuthSignUpSuccessRouteImport } from './routes/_auth/sign-up-success'
+import { Route as AuthSignUpRouteImport } from './routes/_auth/sign-up'
+import { Route as AuthLoginRouteImport } from './routes/_auth/login'
+import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
+import { Route as ProtectedFoodsIndexRouteImport } from './routes/_protected/foods/index'
+import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
+import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
+import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
+import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
+import { Route as DemoApiTqTodosRouteImport } from './routes/demo/api.tq-todos'
+import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
+import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
+import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
+import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
+import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
 
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
+const ProtectedRoute = ProtectedRouteImport.update({
+  id: '/_protected',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
+  id: '/demo/tanstack-query',
+  path: '/demo/tanstack-query',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoStorybookRoute = DemoStorybookRouteImport.update({
+  id: '/demo/storybook',
+  path: '/demo/storybook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthErrorRoute = AuthErrorRouteImport.update({
+  id: '/auth/error',
+  path: '/auth/error',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthConfirmRoute = AuthConfirmRouteImport.update({
+  id: '/auth/confirm',
+  path: '/auth/confirm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProtectedProtectedRoute = ProtectedProtectedRouteImport.update({
+  id: '/protected',
+  path: '/protected',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const AuthUpdatePasswordRoute = AuthUpdatePasswordRouteImport.update({
+  id: '/_auth/update-password',
+  path: '/update-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSignUpSuccessRoute = AuthSignUpSuccessRouteImport.update({
+  id: '/_auth/sign-up-success',
+  path: '/sign-up-success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSignUpRoute = AuthSignUpRouteImport.update({
+  id: '/_auth/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/_auth/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/_auth',
+const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
+  id: '/_auth/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthIndexRoute = AuthIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthRoute,
+const ProtectedFoodsIndexRoute = ProtectedFoodsIndexRouteImport.update({
+  id: '/foods/',
+  path: '/foods/',
+  getParentRoute: () => ProtectedRoute,
 } as any)
-const AuthPollsRoute = AuthPollsRouteImport.update({
-  id: '/polls',
-  path: '/polls',
-  getParentRoute: () => AuthRoute,
+const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
+  id: '/demo/start/server-funcs',
+  path: '/demo/start/server-funcs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoStartApiRequestRoute = DemoStartApiRequestRouteImport.update({
+  id: '/demo/start/api-request',
+  path: '/demo/start/api-request',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoFormSimpleRoute = DemoFormSimpleRouteImport.update({
+  id: '/demo/form/simple',
+  path: '/demo/form/simple',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoFormAddressRoute = DemoFormAddressRouteImport.update({
+  id: '/demo/form/address',
+  path: '/demo/form/address',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoApiTqTodosRoute = DemoApiTqTodosRouteImport.update({
+  id: '/demo/api/tq-todos',
+  path: '/demo/api/tq-todos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoApiNamesRoute = DemoApiNamesRouteImport.update({
+  id: '/demo/api/names',
+  path: '/demo/api/names',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
+  id: '/demo/start/ssr/',
+  path: '/demo/start/ssr/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoStartSsrSpaModeRoute = DemoStartSsrSpaModeRouteImport.update({
+  id: '/demo/start/ssr/spa-mode',
+  path: '/demo/start/ssr/spa-mode',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoStartSsrFullSsrRoute = DemoStartSsrFullSsrRouteImport.update({
+  id: '/demo/start/ssr/full-ssr',
+  path: '/demo/start/ssr/full-ssr',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
+  id: '/demo/start/ssr/data-only',
+  path: '/demo/start/ssr/data-only',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/login': typeof LoginRoute
-  '/polls': typeof AuthPollsRoute
-  '/': typeof AuthIndexRoute
+  '/forgot-password': typeof AuthForgotPasswordRoute
+  '/login': typeof AuthLoginRoute
+  '/sign-up': typeof AuthSignUpRoute
+  '/sign-up-success': typeof AuthSignUpSuccessRoute
+  '/update-password': typeof AuthUpdatePasswordRoute
+  '/protected': typeof ProtectedProtectedRoute
+  '/auth/confirm': typeof AuthConfirmRoute
+  '/auth/error': typeof AuthErrorRoute
+  '/demo/storybook': typeof DemoStorybookRoute
+  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/': typeof ProtectedIndexRoute
+  '/demo/api/names': typeof DemoApiNamesRoute
+  '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
+  '/demo/form/address': typeof DemoFormAddressRoute
+  '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/demo/start/api-request': typeof DemoStartApiRequestRoute
+  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/foods': typeof ProtectedFoodsIndexRoute
+  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
+  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
+  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
+  '/demo/start/ssr': typeof DemoStartSsrIndexRoute
 }
 export interface FileRoutesByTo {
-  '/login': typeof LoginRoute
-  '/polls': typeof AuthPollsRoute
-  '/': typeof AuthIndexRoute
+  '/forgot-password': typeof AuthForgotPasswordRoute
+  '/login': typeof AuthLoginRoute
+  '/sign-up': typeof AuthSignUpRoute
+  '/sign-up-success': typeof AuthSignUpSuccessRoute
+  '/update-password': typeof AuthUpdatePasswordRoute
+  '/protected': typeof ProtectedProtectedRoute
+  '/auth/confirm': typeof AuthConfirmRoute
+  '/auth/error': typeof AuthErrorRoute
+  '/demo/storybook': typeof DemoStorybookRoute
+  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/': typeof ProtectedIndexRoute
+  '/demo/api/names': typeof DemoApiNamesRoute
+  '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
+  '/demo/form/address': typeof DemoFormAddressRoute
+  '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/demo/start/api-request': typeof DemoStartApiRequestRoute
+  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/foods': typeof ProtectedFoodsIndexRoute
+  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
+  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
+  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
+  '/demo/start/ssr': typeof DemoStartSsrIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_auth': typeof AuthRouteWithChildren
-  '/login': typeof LoginRoute
-  '/_auth/polls': typeof AuthPollsRoute
-  '/_auth/': typeof AuthIndexRoute
+  '/_protected': typeof ProtectedRouteWithChildren
+  '/_auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/_auth/login': typeof AuthLoginRoute
+  '/_auth/sign-up': typeof AuthSignUpRoute
+  '/_auth/sign-up-success': typeof AuthSignUpSuccessRoute
+  '/_auth/update-password': typeof AuthUpdatePasswordRoute
+  '/_protected/protected': typeof ProtectedProtectedRoute
+  '/auth/confirm': typeof AuthConfirmRoute
+  '/auth/error': typeof AuthErrorRoute
+  '/demo/storybook': typeof DemoStorybookRoute
+  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/_protected/': typeof ProtectedIndexRoute
+  '/demo/api/names': typeof DemoApiNamesRoute
+  '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
+  '/demo/form/address': typeof DemoFormAddressRoute
+  '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/demo/start/api-request': typeof DemoStartApiRequestRoute
+  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/_protected/foods/': typeof ProtectedFoodsIndexRoute
+  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
+  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
+  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
+  '/demo/start/ssr/': typeof DemoStartSsrIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/login' | '/polls' | '/'
+  fullPaths:
+    | '/forgot-password'
+    | '/login'
+    | '/sign-up'
+    | '/sign-up-success'
+    | '/update-password'
+    | '/protected'
+    | '/auth/confirm'
+    | '/auth/error'
+    | '/demo/storybook'
+    | '/demo/tanstack-query'
+    | '/'
+    | '/demo/api/names'
+    | '/demo/api/tq-todos'
+    | '/demo/form/address'
+    | '/demo/form/simple'
+    | '/demo/start/api-request'
+    | '/demo/start/server-funcs'
+    | '/foods'
+    | '/demo/start/ssr/data-only'
+    | '/demo/start/ssr/full-ssr'
+    | '/demo/start/ssr/spa-mode'
+    | '/demo/start/ssr'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/polls' | '/'
-  id: '__root__' | '/_auth' | '/login' | '/_auth/polls' | '/_auth/'
+  to:
+    | '/forgot-password'
+    | '/login'
+    | '/sign-up'
+    | '/sign-up-success'
+    | '/update-password'
+    | '/protected'
+    | '/auth/confirm'
+    | '/auth/error'
+    | '/demo/storybook'
+    | '/demo/tanstack-query'
+    | '/'
+    | '/demo/api/names'
+    | '/demo/api/tq-todos'
+    | '/demo/form/address'
+    | '/demo/form/simple'
+    | '/demo/start/api-request'
+    | '/demo/start/server-funcs'
+    | '/foods'
+    | '/demo/start/ssr/data-only'
+    | '/demo/start/ssr/full-ssr'
+    | '/demo/start/ssr/spa-mode'
+    | '/demo/start/ssr'
+  id:
+    | '__root__'
+    | '/_protected'
+    | '/_auth/forgot-password'
+    | '/_auth/login'
+    | '/_auth/sign-up'
+    | '/_auth/sign-up-success'
+    | '/_auth/update-password'
+    | '/_protected/protected'
+    | '/auth/confirm'
+    | '/auth/error'
+    | '/demo/storybook'
+    | '/demo/tanstack-query'
+    | '/_protected/'
+    | '/demo/api/names'
+    | '/demo/api/tq-todos'
+    | '/demo/form/address'
+    | '/demo/form/simple'
+    | '/demo/start/api-request'
+    | '/demo/start/server-funcs'
+    | '/_protected/foods/'
+    | '/demo/start/ssr/data-only'
+    | '/demo/start/ssr/full-ssr'
+    | '/demo/start/ssr/spa-mode'
+    | '/demo/start/ssr/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AuthRoute: typeof AuthRouteWithChildren
-  LoginRoute: typeof LoginRoute
+  ProtectedRoute: typeof ProtectedRouteWithChildren
+  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthSignUpRoute: typeof AuthSignUpRoute
+  AuthSignUpSuccessRoute: typeof AuthSignUpSuccessRoute
+  AuthUpdatePasswordRoute: typeof AuthUpdatePasswordRoute
+  AuthConfirmRoute: typeof AuthConfirmRoute
+  AuthErrorRoute: typeof AuthErrorRoute
+  DemoStorybookRoute: typeof DemoStorybookRoute
+  DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
+  DemoApiNamesRoute: typeof DemoApiNamesRoute
+  DemoApiTqTodosRoute: typeof DemoApiTqTodosRoute
+  DemoFormAddressRoute: typeof DemoFormAddressRoute
+  DemoFormSimpleRoute: typeof DemoFormSimpleRoute
+  DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
+  DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
+  DemoStartSsrDataOnlyRoute: typeof DemoStartSsrDataOnlyRoute
+  DemoStartSsrFullSsrRoute: typeof DemoStartSsrFullSsrRoute
+  DemoStartSsrSpaModeRoute: typeof DemoStartSsrSpaModeRoute
+  DemoStartSsrIndexRoute: typeof DemoStartSsrIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_auth': {
-      id: '/_auth'
+    '/_protected': {
+      id: '/_protected'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof AuthRouteImport
+      preLoaderRoute: typeof ProtectedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/': {
-      id: '/_auth/'
+    '/_protected/': {
+      id: '/_protected/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AuthIndexRouteImport
-      parentRoute: typeof AuthRoute
+      preLoaderRoute: typeof ProtectedIndexRouteImport
+      parentRoute: typeof ProtectedRoute
     }
-    '/_auth/polls': {
-      id: '/_auth/polls'
-      path: '/polls'
-      fullPath: '/polls'
-      preLoaderRoute: typeof AuthPollsRouteImport
-      parentRoute: typeof AuthRoute
+    '/demo/tanstack-query': {
+      id: '/demo/tanstack-query'
+      path: '/demo/tanstack-query'
+      fullPath: '/demo/tanstack-query'
+      preLoaderRoute: typeof DemoTanstackQueryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/storybook': {
+      id: '/demo/storybook'
+      path: '/demo/storybook'
+      fullPath: '/demo/storybook'
+      preLoaderRoute: typeof DemoStorybookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/error': {
+      id: '/auth/error'
+      path: '/auth/error'
+      fullPath: '/auth/error'
+      preLoaderRoute: typeof AuthErrorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/confirm': {
+      id: '/auth/confirm'
+      path: '/auth/confirm'
+      fullPath: '/auth/confirm'
+      preLoaderRoute: typeof AuthConfirmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_protected/protected': {
+      id: '/_protected/protected'
+      path: '/protected'
+      fullPath: '/protected'
+      preLoaderRoute: typeof ProtectedProtectedRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_auth/update-password': {
+      id: '/_auth/update-password'
+      path: '/update-password'
+      fullPath: '/update-password'
+      preLoaderRoute: typeof AuthUpdatePasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth/sign-up-success': {
+      id: '/_auth/sign-up-success'
+      path: '/sign-up-success'
+      fullPath: '/sign-up-success'
+      preLoaderRoute: typeof AuthSignUpSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth/sign-up': {
+      id: '/_auth/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof AuthSignUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth/login': {
+      id: '/_auth/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth/forgot-password': {
+      id: '/_auth/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_protected/foods/': {
+      id: '/_protected/foods/'
+      path: '/foods'
+      fullPath: '/foods'
+      preLoaderRoute: typeof ProtectedFoodsIndexRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/demo/start/server-funcs': {
+      id: '/demo/start/server-funcs'
+      path: '/demo/start/server-funcs'
+      fullPath: '/demo/start/server-funcs'
+      preLoaderRoute: typeof DemoStartServerFuncsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/start/api-request': {
+      id: '/demo/start/api-request'
+      path: '/demo/start/api-request'
+      fullPath: '/demo/start/api-request'
+      preLoaderRoute: typeof DemoStartApiRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/form/simple': {
+      id: '/demo/form/simple'
+      path: '/demo/form/simple'
+      fullPath: '/demo/form/simple'
+      preLoaderRoute: typeof DemoFormSimpleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/form/address': {
+      id: '/demo/form/address'
+      path: '/demo/form/address'
+      fullPath: '/demo/form/address'
+      preLoaderRoute: typeof DemoFormAddressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/api/tq-todos': {
+      id: '/demo/api/tq-todos'
+      path: '/demo/api/tq-todos'
+      fullPath: '/demo/api/tq-todos'
+      preLoaderRoute: typeof DemoApiTqTodosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/api/names': {
+      id: '/demo/api/names'
+      path: '/demo/api/names'
+      fullPath: '/demo/api/names'
+      preLoaderRoute: typeof DemoApiNamesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/start/ssr/': {
+      id: '/demo/start/ssr/'
+      path: '/demo/start/ssr'
+      fullPath: '/demo/start/ssr'
+      preLoaderRoute: typeof DemoStartSsrIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/start/ssr/spa-mode': {
+      id: '/demo/start/ssr/spa-mode'
+      path: '/demo/start/ssr/spa-mode'
+      fullPath: '/demo/start/ssr/spa-mode'
+      preLoaderRoute: typeof DemoStartSsrSpaModeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/start/ssr/full-ssr': {
+      id: '/demo/start/ssr/full-ssr'
+      path: '/demo/start/ssr/full-ssr'
+      fullPath: '/demo/start/ssr/full-ssr'
+      preLoaderRoute: typeof DemoStartSsrFullSsrRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/start/ssr/data-only': {
+      id: '/demo/start/ssr/data-only'
+      path: '/demo/start/ssr/data-only'
+      fullPath: '/demo/start/ssr/data-only'
+      preLoaderRoute: typeof DemoStartSsrDataOnlyRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface AuthRouteChildren {
-  AuthPollsRoute: typeof AuthPollsRoute
-  AuthIndexRoute: typeof AuthIndexRoute
+interface ProtectedRouteChildren {
+  ProtectedProtectedRoute: typeof ProtectedProtectedRoute
+  ProtectedIndexRoute: typeof ProtectedIndexRoute
+  ProtectedFoodsIndexRoute: typeof ProtectedFoodsIndexRoute
 }
 
-const AuthRouteChildren: AuthRouteChildren = {
-  AuthPollsRoute: AuthPollsRoute,
-  AuthIndexRoute: AuthIndexRoute,
+const ProtectedRouteChildren: ProtectedRouteChildren = {
+  ProtectedProtectedRoute: ProtectedProtectedRoute,
+  ProtectedIndexRoute: ProtectedIndexRoute,
+  ProtectedFoodsIndexRoute: ProtectedFoodsIndexRoute,
 }
 
-const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
+  ProtectedRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
-  AuthRoute: AuthRouteWithChildren,
-  LoginRoute: LoginRoute,
+  ProtectedRoute: ProtectedRouteWithChildren,
+  AuthForgotPasswordRoute: AuthForgotPasswordRoute,
+  AuthLoginRoute: AuthLoginRoute,
+  AuthSignUpRoute: AuthSignUpRoute,
+  AuthSignUpSuccessRoute: AuthSignUpSuccessRoute,
+  AuthUpdatePasswordRoute: AuthUpdatePasswordRoute,
+  AuthConfirmRoute: AuthConfirmRoute,
+  AuthErrorRoute: AuthErrorRoute,
+  DemoStorybookRoute: DemoStorybookRoute,
+  DemoTanstackQueryRoute: DemoTanstackQueryRoute,
+  DemoApiNamesRoute: DemoApiNamesRoute,
+  DemoApiTqTodosRoute: DemoApiTqTodosRoute,
+  DemoFormAddressRoute: DemoFormAddressRoute,
+  DemoFormSimpleRoute: DemoFormSimpleRoute,
+  DemoStartApiRequestRoute: DemoStartApiRequestRoute,
+  DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
+  DemoStartSsrDataOnlyRoute: DemoStartSsrDataOnlyRoute,
+  DemoStartSsrFullSsrRoute: DemoStartSsrFullSsrRoute,
+  DemoStartSsrSpaModeRoute: DemoStartSsrSpaModeRoute,
+  DemoStartSsrIndexRoute: DemoStartSsrIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

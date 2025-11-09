@@ -4,29 +4,17 @@ import (
 	"net/http"
 
 	app_auth "github.com/SirNacou/weeate/backend/internal/app/auth"
-	"github.com/labstack/echo/v4"
+	"github.com/gofiber/fiber/v2"
 )
 
 type DeleteUserRequest struct {
-	userId uint `param:"id"`
+	userId string `uri:"id" binding:"required"`
 }
 
-func (e *AuthEndpoint) deleteUser(c echo.Context) error {
-	var req DeleteUserRequest
-	if err := c.Bind(&req); err != nil {
-		return &echo.HTTPError{
-			Code:    http.StatusBadRequest,
-			Message: err.Error(),
-		}
+func (e *AuthEndpoint) DeleteUser(c *fiber.Ctx) error {
+	if err := e.deleteUserCH.Handle(c.Context(), app_auth.DeleteUserCommand{UserId: uint(0)}); err != nil {
+		return c.Status(http.StatusBadRequest).Send([]byte(err.Error()))
 	}
 
-	err := e.deleteUserCH.Handle(c.Request().Context(), app_auth.DeleteUserCommand{UserId: req.userId})
-	if err != nil {
-		return &echo.HTTPError{
-			Code:    http.StatusBadRequest,
-			Message: err,
-		}
-	}
-
-	return c.NoContent(http.StatusOK)
+	return c.SendStatus(http.StatusOK)
 }

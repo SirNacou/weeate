@@ -10,12 +10,12 @@
   "framework": "react-cra",
   "chosenAddOns": [
     "biome",
+    "start",
     "compiler",
     "form",
     "shadcn",
     "t3env",
-    "table",
-    "tanstack-query",
-    "storybook"
+    "storybook",
+    "tanstack-query"
   ]
 }

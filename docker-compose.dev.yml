@@ -31,7 +31,6 @@ services:
       context: .
       dockerfile: ./frontend/Dockerfile.dev
     container_name: frontend
-    command: bun run dev --host
     env_file:
       - .env
       - .env.dev
@@ -42,9 +41,9 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./frontend/:/app/frontend/
-      - /app/frontend/node_modules
-      - ./env:/app/
+      - ./frontend/src/:/app/frontend/src/
+      - ./frontend/public/:/app/frontend/public/
+      - ./.env:/app/.env
     restart: on-failure
 
 volumes:
