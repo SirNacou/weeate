@@ -14,16 +14,6 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    const supabase = createClient();
-    const { data, error } = await supabase.auth.getSession();
-    if (data.session && !error) {
-      try {
-        config.headers["Authorization"] = `Bearer ${data.session.access_token}`;
-      } catch (error) {
-        console.error("Error parsing auth token:", error);
-      }
-    }
-
     return config;
   },
   (error: AxiosError) => {

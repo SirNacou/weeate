@@ -72,7 +72,7 @@ function App() {
             <Button
               onClick={(e) => {
                 e.preventDefault();
-                apiClient.get("/").then((res) => {
+                apiClient.get("/foods").then((res) => {
                   console.log(res.data);
                 });
               }}

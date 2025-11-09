@@ -45,7 +45,7 @@ func main() {
 	app.Use(logger.New(logger.ConfigDefault))
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     strings.Join([]string{"http://localhost:3000", "http://localhost:3001", "https://weeate.nacou.uk"}, ", "),
+		AllowOrigins:     strings.Join([]string{"http://localhost:3000", "http://localhost:3001", "http://localhost:8080", "https://weeate.nacou.uk"}, ", "),
 		AllowMethods:     strings.Join([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch, http.MethodOptions}, ", "),
 		AllowHeaders:     strings.Join([]string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization}, ", "),
 		AllowCredentials: true,

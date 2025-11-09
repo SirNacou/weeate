@@ -1,10 +1,10 @@
 import type { Column } from "@tanstack/react-table";
-import { dataTableConfig } from "@/components/data-table/data-table";
+import { dataTableConfig } from "@/config/data-table";
 import type {
   ExtendedColumnFilter,
   FilterOperator,
   FilterVariant,
-} from "@/components/data-table/data-table";
+} from "@/types/data-table";
 
 export function getCommonPinningStyles<TData>({
   column,
@@ -20,12 +20,11 @@ export function getCommonPinningStyles<TData>({
     isPinned === "right" && column.getIsFirstColumn("right");
 
   return {
-    boxShadow: withBorder
-      ? isLastLeftPinnedColumn
-        ? "-4px 0 4px -4px var(--border) inset"
-        : isFirstRightPinnedColumn
-          ? "4px 0 4px -4px var(--border) inset"
-          : undefined
+    boxShadow:
+      withBorder ?
+        isLastLeftPinnedColumn ? "-4px 0 4px -4px var(--border) inset"
+        : isFirstRightPinnedColumn ? "4px 0 4px -4px var(--border) inset"
+        : undefined
       : undefined,
     left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
     right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
@@ -62,16 +61,16 @@ export function getDefaultFilterOperator(filterVariant: FilterVariant) {
 }
 
 export function getValidFilters<TData>(
-  filters: ExtendedColumnFilter<TData>[],
+  filters: ExtendedColumnFilter<TData>[]
 ): ExtendedColumnFilter<TData>[] {
   return filters.filter(
     (filter) =>
       filter.operator === "isEmpty" ||
       filter.operator === "isNotEmpty" ||
-      (Array.isArray(filter.value)
-        ? filter.value.length > 0
-        : filter.value !== "" &&
-          filter.value !== null &&
-          filter.value !== undefined),
+      (Array.isArray(filter.value) ?
+        filter.value.length > 0
+      : filter.value !== "" &&
+        filter.value !== null &&
+        filter.value !== undefined)
   );
 }

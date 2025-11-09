@@ -13,7 +13,7 @@ import {
 import { useVirtualizer, type Virtualizer } from "@tanstack/react-virtual";
 import * as React from "react";
 import { DataGridCell } from "@/components/data-grid/data-grid-cell";
-import { getCellKey, getRowHeightValue, parseCellKey } from "@/components/data-grid/data-grid";
+import { getCellKey, getRowHeightValue, parseCellKey } from "@/lib/data-grid";
 import type {
   CellPosition,
   ContextMenuState,
@@ -22,7 +22,7 @@ import type {
   SearchState,
   SelectionState,
   UpdateCell,
-} from "@/components/data-grid/data-grid";
+} from "@/types/data-grid";
 
 const DEFAULT_ROW_HEIGHT = "short";
 const OVERSCAN = 3;
@@ -74,7 +74,7 @@ interface DataGridStore {
   getState: () => DataGridState;
   setState: <K extends keyof DataGridState>(
     key: K,
-    value: DataGridState[K],
+    value: DataGridState[K]
   ) => void;
   notify: () => void;
   batch: (fn: () => void) => void;
@@ -82,11 +82,11 @@ interface DataGridStore {
 
 function useStore<T>(
   store: DataGridStore,
-  selector: (state: DataGridState) => T,
+  selector: (state: DataGridState) => T
 ): T {
   const getSnapshot = React.useCallback(
     () => selector(store.getState()),
-    [store, selector],
+    [store, selector]
   );
 
   return React.useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
@@ -295,14 +295,14 @@ function useDataGrid<TData>({
 
       onDataChange?.(newData);
     },
-    [data, onDataChange],
+    [data, onDataChange]
   );
 
   const getIsCellSelected = React.useCallback(
     (rowIndex: number, columnId: string) => {
       return selectionState.selectedCells.has(getCellKey(rowIndex, columnId));
     },
-    [selectionState.selectedCells],
+    [selectionState.selectedCells]
   );
 
   const clearSelection = React.useCallback(() => {
@@ -334,12 +334,12 @@ function useDataGrid<TData>({
     store.setState("selectionState", {
       selectedCells: allCells,
       selectionRange:
-        columnIds.length > 0 && rowCount > 0 && firstColumnId && lastColumnId
-          ? {
-              start: { rowIndex: 0, columnId: firstColumnId },
-              end: { rowIndex: rowCount - 1, columnId: lastColumnId },
-            }
-          : null,
+        columnIds.length > 0 && rowCount > 0 && firstColumnId && lastColumnId ?
+          {
+            start: { rowIndex: 0, columnId: firstColumnId },
+            end: { rowIndex: rowCount - 1, columnId: lastColumnId },
+          }
+        : null,
       isSelecting: false,
     });
   }, [columnIds, data.length, store]);
@@ -367,7 +367,7 @@ function useDataGrid<TData>({
         isSelecting: false,
       });
     },
-    [data.length, store],
+    [data.length, store]
   );
 
   const selectRange = React.useCallback(
@@ -397,7 +397,7 @@ function useDataGrid<TData>({
         isSelecting,
       });
     },
-    [columnIds, store],
+    [columnIds, store]
   );
 
   const focusCell = React.useCallback(
@@ -418,7 +418,7 @@ function useDataGrid<TData>({
         dataGridRef.current.focus();
       }
     },
-    [store],
+    [store]
   );
 
   const onRowsDelete = React.useCallback(
@@ -467,7 +467,7 @@ function useDataGrid<TData>({
         }
       });
     },
-    [onRowsDeleteProp, data.length, store, navigableColumnIds, focusCell],
+    [onRowsDeleteProp, data.length, store, navigableColumnIds, focusCell]
   );
 
   const navigateCell = React.useCallback(
@@ -617,7 +617,7 @@ function useDataGrid<TData>({
             const currentScrollTop = container.scrollTop;
             const targetScrollTop = Math.max(
               0,
-              currentScrollTop - rowHeightValue,
+              currentScrollTop - rowHeightValue
             );
             container.scrollTop = targetScrollTop;
           }
@@ -627,11 +627,9 @@ function useDataGrid<TData>({
         // For larger jumps (page up/down, ctrl+home/end, etc.)
         if (rowVirtualizer && Math.abs(rowDiff) > 1) {
           const align =
-            direction === "pageup" || direction === "ctrl+home"
-              ? "start"
-              : direction === "pagedown" || direction === "ctrl+end"
-                ? "end"
-                : "center";
+            direction === "pageup" || direction === "ctrl+home" ? "start"
+            : direction === "pagedown" || direction === "ctrl+end" ? "end"
+            : "center";
           rowVirtualizer.scrollToIndex(newRowIndex, { align });
           requestAnimationFrame(() => {
             focusCell(newRowIndex, newColumnId);
@@ -643,7 +641,7 @@ function useDataGrid<TData>({
         focusCell(newRowIndex, newColumnId);
       }
     },
-    [store, navigableColumnIds, focusCell, data.length, rowHeightValue],
+    [store, navigableColumnIds, focusCell, data.length, rowHeightValue]
   );
 
   const onCellEditingStart = React.useCallback(
@@ -653,7 +651,7 @@ function useDataGrid<TData>({
         store.setState("editingCell", { rowIndex, columnId });
       });
     },
-    [store],
+    [store]
   );
 
   const onCellEditingStop = React.useCallback(
@@ -684,7 +682,7 @@ function useDataGrid<TData>({
         });
       }
     },
-    [store, data.length, focusCell, navigateCell],
+    [store, data.length, focusCell, navigateCell]
   );
 
   const onSearchOpenChange = React.useCallback(
@@ -720,7 +718,7 @@ function useDataGrid<TData>({
         dataGridRef.current.focus();
       }
     },
-    [store],
+    [store]
   );
 
   const onSearch = React.useCallback(
@@ -771,12 +769,12 @@ function useDataGrid<TData>({
         });
       }
     },
-    [columnIds, store],
+    [columnIds, store]
   );
 
   const onSearchQueryChange = React.useCallback(
     (query: string) => store.setState("searchQuery", query),
-    [store],
+    [store]
   );
 
   const onNavigateToPrevMatch = React.useCallback(() => {
@@ -784,9 +782,9 @@ function useDataGrid<TData>({
     if (currentState.searchMatches.length === 0) return;
 
     const prevIndex =
-      currentState.matchIndex - 1 < 0
-        ? currentState.searchMatches.length - 1
-        : currentState.matchIndex - 1;
+      currentState.matchIndex - 1 < 0 ?
+        currentState.searchMatches.length - 1
+      : currentState.matchIndex - 1;
     const match = currentState.searchMatches[prevIndex];
 
     if (match) {
@@ -828,10 +826,10 @@ function useDataGrid<TData>({
   const getIsSearchMatch = React.useCallback(
     (rowIndex: number, columnId: string) => {
       return searchMatches.some(
-        (match) => match.rowIndex === rowIndex && match.columnId === columnId,
+        (match) => match.rowIndex === rowIndex && match.columnId === columnId
       );
     },
-    [searchMatches],
+    [searchMatches]
   );
 
   const getIsActiveSearchMatch = React.useCallback(
@@ -843,7 +841,7 @@ function useDataGrid<TData>({
         currentMatch?.columnId === columnId
       );
     },
-    [searchMatches, matchIndex],
+    [searchMatches, matchIndex]
   );
 
   const blurCell = React.useCallback(() => {
@@ -876,7 +874,7 @@ function useDataGrid<TData>({
           event.preventDefault();
           const cellKey = getCellKey(rowIndex, columnId);
           const newSelectedCells = new Set(
-            currentState.selectionState.selectedCells,
+            currentState.selectionState.selectedCells
           );
 
           if (newSelectedCells.has(cellKey)) {
@@ -935,7 +933,7 @@ function useDataGrid<TData>({
         focusCell(rowIndex, columnId);
       }
     },
-    [store, focusCell, onCellEditingStart, selectRange, clearSelection],
+    [store, focusCell, onCellEditingStart, selectRange, clearSelection]
   );
 
   const onCellDoubleClick = React.useCallback(
@@ -944,7 +942,7 @@ function useDataGrid<TData>({
 
       onCellEditingStart(rowIndex, columnId);
     },
-    [onCellEditingStart],
+    [onCellEditingStart]
   );
 
   const onCellMouseDown = React.useCallback(
@@ -972,7 +970,7 @@ function useDataGrid<TData>({
         });
       }
     },
-    [store],
+    [store]
   );
 
   const onCellMouseEnter = React.useCallback(
@@ -995,7 +993,7 @@ function useDataGrid<TData>({
         selectRange(start, end, true);
       }
     },
-    [store, selectRange, focusCell],
+    [store, selectRange, focusCell]
   );
 
   const onCellMouseUp = React.useCallback(() => {
@@ -1038,7 +1036,7 @@ function useDataGrid<TData>({
         y: event.clientY,
       });
     },
-    [store],
+    [store]
   );
 
   const onContextMenuOpenChange = React.useCallback(
@@ -1052,7 +1050,7 @@ function useDataGrid<TData>({
         });
       }
     },
-    [store],
+    [store]
   );
 
   const onDataGridKeyDown = React.useCallback(
@@ -1173,7 +1171,7 @@ function useDataGrid<TData>({
         // Tab navigation should not trigger selection, even with Shift
         if (shiftKey && key !== "Tab" && currentState.focusedCell) {
           const currentColIndex = navigableColumnIds.indexOf(
-            currentState.focusedCell.columnId,
+            currentState.focusedCell.columnId
           );
           let newRowIndex = currentState.focusedCell.rowIndex;
           let newColumnId = currentState.focusedCell.columnId;
@@ -1186,7 +1184,7 @@ function useDataGrid<TData>({
               newRowIndex = Math.min(
                 (tableRef.current?.getRowModel().rows.length || data.length) -
                   1,
-                currentState.focusedCell.rowIndex + 1,
+                currentState.focusedCell.rowIndex + 1
               );
               break;
             case "left":
@@ -1234,7 +1232,7 @@ function useDataGrid<TData>({
       onNavigateToNextMatch,
       onNavigateToPrevMatch,
       enableSearch,
-    ],
+    ]
   );
 
   const onSortingChange = React.useCallback(
@@ -1244,19 +1242,19 @@ function useDataGrid<TData>({
         typeof updater === "function" ? updater(currentState.sorting) : updater;
       store.setState("sorting", newSorting);
     },
-    [store],
+    [store]
   );
 
   const onRowSelectionChange = React.useCallback(
     (updater: Updater<RowSelectionState>) => {
       const currentState = store.getState();
       const newRowSelection =
-        typeof updater === "function"
-          ? updater(currentState.rowSelection)
-          : updater;
+        typeof updater === "function" ?
+          updater(currentState.rowSelection)
+        : updater;
 
       const selectedRows = Object.keys(newRowSelection).filter(
-        (key) => newRowSelection[key],
+        (key) => newRowSelection[key]
       );
 
       const selectedCells = new Set<string>();
@@ -1282,7 +1280,7 @@ function useDataGrid<TData>({
         store.setState("editingCell", null);
       });
     },
-    [store, columnIds],
+    [store, columnIds]
   );
 
   const onRowSelect = React.useCallback(
@@ -1317,19 +1315,19 @@ function useDataGrid<TData>({
 
       store.setState("lastClickedRowIndex", rowIndex);
     },
-    [store, onRowSelectionChange],
+    [store, onRowSelectionChange]
   );
 
   const onRowHeightChange = React.useCallback(
     (updater: Updater<RowHeightValue>) => {
       const currentState = store.getState();
       const newRowHeight =
-        typeof updater === "function"
-          ? updater(currentState.rowHeight)
-          : updater;
+        typeof updater === "function" ?
+          updater(currentState.rowHeight)
+        : updater;
       store.setState("rowHeight", newRowHeight);
     },
-    [store],
+    [store]
   );
 
   const onColumnClick = React.useCallback(
@@ -1341,7 +1339,7 @@ function useDataGrid<TData>({
 
       selectColumn(columnId);
     },
-    [enableColumnSelection, selectColumn, clearSelection],
+    [enableColumnSelection, selectColumn, clearSelection]
   );
 
   const defaultColumn: Partial<ColumnDef<TData>> = React.useMemo(
@@ -1350,7 +1348,7 @@ function useDataGrid<TData>({
       minSize: MIN_COLUMN_SIZE,
       maxSize: MAX_COLUMN_SIZE,
     }),
-    [],
+    []
   );
 
   const tableOptions = React.useMemo<TableOptions<TData>>(
@@ -1434,7 +1432,7 @@ function useDataGrid<TData>({
       rowHeight,
       onRowHeightChange,
       onRowSelect,
-    ],
+    ]
   );
 
   const table = useReactTable(tableOptions);
@@ -1460,10 +1458,12 @@ function useDataGrid<TData>({
     estimateSize: () => rowHeightValue,
     overscan,
     measureElement:
-      typeof window !== "undefined" &&
-      navigator.userAgent.indexOf("Firefox") === -1
-        ? (element) => element?.getBoundingClientRect().height
-        : undefined,
+      (
+        typeof window !== "undefined" &&
+        navigator.userAgent.indexOf("Firefox") === -1
+      ) ?
+        (element) => element?.getBoundingClientRect().height
+      : undefined,
     onChange: (instance) => {
       // Sync virtualizer's isScrolling state to our store
       const virtualizerIsScrolling = instance.isScrolling;
@@ -1521,7 +1521,7 @@ function useDataGrid<TData>({
         });
       });
     },
-    [rowVirtualizer, navigableColumnIds, store],
+    [rowVirtualizer, navigableColumnIds, store]
   );
 
   const onRowAdd = React.useCallback(
@@ -1548,7 +1548,7 @@ function useDataGrid<TData>({
 
       onScrollToRow({ rowIndex: rows.length });
     },
-    [onRowAddProp, onScrollToRow],
+    [onRowAddProp, onScrollToRow]
   );
 
   const searchState = React.useMemo<SearchState | undefined>(() => {

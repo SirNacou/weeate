@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import type { Option } from "@/components/data-table/data-table";
+import type { Option } from "@/types/data-table";
 
 interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
@@ -41,7 +41,7 @@ export function DataTableFacetedFilter<TData, TValue>({
 
   const columnFilterValue = column?.getFilterValue();
   const selectedValues = new Set(
-    Array.isArray(columnFilterValue) ? columnFilterValue : [],
+    Array.isArray(columnFilterValue) ? columnFilterValue : []
   );
 
   const onItemSelect = React.useCallback(
@@ -62,7 +62,7 @@ export function DataTableFacetedFilter<TData, TValue>({
         setOpen(false);
       }
     },
-    [column, multiple, selectedValues],
+    [column, multiple, selectedValues]
   );
 
   const onReset = React.useCallback(
@@ -70,7 +70,7 @@ export function DataTableFacetedFilter<TData, TValue>({
       event?.stopPropagation();
       column?.setFilterValue(undefined);
     },
-    [column],
+    [column]
   );
 
   return (
@@ -81,7 +81,7 @@ export function DataTableFacetedFilter<TData, TValue>({
           size="sm"
           className="border-dashed font-normal"
         >
-          {selectedValues?.size > 0 ? (
+          {selectedValues?.size > 0 ?
             <div
               role="button"
               aria-label={`Clear ${title} filter`}
@@ -91,9 +91,7 @@ export function DataTableFacetedFilter<TData, TValue>({
             >
               <XCircle />
             </div>
-          ) : (
-            <PlusCircle />
-          )}
+          : <PlusCircle />}
           {title}
           {selectedValues?.size > 0 && (
             <>
@@ -108,15 +106,14 @@ export function DataTableFacetedFilter<TData, TValue>({
                 {selectedValues.size}
               </Badge>
               <div className="hidden items-center gap-1 lg:flex">
-                {selectedValues.size > 2 ? (
+                {selectedValues.size > 2 ?
                   <Badge
                     variant="secondary"
                     className="rounded-sm px-1 font-normal"
                   >
                     {selectedValues.size} selected
                   </Badge>
-                ) : (
-                  options
+                : options
                     .filter((option) => selectedValues.has(option.value))
                     .map((option) => (
                       <Badge
@@ -127,7 +124,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                         {option.label}
                       </Badge>
                     ))
-                )}
+                }
               </div>
             </>
           )}
@@ -150,9 +147,9 @@ export function DataTableFacetedFilter<TData, TValue>({
                     <div
                       className={cn(
                         "flex size-4 items-center justify-center rounded-sm border border-primary",
-                        isSelected
-                          ? "bg-primary"
-                          : "opacity-50 [&_svg]:invisible",
+                        isSelected ? "bg-primary" : (
+                          "opacity-50 [&_svg]:invisible"
+                        )
                       )}
                     >
                       <Check />

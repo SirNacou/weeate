@@ -76,10 +76,6 @@ func (m *AuthMiddleware) Handle(c *fiber.Ctx) error {
 			return nil, err
 		}
 
-		if err = m.cache.Register(ctx, pubKeyUrl, jwk.WithMaxInterval(10*time.Minute)); err != nil {
-			return nil, err
-		}
-
 		set, err := m.cache.Lookup(ctx, pubKeyUrl)
 		if err != nil {
 			return nil, err

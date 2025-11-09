@@ -9,7 +9,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "./animate-ui/components/radix/sidebar";
-import { Link, LinkOptions, useMatchRoute } from "@tanstack/react-router";
+import { Link, LinkOptions } from "@tanstack/react-router";
 import { ChevronsUpDown, BadgeCheck, Bell, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import useIsMobile from "@/hooks/use-is-mobile";
