@@ -1,0 +1,158 @@
+openapi: 3.1.1
+info:
+  title: Generated API
+  description: |2-
+
+    Copyright 2025 Ehab Terra. Licensed under the Apache License 2.0. See LICENSE and NOTICE.
+  version: 1.0.0
+  contact:
+    name: Ehab
+    url: https://ehabterra.github.io/
+    email: ehabterra@hotmail.com
+  license:
+    name: ""
+paths:
+  /:
+    get:
+      operationId: github.com/SirNacou/weeate/backend/cmd/server.FuncLit:C:\Users\solus\Code\Personal\weeate\backend\cmd\server\main.go:66:15
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/github.com_SirNacou_weeate_backend_internal_api_auth.User'
+  /foods/:
+    get:
+      tags:
+        - /foods
+      operationId: github.com/SirNacou/weeate/backend/internal/api/foods.GetFoodEndpoint.GetFoods
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/github.com_SirNacou_weeate_backend_internal_app_foods.GetFoodsQueryResult'
+    post:
+      tags:
+        - /foods
+      operationId: github.com/SirNacou/weeate/backend/internal/api/foods.AddFoodEndpoint.AddFood
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/github.com_SirNacou_weeate_backend_internal_api_foods.AddFoodResponse'
+components:
+  schemas:
+    github.com_SirNacou_weeate_backend_internal_api_auth.AppMetadata:
+      type: object
+      properties:
+        avatar_url:
+          type: string
+        display_name:
+          type: string
+        provider:
+          type: string
+        providers:
+          type: array
+          items:
+            type: string
+    github.com_SirNacou_weeate_backend_internal_api_auth.Identity:
+      type: object
+      properties:
+        created_at:
+          type: string
+        email:
+          type: string
+        id:
+          type: string
+        identity_data:
+          $ref: '#/components/schemas/github.com_SirNacou_weeate_backend_internal_api_auth.IdentityData'
+        identity_id:
+          type: string
+        last_sign_in_at:
+          type: string
+        provider:
+          type: string
+        updated_at:
+          type: string
+        user_id:
+          type: string
+    github.com_SirNacou_weeate_backend_internal_api_auth.IdentityData:
+      type: object
+      properties:
+        email:
+          type: string
+        email_verified:
+          type: boolean
+        phone_verified:
+          type: boolean
+        sub:
+          type: string
+    github.com_SirNacou_weeate_backend_internal_api_auth.User:
+      type: object
+      properties:
+        app_metadata:
+          $ref: '#/components/schemas/github.com_SirNacou_weeate_backend_internal_api_auth.AppMetadata'
+        aud:
+          type: string
+        confirmed_at:
+          type: string
+        created_at:
+          type: string
+        email:
+          type: string
+        email_confirmed_at:
+          type: string
+        id:
+          type: string
+        identities:
+          type: array
+          items:
+            $ref: '#/components/schemas/github.com_SirNacou_weeate_backend_internal_api_auth.Identity'
+        is_anonymous:
+          type: boolean
+        last_sign_in_at:
+          type: string
+        phone:
+          type: string
+        role:
+          type: string
+        updated_at:
+          type: string
+        user_metadata:
+          $ref: '#/components/schemas/github.com_SirNacou_weeate_backend_internal_api_auth.UserMetadata'
+    github.com_SirNacou_weeate_backend_internal_api_auth.UserMetadata:
+      type: object
+      properties:
+        email_verified:
+          type: boolean
+    github.com_SirNacou_weeate_backend_internal_api_foods.AddFoodResponse:
+      type: object
+      properties:
+        food_id:
+          type: string
+    github.com_SirNacou_weeate_backend_internal_app_foods.GetFoodsQueryResult:
+      type: object
+      properties:
+        description:
+          type: string
+        id:
+          type: string
+          format: byte
+          maxLength: 16
+        image_url:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        user_id:
+          type: string
+          format: byte
+          maxLength: 16
