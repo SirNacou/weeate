@@ -15,7 +15,6 @@ export const fetchUser: () => Promise<SSRSafeUser | null> = createServerFn({
 }).handler(async () => {
   const supabase = createClient();
   const { data, error } = await supabase.auth.getUser();
-  console.log(data);
 
   if (error) {
     return null;

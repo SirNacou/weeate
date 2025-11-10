@@ -57,7 +57,7 @@ func (m *AuthMiddleware) Handle(c *fiber.Ctx) error {
 	}
 	b64String := strings.TrimPrefix(authCookie, "base64-")
 
-	jsonBytes, err := base64.StdEncoding.DecodeString(b64String)
+	jsonBytes, err := base64.URLEncoding.DecodeString(b64String)
 	if err != nil {
 		return c.Status(http.StatusUnauthorized).SendString(err.Error())
 	}

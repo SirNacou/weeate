@@ -35,7 +35,12 @@ export function LoginWithGoogleButton({}: Props) {
       <div className="flex flex-col gap-6">
         {error && <p className="text-sm text-destructive-500">{error}</p>}
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="w-full"
+          variant="outline"
+          disabled={isLoading}
+        >
           {isLoading ?
             "Logging in..."
           : <>

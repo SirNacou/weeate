@@ -1,4 +1,4 @@
-import type { CellPosition, RowHeightValue } from "@/components/data-grid/data-grid";
+import type { CellPosition, RowHeightValue } from "@/types/data-grid";
 
 export function getCellKey(rowIndex: number, columnId: string) {
   return `${rowIndex}:${columnId}`;

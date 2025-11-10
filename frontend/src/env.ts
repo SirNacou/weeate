@@ -17,6 +17,7 @@ export const env = createEnv({
     VITE_SUPABASE_URL: z.url(),
     VITE_SUPABASE_PUBLISHABLE_OR_ANON_KEY: z.string(),
     VITE_BACKEND_URL: z.url(),
+    VITE_AUTH_COOKIE_NAME: z.string(),
   },
 
   /**

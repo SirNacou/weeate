@@ -5,13 +5,14 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
+import { FormDevtoolsPlugin } from "@tanstack/react-form-devtools";
 
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
 import appCss from "../styles.css?url";
 
 import type { QueryClient } from "@tanstack/react-query";
+import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -60,6 +61,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               render: <TanStackRouterDevtoolsPanel />,
             },
             TanStackQueryDevtools,
+            // FormDevtoolsPlugin(),
           ]}
         />
         <Scripts />

@@ -8,8 +8,10 @@ import (
 )
 
 type AddFoodRequest struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string        `json:"name" form:"name"`
+	Price       int64         `json:"price" form:"price"`
+	Description string        `json:"description" form:"description"`
+	ImageFile   huma.FormFile `json:"image_file" form:"image_file"`
 }
 
 type AddFoodResponse struct {
