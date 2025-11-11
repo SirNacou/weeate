@@ -15,6 +15,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Dropzone } from "@/components/ui/shadcn-io/dropzone";
 import {
   AnyFieldApi,
   formOptions,
@@ -47,7 +48,7 @@ const foodFormOptions = formOptions({
     name: "",
     price: 0,
     description: "",
-    imageFile: null,
+    imageFile: null as File | null,
   },
   validators: {
     // @ts-ignore
@@ -158,7 +159,36 @@ const AddFoodDialog = () => {
                 }}
               />
 
-              
+              <form.Field
+                name="imageFile"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Image</FieldLabel>
+
+                      <Dropzone
+                        accept={{ "image/*": [] }}
+                        maxFiles={1}
+                        maxSize={5 * 1024 * 1024} // 5MB in bytes
+                        onDrop={(files: File[]) => {
+                          field.handleChange(files[0] ?? null);
+                        }}
+                        onError={(err: Error) => {
+                          field.form.setFieldMeta(field.name, (prev) => ({
+                            ...prev,
+                            errors: [err.message],
+                          }));
+                        }}
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
+              />
             </FieldGroup>
           </div>
           <DialogFooter>

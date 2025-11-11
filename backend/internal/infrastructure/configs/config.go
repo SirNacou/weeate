@@ -6,6 +6,11 @@ import (
 	"github.com/caarlos0/env/v11"
 )
 
+const (
+	EnvDevelopment = "development"
+	EnvProduction  = "production"
+)
+
 type Config struct {
 	PORT                      int    `env:"PORT" envDefault:"8080"`
 	Timezone                  string `env:"TZ" envDefault:"UTC"`
@@ -18,6 +23,7 @@ type Config struct {
 	SUPABASE_AUTH_URL         string `env:"SUPABASE_AUTH_URL" required:"true"`
 	SUPABASE_API_KEY          string `env:"SUPABASE_AUTH_URL" required:"true"`
 	SUPABASE_COOKIE_AUTH_NAME string `env:"SUPABASE_COOKIE_AUTH_NAME" required:"true"`
+	GO_ENV                    string `env:"GO_ENV" envDefault:"development"`
 }
 
 func LoadConfig() (Config, error) {

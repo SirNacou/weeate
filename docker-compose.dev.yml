@@ -2,17 +2,33 @@ name: weeate
 
 services:
   backend:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
+    image: cosmtrek/air
+    working_dir: /app
     container_name: backend
-    ports:
+    ports: 
       - 8080:8080
     env_file:
       - .env
     depends_on:
       - postgres
+    volumes:
+      - ./backend/:/app/backend/
+      - ./go.mod:/app/go.mod
+      - ./go.sum:/app/go.sum
+      - ./.air.toml:/app/.air.toml
     restart: on-failure
+  # backend:
+  #   build:
+  #     context: .
+  #     dockerfile: backend/Dockerfile
+  #   container_name: backend
+  #   ports:
+  #     - 8080:8080
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - postgres
+  #   restart: on-failure
 
   postgres:
     image: postgres:18-alpine
