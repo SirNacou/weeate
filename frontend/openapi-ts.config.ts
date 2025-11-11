@@ -16,7 +16,7 @@ export default defineConfig({
     "@hey-api/transformers",
     "@hey-api/schemas",
     {
-      name: "@hey-api/client-axios",
+      name: "@hey-api/client-fetch",
       runtimeConfigPath: "../api/api-client.ts",
     },
     "zod",

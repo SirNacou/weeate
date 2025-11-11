@@ -58,7 +58,6 @@ export const getFoods = <ThrowOnError extends boolean = false>(
 		GetFoodsErrors,
 		ThrowOnError
 	>({
-		responseType: "json",
 		url: "/foods/",
 		...options,
 	});

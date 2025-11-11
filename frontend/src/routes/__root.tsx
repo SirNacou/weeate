@@ -12,7 +12,6 @@ import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 
 import type { QueryClient } from "@tanstack/react-query";
-import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -50,7 +49,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <NuqsAdapter>{children}</NuqsAdapter>
+        {children}
         <TanStackDevtools
           config={{
             position: "bottom-right",

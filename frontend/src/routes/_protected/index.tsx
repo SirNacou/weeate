@@ -2,6 +2,7 @@ import { getFoodsOptions } from "@/client/@tanstack/react-query.gen";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
 import {
   Zap,
   Server,
@@ -13,11 +14,20 @@ import {
 
 export const Route = createFileRoute("/_protected/")({
   component: App,
+  beforeLoad: () => {
+    return fn1();
+  },
+});
+
+const fn1 = createServerFn({ method: "GET" }).handler(async () => {
+  // const res = await getServerFoods();
+  // console.log("Data:", res?.result);
 });
 
 function App() {
   const { data, refetch } = useQuery({
     ...getFoodsOptions(),
+    enabled: false,
   });
 
   const features = [
@@ -84,6 +94,16 @@ function App() {
               }}
             >
               Click
+            </Button>
+
+            <Button
+              onClick={(e) => {
+                e.preventDefault();
+                // console.log("Clicked");
+                fn1();
+              }}
+            >
+              Click1
             </Button>
           </div>
           <p className="text-2xl md:text-3xl text-gray-300 mb-4 font-light">
