@@ -60,6 +60,7 @@ services:
       - ./frontend/src/:/app/frontend/src/
       - ./frontend/public/:/app/frontend/public/
       - ./.env:/app/.env
+      - ./.env.dev:/app/.env.dev
     restart: on-failure
 
 volumes:
