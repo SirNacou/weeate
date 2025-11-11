@@ -10,9 +10,6 @@ export function createClient() {
       auth: {
         autoRefreshToken: true,
       },
-      cookieOptions: {
-        httpOnly: true,
-      },
       cookies: {
         getAll() {
           return Object.entries(getCookies()).map(

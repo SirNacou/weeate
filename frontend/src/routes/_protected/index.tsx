@@ -12,12 +12,10 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/_protected/")({
-  loader: ({ context }) => {},
   component: App,
 });
 
 function App() {
-  const initialData = Route.useLoaderData();
   const { data, refetch } = useQuery({
     ...getFoodsOptions(),
   });
