@@ -28,32 +28,42 @@ func main() {
 	defer cancel()
 
 	// Setup configuration
-	config, err := config.LoadConfig()
+	envConfig, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	// Database connection
-	db, err := db.ConnectToPostgres(ctx, config)
+	db, err := db.ConnectToPostgres(ctx, envConfig)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	db.AutoMigrate(&domain.Food{})
 
-	// Initialize Fiber app
 	app := fiber.New()
 
 	app.Use(logger.New(logger.ConfigDefault))
 
-	app.Use(cors.New(cors.Config{
-		AllowOrigins:     strings.Join([]string{"http://localhost:3000", "http://localhost:3001", "http://localhost:8080", "https://weeate.nacou.uk"}, ", "),
-		AllowMethods:     strings.Join([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch, http.MethodOptions}, ", "),
-		AllowHeaders:     strings.Join([]string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization}, ", "),
-		AllowCredentials: true,
-	}))
+	if envConfig.GO_ENV == config.EnvDevelopment {
+		log.Println("Running in development mode")
+		app.Use(cors.New(cors.Config{
+			AllowOrigins:     strings.Join([]string{"http://localhost:3000", "http://127.0.0.1:3000"}, ", "),
+			AllowMethods:     strings.Join([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch, http.MethodOptions}, ", "),
+			AllowHeaders:     strings.Join([]string{fiber.HeaderOrigin, fiber.HeaderContentType, fiber.HeaderAccept, echo.HeaderAuthorization}, ", "),
+			AllowCredentials: true,
+		}))
+	} else {
+		log.Println("Running in production mode")
+		app.Use(cors.New(cors.Config{
+			AllowOrigins:     strings.Join([]string{"https://weeate.nacou.uk"}, ", "),
+			AllowMethods:     strings.Join([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch, http.MethodOptions}, ", "),
+			AllowHeaders:     strings.Join([]string{fiber.HeaderOrigin, fiber.HeaderContentType, fiber.HeaderAccept, echo.HeaderAuthorization}, ", "),
+			AllowCredentials: true,
+		}))
+	}
 
-	authware, err := auth.NewAuthMiddleware(ctx, config)
+	authware, err := auth.NewAuthMiddleware(ctx, envConfig)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -75,7 +85,7 @@ func main() {
 		return &user, nil
 	})
 
-	if err := app.Listen(fmt.Sprintf(":%v", config.PORT)); err != nil {
+	if err := app.Listen(fmt.Sprintf(":%v", envConfig.PORT)); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
 	}
 }

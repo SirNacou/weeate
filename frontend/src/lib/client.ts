@@ -9,9 +9,6 @@ export function createClient() {
       auth: {
         autoRefreshToken: true,
       },
-      cookieOptions: {
-        httpOnly: true,
-      },
     }
   );
 }

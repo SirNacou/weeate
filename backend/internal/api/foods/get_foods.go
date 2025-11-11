@@ -40,7 +40,7 @@ func (e *GetFoodEndpoint) GetFoods(ctx context.Context, req *struct{}) (*api.Res
 		return nil, huma.Error400BadRequest("", err)
 	}
 
-	res := make([]GetFoodsResponseItem, len(r))
+	res := make([]GetFoodsResponseItem, 0, len(r))
 	for _, food := range r {
 		res = append(res, GetFoodsResponseItem{
 			ID:          food.ID,
