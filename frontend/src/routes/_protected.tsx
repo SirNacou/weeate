@@ -28,7 +28,7 @@ function ProtectedLayout() {
       <AppSidebar />
       <SidebarInset>
         <SidebarTrigger className="size-12" />
-        <div className="container mx-auto px-4 py-10">
+        <div className="container mx-auto px-md-4 py-10">
           <Outlet />
         </div>
       </SidebarInset>

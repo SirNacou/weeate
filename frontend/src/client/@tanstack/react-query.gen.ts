@@ -9,6 +9,7 @@ import type {
 	GetFoodsData,
 	PostFoodsData,
 	PostFoodsError,
+	PostFoodsResponse,
 } from "../types.gen";
 
 export type QueryKey<TOptions extends Options> = [
@@ -100,9 +101,13 @@ export const getFoodsOptions = (options?: Options<GetFoodsData>) => {
  */
 export const postFoodsMutation = (
 	options?: Partial<Options<PostFoodsData>>,
-): UseMutationOptions<unknown, PostFoodsError, Options<PostFoodsData>> => {
+): UseMutationOptions<
+	PostFoodsResponse,
+	PostFoodsError,
+	Options<PostFoodsData>
+> => {
 	const mutationOptions: UseMutationOptions<
-		unknown,
+		PostFoodsResponse,
 		PostFoodsError,
 		Options<PostFoodsData>
 	> = {

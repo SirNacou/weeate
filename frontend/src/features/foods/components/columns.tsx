@@ -1,5 +1,6 @@
 import { GetFoodsResponseItem } from "@/client";
 import { ColumnDef } from "@tanstack/react-table";
+import { Image } from "@imagekit/react";
 
 export const columns: ColumnDef<GetFoodsResponseItem>[] = [
   {
@@ -13,7 +14,10 @@ export const columns: ColumnDef<GetFoodsResponseItem>[] = [
     accessorFn: (row) => row.image_url,
     cell: (info) =>
       info.getValue() ?
-        <img src={info.getValue() as string} alt={info.row.getValue("name")} />
+        <Image
+          src={info.getValue() as string}
+          alt={info.row.getValue("name")}
+        />
       : <span>No image</span>,
   },
   {

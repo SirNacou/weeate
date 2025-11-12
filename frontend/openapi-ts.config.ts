@@ -2,7 +2,7 @@ import { defineConfig } from "@hey-api/openapi-ts";
 
 export default defineConfig({
   input: {
-    path: "../openapi.yaml",
+    path: "http://localhost:8080/openapi.yaml",
     watch: true,
   },
   output: {
@@ -13,11 +13,11 @@ export default defineConfig({
   plugins: [
     "@hey-api/typescript",
     "@hey-api/sdk",
-    "@hey-api/transformers",
+    { name: "@hey-api/transformers", bigInt: false },
     "@hey-api/schemas",
     {
       name: "@hey-api/client-fetch",
-      runtimeConfigPath: "../api/api-client.ts",
+      runtimeConfigPath: "../api/api-client-config.ts",
     },
     "zod",
     "@tanstack/react-query",

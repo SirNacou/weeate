@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"errors"
 
 	"github.com/gofrs/uuid/v5"
 	"gorm.io/gorm"
@@ -10,17 +11,27 @@ import (
 type Food struct {
 	ID          uuid.UUID `gorm:"primaryKey;autoIncrement"`
 	Name        string    `gorm:"type:varchar(100);not null"`
-	ImageURL    string    `gorm:"type:text"`
 	Description string    `gorm:"type:text"`
-	Price       float64   `gorm:"type:decimal(10,2);not null"`
+	Price       int64     `gorm:"not null"`
 	UserID      uuid.UUID `gorm:"not null;index"`
+	ImageFileID string    `gorm:"type:varchar(255)"`
+	ImageURL    string    `gorm:"type:text"`
 }
 
-func NewFood(name, imageUrl, description string, price float64, userID uuid.UUID) (*Food, error) {
+func NewFood(name, image_file_id, imageUrl, description string, price int64, userID uuid.UUID) (*Food, error) {
 	foodID, err := uuid.NewV7()
 	if err != nil {
 		return nil, err
 	}
+
+	if name == "" {
+		return nil, ErrInvalidName
+	}
+
+	if price < 0 {
+		return nil, ErrInvalidPrice
+	}
+
 	return &Food{
 		ID:          foodID,
 		Name:        name,
@@ -31,7 +42,7 @@ func NewFood(name, imageUrl, description string, price float64, userID uuid.UUID
 	}, nil
 }
 
-func (f *Food) UpdateDetails(name, imageUrl, description string, price float64) {
+func (f *Food) UpdateDetails(name, image_file_id, imageUrl, description string, price int64) {
 	f.Name = name
 	f.ImageURL = imageUrl
 	f.Description = description
@@ -47,3 +58,8 @@ type FoodRepository interface {
 	Update(ctx context.Context, food *Food) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
+
+var (
+	ErrInvalidPrice = errors.New("invalid price: must be non-negative")
+	ErrInvalidName  = errors.New("invalid name: cannot be empty")
+)

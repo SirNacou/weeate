@@ -1,3 +1,5 @@
+import { postFoodsMutation } from "@/client/@tanstack/react-query.gen";
+import ImageUpload from "@/components/comp-545";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,13 +17,11 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Dropzone } from "@/components/ui/shadcn-io/dropzone";
-import {
-  AnyFieldApi,
-  formOptions,
-  FormOptions,
-  useForm,
-} from "@tanstack/react-form";
+import { FileWithPreview } from "@/hooks/use-file-upload";
+import { AnyFieldApi, useForm } from "@tanstack/react-form";
+import { useMutation } from "@tanstack/react-query";
+import { image } from "motion/react-client";
+import { useCallback } from "react";
 import * as z from "zod";
 import FluentAdd12Filled from "~icons/fluent/add-12-filled";
 
@@ -41,26 +41,48 @@ const foodSchema = z.object({
   price: z.number().min(0, "Price must be non-negative").multipleOf(1000),
   description: z.string().default(""),
   imageFile: z.file().nullish(),
-});
-
-const foodFormOptions = formOptions({
-  defaultValues: {
-    name: "",
-    price: 0,
-    description: "",
-    imageFile: null as File | null,
-  },
-  validators: {
-    // @ts-ignore
-    onChange: foodSchema,
-  },
-  onSubmit: (values) => {
-    console.log("Submitted values:", values);
-  },
+  imageFileId: z.string().optional(),
 });
 
 const AddFoodDialog = () => {
-  const form = useForm(foodFormOptions);
+  const addFood = useMutation(postFoodsMutation());
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      price: 0,
+      description: "",
+      imageFile: null as File | null,
+      imageFileId: "",
+    },
+    validators: {
+      // @ts-ignore
+      onChange: foodSchema,
+    },
+    onSubmit: async ({ value }) => {
+      console.log("Submitted values:", value);
+      const result = await addFood.mutateAsync({ body: value });
+      console.log("Add food result:", result);
+    },
+  });
+
+  const handleFileChange = useCallback(
+    (files: FileWithPreview[]) => {
+      console.log("File changed:", files);
+      const file = files.at(0);
+      if (file?.file instanceof File) {
+        // Update the imageFile field
+        setTimeout(() => {
+          form.setFieldValue("imageFile", file.file as File);
+          form.setFieldValue("imageFileId", file.file.name);
+        }, 5000);
+      }
+      console.log("handleFileChange completed");
+    },
+    [form]
+  );
+
+  console.log("handleFileChange callback:", handleFileChange);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -160,27 +182,25 @@ const AddFoodDialog = () => {
               />
 
               <form.Field
-                name="imageFile"
+                name="imageFileId"
                 children={(field) => {
                   const isInvalid =
                     field.state.meta.isTouched && !field.state.meta.isValid;
+
                   return (
                     <Field data-invalid={isInvalid}>
                       <FieldLabel htmlFor={field.name}>Image</FieldLabel>
 
-                      <Dropzone
-                        accept={{ "image/*": [] }}
-                        maxFiles={1}
-                        maxSize={5 * 1024 * 1024} // 5MB in bytes
-                        onDrop={(files: File[]) => {
-                          field.handleChange(files[0] ?? null);
-                        }}
-                        onError={(err: Error) => {
-                          field.form.setFieldMeta(field.name, (prev) => ({
-                            ...prev,
-                            errors: [err.message],
-                          }));
-                        }}
+                      <ImageUpload
+                        maxSizeMB={5}
+                        onFilesChange={handleFileChange}
+                      />
+
+                      <Input
+                        hidden={true}
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
                       />
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />

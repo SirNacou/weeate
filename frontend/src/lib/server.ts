@@ -1,11 +1,11 @@
-import { env } from "@/env";
+import { clientEnv } from "@/env";
 import { createServerClient } from "@supabase/ssr";
 import { getCookies, setCookie } from "@tanstack/react-start/server";
 
 export function createClient() {
   return createServerClient(
-    env.VITE_SUPABASE_URL,
-    env.VITE_SUPABASE_PUBLISHABLE_OR_ANON_KEY,
+    clientEnv.VITE_SUPABASE_URL,
+    clientEnv.VITE_SUPABASE_PUBLISHABLE_OR_ANON_KEY,
     {
       auth: {
         autoRefreshToken: true,

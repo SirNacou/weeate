@@ -2,16 +2,19 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
-	"log"
 	"net/http"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
+	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/rs/zerolog"
 
 	"github.com/SirNacou/weeate/backend/internal/api/auth"
 	"github.com/SirNacou/weeate/backend/internal/api/foods"
@@ -27,30 +30,52 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	debug := flag.Bool("debug", false, "Enable debug mode with more verbose logging")
+	flag.Parse()
+
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	if *debug {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+
+	output := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
+	output.FormatLevel = func(i any) string {
+		return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
+	}
+	output.FormatMessage = func(i any) string {
+		return fmt.Sprintf("***%s****", i)
+	}
+	output.FormatFieldName = func(i any) string {
+		return fmt.Sprintf("%s:", i)
+	}
+	output.FormatFieldValue = func(i any) string {
+		return strings.ToUpper(fmt.Sprintf("%s", i))
+	}
+	log := zerolog.New(output).With().Timestamp().Logger()
 	// Setup configuration
 	envConfig, err := config.LoadConfig()
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal().Err(err)
 	}
 
 	// Database connection
 	db, err := db.ConnectToPostgres(ctx, envConfig)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal().Err(err)
 	}
 
 	db.AutoMigrate(&domain.Food{})
 
 	app := fiber.New()
 
-	app.Use(logger.New(logger.ConfigDefault))
+	app.Use(fiberzerolog.New(fiberzerolog.Config{
+		Logger: &log,
+	}))
 
 	if envConfig.GO_ENV == config.EnvDevelopment {
 		log.Println("Running in development mode")
-		app.Use(cors.New(cors.Config{
-			AllowOrigins:     strings.Join([]string{"http://localhost:3000", "http://127.0.0.1:3000"}, ", "),
-			AllowMethods:     strings.Join([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch, http.MethodOptions}, ", "),
-			AllowHeaders:     strings.Join([]string{fiber.HeaderOrigin, fiber.HeaderContentType, fiber.HeaderAccept, echo.HeaderAuthorization}, ", "),
+		app.Use(cors.New(cors.ConfigDefault, cors.Config{
 			AllowCredentials: true,
 		}))
 	} else {
@@ -65,7 +90,7 @@ func main() {
 
 	authware, err := auth.NewAuthMiddleware(ctx, envConfig)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal().Err(err)
 	}
 	app.Use(authware.Handle)
 
@@ -86,6 +111,6 @@ func main() {
 	})
 
 	if err := app.Listen(fmt.Sprintf(":%v", envConfig.PORT)); err != nil {
-		log.Fatalf("Failed to run server: %v", err)
+		log.Fatal().Msgf("Failed to run server: %v", err)
 	}
 }

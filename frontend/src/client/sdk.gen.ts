@@ -67,14 +67,18 @@ export const getFoods = <ThrowOnError extends boolean = false>(
  * Add new food
  */
 export const postFoods = <ThrowOnError extends boolean = false>(
-	options?: Options<PostFoodsData, ThrowOnError>,
+	options: Options<PostFoodsData, ThrowOnError>,
 ) => {
-	return (options?.client ?? client).post<
+	return (options.client ?? client).post<
 		PostFoodsResponses,
 		PostFoodsErrors,
 		ThrowOnError
 	>({
 		url: "/foods/",
 		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
 	});
 };

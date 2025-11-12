@@ -4,8 +4,9 @@ import * as TanstackQuery from "./integrations/tanstack-query/root-provider";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
+import { de } from "date-fns/locale";
 
-// Create a new router instance
+// Setup client interceptors (only runs on client)
 export const getRouter = () => {
   const rqContext = TanstackQuery.getContext();
 
@@ -13,9 +14,7 @@ export const getRouter = () => {
     routeTree,
     context: { ...rqContext },
     defaultPreload: "intent",
-    defaultErrorComponent: ({ error, reset }) => (
-      <ErrorComponent error={error} />
-    ),
+    defaultErrorComponent: ({ error }) => <ErrorComponent error={error} />,
     Wrap: (props: { children: React.ReactNode }) => {
       return (
         <TanstackQuery.Provider {...rqContext}>

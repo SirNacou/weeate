@@ -47,12 +47,7 @@ func NewAuthMiddleware(ctx context.Context, config config.Config) (*AuthMiddlewa
 }
 
 func (m *AuthMiddleware) Handle(c *fiber.Ctx) error {
-	// Allow OPTIONS requests for CORS preflight
-	if c.Method() == fiber.MethodOptions {
-		return c.Next()
-	}
-
-	if c.IsFromLocal() && (c.Path() == "/docs" || c.Path() == "openapi.json") {
+	if strings.Contains(c.Path(), "/docs") || strings.Contains(c.Path(), "/openapi") {
 		return c.Next()
 	}
 	authCookie := c.Cookies(m.cookieName)
@@ -62,9 +57,14 @@ func (m *AuthMiddleware) Handle(c *fiber.Ctx) error {
 	}
 	b64String := strings.TrimPrefix(authCookie, "base64-")
 
-	jsonBytes, err := base64.URLEncoding.DecodeString(b64String)
+	// Handle URL-safe base64 with or without padding
+	jsonBytes, err := base64.RawURLEncoding.DecodeString(b64String)
 	if err != nil {
-		return c.Status(http.StatusUnauthorized).SendString(err.Error())
+		// Fallback to standard URL encoding if raw decoding fails
+		jsonBytes, err = base64.URLEncoding.DecodeString(b64String)
+		if err != nil {
+			return c.Status(http.StatusUnauthorized).SendString(err.Error())
+		}
 	}
 
 	var session SupabaseSession

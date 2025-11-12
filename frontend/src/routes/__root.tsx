@@ -12,6 +12,8 @@ import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 
 import type { QueryClient } from "@tanstack/react-query";
+import { ImageKitProvider } from "@imagekit/react";
+import { env } from "@/env/client";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -49,7 +51,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {children}
+        <ImageKitProvider
+          urlEndpoint={env.VITE_APP_TITLE}
+          key={env.VITE_IMAGEKIT_PUBLIC_KEY}
+          transformationPosition="query"
+        >
+          {children}
+        </ImageKitProvider>
         <TanStackDevtools
           config={{
             position: "bottom-right",
@@ -60,7 +68,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               render: <TanStackRouterDevtoolsPanel />,
             },
             TanStackQueryDevtools,
-            // FormDevtoolsPlugin(),
+            FormDevtoolsPlugin(),
           ]}
         />
         <Scripts />
