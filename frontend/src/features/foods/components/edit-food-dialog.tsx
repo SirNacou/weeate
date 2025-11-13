@@ -24,7 +24,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { FileWithPreview } from "@/hooks/use-file-upload";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import * as z from "zod";
 
 const foodSchema = z.object({
@@ -90,6 +90,16 @@ const AddFoodDialog = ({
     },
   });
 
+  // Reset form when data changes (different row selected)
+  useEffect(() => {
+    form.reset({
+      name: data.name || "",
+      price: data.price || 0,
+      description: data.description || "",
+      imageFileId: data.imageFileId || "",
+    });
+  }, [data.id, form]);
+
   const handleFileChange = useCallback(
     (files: FileWithPreview[]) => {
       console.log("File changed:", files);
@@ -108,10 +118,11 @@ const AddFoodDialog = ({
   console.log("handleFileChange callback:", handleFileChange);
 
   return (
-    <Dialog {...props}>
+    <Dialog onOpenChange={onOpenChange} {...props}>
       <DialogContent
         className="sm:max-w-md"
         aria-description="Edit food dialog"
+        aria-describedby={data.id}
       >
         <form
           className="grid gap-4"

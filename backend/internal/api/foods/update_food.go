@@ -35,7 +35,7 @@ func (e *UpdateFoodEndpoint) Register(group huma.API) {
 }
 
 func (e *UpdateFoodEndpoint) UpdateFood(ctx context.Context, req *struct {
-	ID   uuid.UUID `path:"id"`
+	ID   uuid.UUID `path:"id" format:"uuid"`
 	Body UpdateFoodRequest
 },
 ) (*struct{}, error) {

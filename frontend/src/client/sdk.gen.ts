@@ -3,6 +3,9 @@
 import type { Client, Options as Options2, TDataShape } from "./client";
 import { client } from "./client.gen";
 import type {
+	DeleteFoodsByIdData,
+	DeleteFoodsByIdErrors,
+	DeleteFoodsByIdResponses,
 	GetData,
 	GetErrors,
 	GetFoodsData,
@@ -83,6 +86,22 @@ export const postFoods = <ThrowOnError extends boolean = false>(
 			"Content-Type": "application/json",
 			...options.headers,
 		},
+	});
+};
+
+/**
+ * Delete a food item by its ID
+ */
+export const deleteFoodsById = <ThrowOnError extends boolean = false>(
+	options: Options<DeleteFoodsByIdData, ThrowOnError>,
+) => {
+	return (options.client ?? client).delete<
+		DeleteFoodsByIdResponses,
+		DeleteFoodsByIdErrors,
+		ThrowOnError
+	>({
+		url: "/foods/{id}",
+		...options,
 	});
 };
 

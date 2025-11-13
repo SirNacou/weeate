@@ -1,40 +1,41 @@
 import {
+  deleteFoodsByIdMutation,
+  getFoodsQueryKey,
+} from "@/client/@tanstack/react-query.gen";
+import { Button } from "@/components/animate-ui/components/buttons/button";
+import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogProps,
   AlertDialogTitle,
-} from "@/components/animate-ui/components/radix/alert-dialog";
-import { useQueryClient } from "@tanstack/react-query";
-import { SyntheticEvent } from "react";
+} from "@/components/ui/alert-dialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-type DeleteFoodDialog = AlertDialogProps & {
+interface DeleteFoodDialog {
   foodId: string;
+  open: boolean;
   onOpenChange?: (open: boolean) => void;
-};
+}
 
-const DeleteFoodDialog = ({
-  foodId,
-  onOpenChange,
-  ...props
-}: DeleteFoodDialog) => {
+const DeleteFoodDialog = ({ foodId, open, onOpenChange }: DeleteFoodDialog) => {
+  const deleteFood = useMutation({
+    ...deleteFoodsByIdMutation(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getFoodsQueryKey() });
+      onOpenChange?.(false);
+    },
+  });
   const queryClient = useQueryClient();
 
-  const handleDelete = (_e: SyntheticEvent<HTMLButtonElement, Event>): void => {
-    // TODO: Implement actual delete API call when backend endpoint is ready
-    console.log("Deleting food:", foodId);
-
-    // For now, just invalidate the query and close
-    queryClient.invalidateQueries({ queryKey: ["get", "/foods"] });
-    onOpenChange?.(false);
+  const handleDelete = async (): Promise<void> => {
+    await deleteFood.mutateAsync({ path: { id: foodId } });
   };
 
   return (
-    <AlertDialog {...props}>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="sm:max-w-[425px]">
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -44,10 +45,10 @@ const DeleteFoodDialog = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onSelect={handleDelete}>
-            Continue
-          </AlertDialogAction>
+          <AlertDialogClose>Cancel</AlertDialogClose>
+          <Button variant={"destructive"} onClick={handleDelete}>
+            Delete
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

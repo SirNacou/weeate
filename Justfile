@@ -9,6 +9,9 @@ default:
 docker-dev-up *ARGS:
   docker compose -f docker-compose.dev.yml up --build -d {{ARGS}}
 
+docker-dev-restart *ARGS:
+  docker compose -f docker-compose.dev.yml restart {{ARGS}}
+
 # Stop development environment
 docker-dev-down *ARGS:
   docker compose -f docker-compose.dev.yml down {{ARGS}}

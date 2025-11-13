@@ -185,11 +185,11 @@ export const GetFoodsResponseItemSchema = {
 			format: "int64",
 			type: "integer",
 		},
-		user_id: {
-			type: "string",
+		user: {
+			$ref: "#/components/schemas/UserProfile",
 		},
 	},
-	required: ["id", "name", "image_url", "description", "price", "user_id"],
+	required: ["id", "name", "image_url", "description", "price", "user"],
 	type: "object",
 } as const;
 
@@ -294,6 +294,23 @@ export const UserMetadataSchema = {
 		},
 	},
 	required: ["email_verified"],
+	type: "object",
+} as const;
+
+export const UserProfileSchema = {
+	additionalProperties: false,
+	properties: {
+		avatar_url: {
+			type: "string",
+		},
+		display_name: {
+			type: "string",
+		},
+		id: {
+			type: "string",
+		},
+	},
+	required: ["id", "avatar_url", "display_name"],
 	type: "object",
 } as const;
 

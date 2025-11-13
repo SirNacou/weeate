@@ -2,6 +2,7 @@ import { GetFoodsResponseItem } from "@/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Image } from "@imagekit/react";
 import TableActionMenuDialog from "./table-action-menu-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const createColumns = (
   currentUserId?: string
@@ -37,9 +38,22 @@ export const createColumns = (
     },
   },
   {
-    id: "user_id",
-    header: "User ID",
-    accessorFn: (row) => row.user_id,
+    id: "user",
+    header: "User",
+    accessorFn: (row) => row.user,
+    cell: ({ getValue }) => {
+      const user = getValue() as GetFoodsResponseItem["user"];
+      return (
+        <div className="flex items-center gap-2">
+          <Avatar>
+            <AvatarImage src={user.avatar_url} alt={user.display_name} />
+            <AvatarFallback>{user.display_name.slice(0, 2).toUpperCase()}</AvatarFallback>
+          </Avatar>
+
+          <span>{user.display_name}</span>
+        </div>
+      );
+    },
   },
   {
     id: "description",
@@ -51,7 +65,7 @@ export const createColumns = (
     header: "Actions",
     cell: ({ row }) => {
       // Only show actions if the current user owns this food item
-      if (row.original.user_id !== currentUserId) {
+      if (row.original.user.id !== currentUserId) {
         return null;
       }
 

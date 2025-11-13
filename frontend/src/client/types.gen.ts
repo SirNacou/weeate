@@ -90,7 +90,7 @@ export type GetFoodsResponseItem = {
 	image_url: string;
 	name: string;
 	price: number;
-	user_id: string;
+	user: UserProfile;
 };
 
 export type Identity = {
@@ -125,6 +125,12 @@ export type UpdateFoodRequest = {
 
 export type UserMetadata = {
 	email_verified: boolean;
+};
+
+export type UserProfile = {
+	avatar_url: string;
+	display_name: string;
+	id: string;
 };
 
 export type AddFoodRequestWritable = {
@@ -250,6 +256,35 @@ export type PostFoodsResponses = {
 };
 
 export type PostFoodsResponse = PostFoodsResponses[keyof PostFoodsResponses];
+
+export type DeleteFoodsByIdData = {
+	body?: never;
+	path: {
+		id: string;
+	};
+	query?: never;
+	url: "/foods/{id}";
+};
+
+export type DeleteFoodsByIdErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type DeleteFoodsByIdError =
+	DeleteFoodsByIdErrors[keyof DeleteFoodsByIdErrors];
+
+export type DeleteFoodsByIdResponses = {
+	/**
+	 * No Content
+	 */
+	204: void;
+};
+
+export type DeleteFoodsByIdResponse =
+	DeleteFoodsByIdResponses[keyof DeleteFoodsByIdResponses];
 
 export type PutFoodsByIdData = {
 	body: UpdateFoodRequestWritable;

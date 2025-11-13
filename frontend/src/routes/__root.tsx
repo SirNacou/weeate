@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 
 import type { QueryClient } from "@tanstack/react-query";
 import { ImageKitProvider } from "@imagekit/react";
+import { MotionConfig } from "motion/react";
 import { env } from "@/env/client";
 
 interface MyRouterContext {
@@ -55,7 +56,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           key={env.VITE_IMAGEKIT_PUBLIC_KEY}
           transformationPosition="query"
         >
-          {children}
+          <MotionConfig reducedMotion="user">
+            <div className="Root">{children}</div>
+          </MotionConfig>
         </ImageKitProvider>
         <TanStackDevtools
           config={{

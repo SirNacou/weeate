@@ -12,7 +12,7 @@ services:
     depends_on:
       - postgres
     volumes:
-      - ./backend/:/app/backend/
+      - ./backend/:/app/backend/:ro
       - ./go.mod:/app/go.mod
       - ./go.sum:/app/go.sum
       - ./.air.toml:/app/.air.toml

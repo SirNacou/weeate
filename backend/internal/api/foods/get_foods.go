@@ -17,12 +17,12 @@ type GetFoodsResponse struct {
 }
 
 type GetFoodsResponseItem struct {
-	ID          uuid.UUID `json:"id"`
-	Name        string    `json:"name"`
-	ImageURL    string    `json:"image_url"`
-	Description string    `json:"description"`
-	Price       int64     `json:"price"`
-	UserID      uuid.UUID `json:"user_id"`
+	ID          uuid.UUID         `json:"id"`
+	Name        string            `json:"name"`
+	ImageURL    string            `json:"image_url"`
+	Description string            `json:"description"`
+	Price       int64             `json:"price"`
+	User        foods.UserProfile `json:"user"`
 }
 
 type GetFoodEndpoint struct {
@@ -59,7 +59,7 @@ func (e *GetFoodEndpoint) GetFoods(ctx context.Context, req *struct{}) (*api.Res
 			ImageURL:    food.ImageURL,
 			Description: food.Description,
 			Price:       food.Price,
-			UserID:      food.UserID,
+			User:        food.User,
 		})
 	}
 

@@ -5,6 +5,7 @@ export default defineConfig({
     path: "http://localhost:8080/openapi.yaml",
     watch: true,
   },
+  interactive: true,
   output: {
     path: "./src/client",
     format: "biome",

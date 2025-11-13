@@ -2,60 +2,45 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
-	"net/http"
-	"os"
-	"strings"
-	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
 	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/rs/zerolog"
+	"github.com/supabase-community/supabase-go"
 
 	"github.com/SirNacou/weeate/backend/internal/api/auth"
+	"github.com/SirNacou/weeate/backend/internal/api/common"
 	"github.com/SirNacou/weeate/backend/internal/api/foods"
 	application "github.com/SirNacou/weeate/backend/internal/app"
 	domain "github.com/SirNacou/weeate/backend/internal/domain"
 	config "github.com/SirNacou/weeate/backend/internal/infrastructure/configs"
 	"github.com/SirNacou/weeate/backend/internal/infrastructure/db"
+	"github.com/SirNacou/weeate/backend/internal/infrastructure/logger"
 	"github.com/SirNacou/weeate/backend/internal/infrastructure/repositories"
 )
 
 func main() {
+	// Setup logger
+	log := logger.NewLogger()
+
+	// Setup context
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-	debug := flag.Bool("debug", false, "Enable debug mode with more verbose logging")
-	flag.Parse()
+	ctx = log.WithContext(ctx)
 
-	zerolog.SetGlobalLevel(zerolog.InfoLevel)
-	if *debug {
-		zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	}
-
-	output := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
-	output.FormatLevel = func(i any) string {
-		return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
-	}
-	output.FormatMessage = func(i any) string {
-		return fmt.Sprintf("***%s****", i)
-	}
-	output.FormatFieldName = func(i any) string {
-		return fmt.Sprintf("%s:", i)
-	}
-	output.FormatFieldValue = func(i any) string {
-		return strings.ToUpper(fmt.Sprintf("%s", i))
-	}
-	log := zerolog.New(output).With().Timestamp().Logger()
 	// Setup configuration
 	envConfig, err := config.LoadConfig()
 	if err != nil {
 		log.Fatal().Err(err)
+	}
+
+	// Setup Supabase auth
+	supabaseClient, err := supabase.NewClient(envConfig.SUPABASE_URL, envConfig.SUPABASE_API_KEY, &supabase.ClientOptions{})
+	if err != nil {
+		fmt.Println("Failed to initalize the client: ", err)
 	}
 
 	// Database connection
@@ -66,41 +51,28 @@ func main() {
 
 	db.AutoMigrate(&domain.Food{})
 
+	// Setup repositories
+	repos := repositories.NewRepositories(db)
+
+	// Setup application handlers
+	handlers := application.NewHandlers(&repos, supabaseClient)
+
+	// Setup Fiber app
 	app := fiber.New()
 
 	app.Use(fiberzerolog.New(fiberzerolog.Config{
 		Logger: &log,
 	}))
 
-	if envConfig.GO_ENV == config.EnvDevelopment {
-		log.Println("Running in development mode")
-		app.Use(cors.New(cors.Config{
-			AllowOriginsFunc: func(origin string) bool {
-				return true // Allow all origins in development
-			},
-			AllowCredentials: true,
-			AllowHeaders:     strings.Join([]string{fiber.HeaderOrigin, fiber.HeaderContentType, fiber.HeaderAccept, fiber.HeaderAuthorization}, ", "),
-		}))
-	} else {
-		log.Println("Running in production mode")
-		app.Use(cors.New(cors.Config{
-			AllowOrigins:     strings.Join([]string{"https://weeate.nacou.uk"}, ", "),
-			AllowMethods:     strings.Join([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch, http.MethodOptions}, ", "),
-			AllowHeaders:     strings.Join([]string{fiber.HeaderOrigin, fiber.HeaderContentType, fiber.HeaderAccept, fiber.HeaderAuthorization}, ", "),
-			AllowCredentials: true,
-		}))
-	}
+	app.Use(common.CORSMiddleware(envConfig))
 
-	authware, err := auth.NewAuthMiddleware(ctx, envConfig)
+	authMiddleware, err := common.AuthMiddleware(ctx, envConfig)
 	if err != nil {
 		log.Fatal().Err(err)
 	}
-	app.Use(authware.Handle)
+	app.Use(authMiddleware)
 
 	api := humafiber.New(app, huma.DefaultConfig("Weeate API", "v1.0.0"))
-
-	repos := repositories.NewRepositories(db)
-	handlers := application.NewHandlers(&repos)
 	foodsEndpoint := foods.NewFoodsEndpoint(handlers)
 
 	foodsEndpoint.Register(api)

@@ -21,7 +21,7 @@ type Config struct {
 	DBName                    string `env:"DB_NAME" envDefault:"weeate_db"`
 	SUPABASE_URL              string `env:"SUPABASE_URL" required:"true"`
 	SUPABASE_AUTH_URL         string `env:"SUPABASE_AUTH_URL" required:"true"`
-	SUPABASE_API_KEY          string `env:"SUPABASE_AUTH_URL" required:"true"`
+	SUPABASE_API_KEY          string `env:"SUPABASE_API_KEY" required:"true"`
 	SUPABASE_COOKIE_AUTH_NAME string `env:"SUPABASE_COOKIE_AUTH_NAME" required:"true"`
 	GO_ENV                    string `env:"GO_ENV" envDefault:"development"`
 	IMAGE_KIT_API_KEY         string `env:"IMAGE_KIT_API_KEY" required:"true"`

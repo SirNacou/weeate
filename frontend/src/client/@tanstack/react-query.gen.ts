@@ -4,6 +4,7 @@ import { queryOptions, type UseMutationOptions } from "@tanstack/react-query";
 
 import { client } from "../client.gen";
 import {
+	deleteFoodsById,
 	get,
 	getFoods,
 	type Options,
@@ -11,6 +12,9 @@ import {
 	putFoodsById,
 } from "../sdk.gen";
 import type {
+	DeleteFoodsByIdData,
+	DeleteFoodsByIdError,
+	DeleteFoodsByIdResponse,
 	GetData,
 	GetFoodsData,
 	PostFoodsData,
@@ -122,6 +126,33 @@ export const postFoodsMutation = (
 	> = {
 		mutationFn: async (fnOptions) => {
 			const { data } = await postFoods({
+				...options,
+				...fnOptions,
+				throwOnError: true,
+			});
+			return data;
+		},
+	};
+	return mutationOptions;
+};
+
+/**
+ * Delete a food item by its ID
+ */
+export const deleteFoodsByIdMutation = (
+	options?: Partial<Options<DeleteFoodsByIdData>>,
+): UseMutationOptions<
+	DeleteFoodsByIdResponse,
+	DeleteFoodsByIdError,
+	Options<DeleteFoodsByIdData>
+> => {
+	const mutationOptions: UseMutationOptions<
+		DeleteFoodsByIdResponse,
+		DeleteFoodsByIdError,
+		Options<DeleteFoodsByIdData>
+	> = {
+		mutationFn: async (fnOptions) => {
+			const { data } = await deleteFoodsById({
 				...options,
 				...fnOptions,
 				throwOnError: true,

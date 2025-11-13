@@ -1,4 +1,7 @@
-import { postFoodsMutation } from "@/client/@tanstack/react-query.gen";
+import {
+  getFoodsQueryKey,
+  postFoodsMutation,
+} from "@/client/@tanstack/react-query.gen";
 import ImageUpload from "@/components/comp-545";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,8 +23,8 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { FileWithPreview } from "@/hooks/use-file-upload";
 import { useForm } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
 import * as z from "zod";
 import FluentAdd32Filled from "~icons/fluent/add-32-filled";
 
@@ -34,7 +37,17 @@ const foodSchema = z.object({
 });
 
 const AddFoodDialog = () => {
-  const addFood = useMutation(postFoodsMutation());
+  const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  const addFood = useMutation({
+    ...postFoodsMutation(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getFoodsQueryKey() });
+      setOpen(false);
+      form.reset();
+    },
+  });
   const form = useForm({
     defaultValues: {
       name: "",
@@ -48,22 +61,16 @@ const AddFoodDialog = () => {
       onChange: foodSchema,
     },
     onSubmit: async ({ value }) => {
-      return new Promise<void>((resolve) =>
-        setTimeout(() => {
-          console.log("Submitting form with values:", value);
-          resolve();
-        }, 3000)
-      );
-      // console.log("Submitted values:", value);
-      // const result = await addFood.mutateAsync({
-      //   body: {
-      //     name: value.name,
-      //     price: value.price,
-      //     description: value.description,
-      //     image_file_id: value.imageFileId || undefined,
-      //   },
-      // });
-      // console.log("Add food result:", result);
+      console.log("Submitted values:", value);
+      const result = await addFood.mutateAsync({
+        body: {
+          name: value.name,
+          price: value.price,
+          description: value.description,
+          image_file_id: value.imageFileId || undefined,
+        },
+      });
+      console.log("Add food result:", result);
     },
   });
 
@@ -84,7 +91,7 @@ const AddFoodDialog = () => {
   );
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           <FluentAdd32Filled />
