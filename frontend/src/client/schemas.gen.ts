@@ -182,8 +182,8 @@ export const GetFoodsResponseItemSchema = {
 			type: "string",
 		},
 		price: {
-			format: "double",
-			type: "number",
+			format: "int64",
+			type: "integer",
 		},
 		user_id: {
 			type: "string",
@@ -255,6 +255,34 @@ export const IdentityDataSchema = {
 		},
 	},
 	required: ["email", "email_verified", "phone_verified", "sub"],
+	type: "object",
+} as const;
+
+export const UpdateFoodRequestSchema = {
+	additionalProperties: false,
+	properties: {
+		$schema: {
+			description: "A URL to the JSON Schema for this object.",
+			examples: ["https://example.com/schemas/UpdateFoodRequest.json"],
+			format: "uri",
+			readOnly: true,
+			type: "string",
+		},
+		description: {
+			type: "string",
+		},
+		image_file_id: {
+			type: "string",
+		},
+		name: {
+			type: "string",
+		},
+		price: {
+			format: "int64",
+			type: "integer",
+		},
+	},
+	required: ["name", "image_file_id", "description", "price"],
 	type: "object",
 } as const;
 
@@ -362,5 +390,26 @@ export const GetFoodsResponseWritableSchema = {
 		},
 	},
 	required: ["result"],
+	type: "object",
+} as const;
+
+export const UpdateFoodRequestWritableSchema = {
+	additionalProperties: false,
+	properties: {
+		description: {
+			type: "string",
+		},
+		image_file_id: {
+			type: "string",
+		},
+		name: {
+			type: "string",
+		},
+		price: {
+			format: "int64",
+			type: "integer",
+		},
+	},
+	required: ["name", "image_file_id", "description", "price"],
 	type: "object",
 } as const;

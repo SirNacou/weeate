@@ -3,13 +3,22 @@
 import { queryOptions, type UseMutationOptions } from "@tanstack/react-query";
 
 import { client } from "../client.gen";
-import { get, getFoods, type Options, postFoods } from "../sdk.gen";
+import {
+	get,
+	getFoods,
+	type Options,
+	postFoods,
+	putFoodsById,
+} from "../sdk.gen";
 import type {
 	GetData,
 	GetFoodsData,
 	PostFoodsData,
 	PostFoodsError,
 	PostFoodsResponse,
+	PutFoodsByIdData,
+	PutFoodsByIdError,
+	PutFoodsByIdResponse,
 } from "../types.gen";
 
 export type QueryKey<TOptions extends Options> = [
@@ -113,6 +122,33 @@ export const postFoodsMutation = (
 	> = {
 		mutationFn: async (fnOptions) => {
 			const { data } = await postFoods({
+				...options,
+				...fnOptions,
+				throwOnError: true,
+			});
+			return data;
+		},
+	};
+	return mutationOptions;
+};
+
+/**
+ * Update food
+ */
+export const putFoodsByIdMutation = (
+	options?: Partial<Options<PutFoodsByIdData>>,
+): UseMutationOptions<
+	PutFoodsByIdResponse,
+	PutFoodsByIdError,
+	Options<PutFoodsByIdData>
+> => {
+	const mutationOptions: UseMutationOptions<
+		PutFoodsByIdResponse,
+		PutFoodsByIdError,
+		Options<PutFoodsByIdData>
+	> = {
+		mutationFn: async (fnOptions) => {
+			const { data } = await putFoodsById({
 				...options,
 				...fnOptions,
 				throwOnError: true,

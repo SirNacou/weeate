@@ -23,7 +23,6 @@ import (
 	config "github.com/SirNacou/weeate/backend/internal/infrastructure/configs"
 	"github.com/SirNacou/weeate/backend/internal/infrastructure/db"
 	"github.com/SirNacou/weeate/backend/internal/infrastructure/repositories"
-	"github.com/labstack/echo/v4"
 )
 
 func main() {
@@ -75,15 +74,19 @@ func main() {
 
 	if envConfig.GO_ENV == config.EnvDevelopment {
 		log.Println("Running in development mode")
-		app.Use(cors.New(cors.ConfigDefault, cors.Config{
+		app.Use(cors.New(cors.Config{
+			AllowOriginsFunc: func(origin string) bool {
+				return true // Allow all origins in development
+			},
 			AllowCredentials: true,
+			AllowHeaders:     strings.Join([]string{fiber.HeaderOrigin, fiber.HeaderContentType, fiber.HeaderAccept, fiber.HeaderAuthorization}, ", "),
 		}))
 	} else {
 		log.Println("Running in production mode")
 		app.Use(cors.New(cors.Config{
 			AllowOrigins:     strings.Join([]string{"https://weeate.nacou.uk"}, ", "),
 			AllowMethods:     strings.Join([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch, http.MethodOptions}, ", "),
-			AllowHeaders:     strings.Join([]string{fiber.HeaderOrigin, fiber.HeaderContentType, fiber.HeaderAccept, echo.HeaderAuthorization}, ", "),
+			AllowHeaders:     strings.Join([]string{fiber.HeaderOrigin, fiber.HeaderContentType, fiber.HeaderAccept, fiber.HeaderAuthorization}, ", "),
 			AllowCredentials: true,
 		}))
 	}

@@ -7,15 +7,18 @@ import (
 
 type Handlers struct {
 	// Add common fields for handlers if needed
-	AddFoodHandler  foods.AddFoodCommandHandler
-	GetFoodsHandler foods.GetFoodsQueryHandler
+	AddFoodHandler    foods.AddFoodCommandHandler
+	UpdateFoodHandler foods.UpdateFoodCommandHandler
+	GetFoodsHandler   foods.GetFoodsQueryHandler
 }
 
 func NewHandlers(repos *repositories.Repositories) Handlers {
 	addFoodHdl := foods.NewAddFoodCommandHandler(repos.FoodRepo)
+	updateFoodHdl := foods.NewUpdateFoodCommandHandler(repos.FoodRepo)
 	getFoodHdl := foods.NewGetFoodsQueryHandler(repos.FoodRepo)
 	return Handlers{
-		AddFoodHandler:  addFoodHdl,
-		GetFoodsHandler: getFoodHdl,
+		AddFoodHandler:    addFoodHdl,
+		UpdateFoodHandler: updateFoodHdl,
+		GetFoodsHandler:   getFoodHdl,
 	}
 }

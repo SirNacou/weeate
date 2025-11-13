@@ -43,7 +43,7 @@ export const zGetFoodsResponseItem = z.object({
 	id: z.string(),
 	image_url: z.string(),
 	name: z.string(),
-	price: z.number(),
+	price: z.coerce.bigint(),
 	user_id: z.string(),
 });
 
@@ -69,6 +69,14 @@ export const zIdentity = z.object({
 	provider: z.string(),
 	updated_at: z.string(),
 	user_id: z.string(),
+});
+
+export const zUpdateFoodRequest = z.object({
+	$schema: z.optional(z.url().readonly()),
+	description: z.string(),
+	image_file_id: z.string(),
+	name: z.string(),
+	price: z.coerce.bigint(),
 });
 
 export const zUserMetadata = z.object({
@@ -97,6 +105,13 @@ export const zErrorModelWritable = z.object({
 
 export const zGetFoodsResponseWritable = z.object({
 	result: z.union([z.array(zGetFoodsResponseItem), z.null()]),
+});
+
+export const zUpdateFoodRequestWritable = z.object({
+	description: z.string(),
+	image_file_id: z.string(),
+	name: z.string(),
+	price: z.coerce.bigint(),
 });
 
 export const zGetData = z.object({
@@ -131,3 +146,16 @@ export const zPostFoodsData = z.object({
  * OK
  */
 export const zPostFoodsResponse = zAddFoodResponse;
+
+export const zPutFoodsByIdData = z.object({
+	body: zUpdateFoodRequestWritable,
+	path: z.object({
+		id: z.string(),
+	}),
+	query: z.optional(z.never()),
+});
+
+/**
+ * No Content
+ */
+export const zPutFoodsByIdResponse = z.void();

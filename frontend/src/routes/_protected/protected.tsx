@@ -10,7 +10,6 @@ export const Route = createFileRoute("/_protected/protected")({
 });
 
 function Info() {
-  const data = Route.useLoaderData();
-
-  return <p>Hello {data.user.email}</p>;
+  const { user } = Route.useLoaderData();
+  return <div>Hello {user.app_metadata.display_name}</div>;
 }

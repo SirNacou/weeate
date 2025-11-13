@@ -112,6 +112,17 @@ export type IdentityData = {
 	sub: string;
 };
 
+export type UpdateFoodRequest = {
+	/**
+	 * A URL to the JSON Schema for this object.
+	 */
+	readonly $schema?: string;
+	description: string;
+	image_file_id: string;
+	name: string;
+	price: number;
+};
+
 export type UserMetadata = {
 	email_verified: boolean;
 };
@@ -156,6 +167,13 @@ export type ErrorModelWritable = {
 
 export type GetFoodsResponseWritable = {
 	result: Array<GetFoodsResponseItem> | null;
+};
+
+export type UpdateFoodRequestWritable = {
+	description: string;
+	image_file_id: string;
+	name: string;
+	price: number;
 };
 
 export type GetData = {
@@ -232,3 +250,31 @@ export type PostFoodsResponses = {
 };
 
 export type PostFoodsResponse = PostFoodsResponses[keyof PostFoodsResponses];
+
+export type PutFoodsByIdData = {
+	body: UpdateFoodRequestWritable;
+	path: {
+		id: string;
+	};
+	query?: never;
+	url: "/foods/{id}";
+};
+
+export type PutFoodsByIdErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type PutFoodsByIdError = PutFoodsByIdErrors[keyof PutFoodsByIdErrors];
+
+export type PutFoodsByIdResponses = {
+	/**
+	 * No Content
+	 */
+	204: void;
+};
+
+export type PutFoodsByIdResponse =
+	PutFoodsByIdResponses[keyof PutFoodsByIdResponses];

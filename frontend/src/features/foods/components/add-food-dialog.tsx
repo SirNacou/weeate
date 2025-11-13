@@ -17,24 +17,13 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { FileWithPreview } from "@/hooks/use-file-upload";
-import { AnyFieldApi, useForm } from "@tanstack/react-form";
+import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
-import { image } from "motion/react-client";
 import { useCallback } from "react";
 import * as z from "zod";
-import FluentAdd12Filled from "~icons/fluent/add-12-filled";
-
-function FieldInfo({ field }: { field: AnyFieldApi }) {
-  return (
-    <>
-      {field.state.meta.isTouched && !field.state.meta.isValid ?
-        <em>{field.state.meta.errors.map((err) => err.message).join(",")}</em>
-      : null}
-      {field.state.meta.isValidating ? "Validating..." : null}
-    </>
-  );
-}
+import FluentAdd32Filled from "~icons/fluent/add-32-filled";
 
 const foodSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -59,9 +48,22 @@ const AddFoodDialog = () => {
       onChange: foodSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log("Submitted values:", value);
-      const result = await addFood.mutateAsync({ body: value });
-      console.log("Add food result:", result);
+      return new Promise<void>((resolve) =>
+        setTimeout(() => {
+          console.log("Submitting form with values:", value);
+          resolve();
+        }, 3000)
+      );
+      // console.log("Submitted values:", value);
+      // const result = await addFood.mutateAsync({
+      //   body: {
+      //     name: value.name,
+      //     price: value.price,
+      //     description: value.description,
+      //     image_file_id: value.imageFileId || undefined,
+      //   },
+      // });
+      // console.log("Add food result:", result);
     },
   });
 
@@ -81,20 +83,15 @@ const AddFoodDialog = () => {
     [form]
   );
 
-  console.log("handleFileChange callback:", handleFileChange);
-
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button>
-          <FluentAdd12Filled />
+          <FluentAdd32Filled />
           Add
         </Button>
       </DialogTrigger>
-      <DialogContent
-        className="sm:max-w-md"
-        onInteractOutside={(e) => e.preventDefault()}
-      >
+      <DialogContent className="sm:max-w-md" aria-description="Add food dialog">
         <form
           className="grid gap-4"
           onSubmit={(e) => {
@@ -201,6 +198,7 @@ const AddFoodDialog = () => {
                         id={field.name}
                         name={field.name}
                         value={field.state.value}
+                        readOnly
                       />
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
@@ -226,7 +224,12 @@ const AddFoodDialog = () => {
                   type="submit"
                   disabled={!canSubmit || isPristine || isSubmitting}
                 >
-                  {isSubmitting ? "Adding..." : "Add"}
+                  {isSubmitting ?
+                    <>
+                      <Spinner />
+                      Adding...
+                    </>
+                  : "Add"}
                 </Button>
               )}
             />

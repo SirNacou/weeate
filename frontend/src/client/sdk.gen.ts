@@ -12,6 +12,9 @@ import type {
 	PostFoodsData,
 	PostFoodsErrors,
 	PostFoodsResponses,
+	PutFoodsByIdData,
+	PutFoodsByIdErrors,
+	PutFoodsByIdResponses,
 } from "./types.gen";
 
 export type Options<
@@ -75,6 +78,26 @@ export const postFoods = <ThrowOnError extends boolean = false>(
 		ThrowOnError
 	>({
 		url: "/foods/",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * Update food
+ */
+export const putFoodsById = <ThrowOnError extends boolean = false>(
+	options: Options<PutFoodsByIdData, ThrowOnError>,
+) => {
+	return (options.client ?? client).put<
+		PutFoodsByIdResponses,
+		PutFoodsByIdErrors,
+		ThrowOnError
+	>({
+		url: "/foods/{id}",
 		...options,
 		headers: {
 			"Content-Type": "application/json",

@@ -3,6 +3,7 @@ package foods
 import (
 	"context"
 	"log"
+	"net/http"
 	"strconv"
 
 	"github.com/SirNacou/weeate/backend/internal/api"
@@ -43,14 +44,23 @@ func NewAddFoodEndpoint(addFoodHdl foods.AddFoodCommandHandler) *AddFoodEndpoint
 	}
 }
 
+func (e *AddFoodEndpoint) Register(group huma.API) {
+	huma.Register(group, huma.Operation{
+		Method:        http.MethodPost,
+		Path:          "/",
+		Summary:       "Add new food",
+		DefaultStatus: http.StatusOK,
+	}, e.AddFood)
+}
+
 func (e *AddFoodEndpoint) AddFood(ctx context.Context, req *struct{ Body AddFoodRequest }) (*api.Response[AddFoodResponse], error) {
 	log.Printf("Received AddFood request: %+v", req)
 
 	result, err := e.addFoodHandler.Handle(ctx, foods.AddFoodCommand{
-		Name:         req.Body.Name,
-		Price:        req.Body.Price,
-		Description:  req.Body.Description,
-		ImageFileID:  req.Body.ImageFileID,
+		Name:        req.Body.Name,
+		Price:       req.Body.Price,
+		Description: req.Body.Description,
+		ImageFileID: req.Body.ImageFileID,
 	})
 	if err != nil {
 		return nil, huma.Error400BadRequest("", err)

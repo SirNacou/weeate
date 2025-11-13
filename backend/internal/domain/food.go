@@ -42,16 +42,27 @@ func NewFood(name, image_file_id, imageUrl, description string, price int64, use
 	}, nil
 }
 
-func (f *Food) UpdateDetails(name, image_file_id, imageUrl, description string, price int64) {
+func (f *Food) UpdateDetails(name, image_file_id, imageUrl, description string, price int64) error {
+	if price < 0 {
+		return ErrInvalidPrice
+	}
+
+	if name == "" {
+		return ErrInvalidName
+	}
+
 	f.Name = name
 	f.ImageURL = imageUrl
 	f.Description = description
 	f.Price = price
+
+	return nil
 }
 
 type FoodRepository interface {
 	WithTx(tx *gorm.DB) FoodRepository
 	FindByID(ctx context.Context, id uuid.UUID) (Food, error)
+	FindAll(ctx context.Context) ([]Food, error)
 	FindAllByID(ctx context.Context, ids ...uuid.UUID) ([]Food, error)
 	FindAllByUserID(ctx context.Context, userID uuid.UUID) ([]Food, error)
 	Create(ctx context.Context, food *Food) error

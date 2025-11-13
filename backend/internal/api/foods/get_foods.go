@@ -2,6 +2,7 @@ package foods
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/SirNacou/weeate/backend/internal/api"
 	"github.com/SirNacou/weeate/backend/internal/app/foods"
@@ -20,7 +21,7 @@ type GetFoodsResponseItem struct {
 	Name        string    `json:"name"`
 	ImageURL    string    `json:"image_url"`
 	Description string    `json:"description"`
-	Price       float64   `json:"price"`
+	Price       int64     `json:"price"`
 	UserID      uuid.UUID `json:"user_id"`
 }
 
@@ -32,6 +33,16 @@ func NewGetFoodEndpoint(getFoodsHdl foods.GetFoodsQueryHandler) *GetFoodEndpoint
 	return &GetFoodEndpoint{
 		getFoodsHandler: getFoodsHdl,
 	}
+}
+
+func (e *GetFoodEndpoint) Register(group huma.API) {
+	huma.Register(group, huma.Operation{
+		Method:        http.MethodGet,
+		Path:          "/",
+		Summary:       "Get List Foods",
+		Description:   "Retrieve a list of foods.",
+		DefaultStatus: http.StatusOK,
+	}, e.GetFoods)
 }
 
 func (e *GetFoodEndpoint) GetFoods(ctx context.Context, req *struct{}) (*api.Response[GetFoodsResponse], error) {

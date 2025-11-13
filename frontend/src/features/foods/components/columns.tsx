@@ -1,8 +1,11 @@
 import { GetFoodsResponseItem } from "@/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Image } from "@imagekit/react";
+import TableActionMenuDialog from "./table-action-menu-dialog";
 
-export const columns: ColumnDef<GetFoodsResponseItem>[] = [
+export const createColumns = (
+  currentUserId?: string
+): ColumnDef<GetFoodsResponseItem>[] => [
   {
     id: "name",
     header: "Name",
@@ -42,5 +45,27 @@ export const columns: ColumnDef<GetFoodsResponseItem>[] = [
     id: "description",
     header: "Description",
     accessorFn: (row) => row.description,
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => {
+      // Only show actions if the current user owns this food item
+      if (row.original.user_id !== currentUserId) {
+        return null;
+      }
+
+      return (
+        <TableActionMenuDialog
+          data={{
+            id: row.original.id,
+            description: row.original.description,
+            name: row.original.name,
+            price: row.original.price,
+            imageFileUrl: row.original.image_url,
+          }}
+        />
+      );
+    },
   },
 ];

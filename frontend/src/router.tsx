@@ -4,7 +4,6 @@ import * as TanstackQuery from "./integrations/tanstack-query/root-provider";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
-import { de } from "date-fns/locale";
 
 // Setup client interceptors (only runs on client)
 export const getRouter = () => {
