@@ -1,7 +1,9 @@
 import { getFoodsOptions } from "@/client/@tanstack/react-query.gen";
 import { Button } from "@/components/ui/button";
+import { getServerFoods } from "@/features/foods/functions/get-server-foods";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
 import {
   Zap,
   Server,
@@ -11,15 +13,38 @@ import {
   Sparkles,
 } from "lucide-react";
 
+const fn1 = createServerFn({ method: "GET" }).handler(async () => {
+  // console.log("Server Function Called with data:", getCookies());
+  // await fetch(new URL("http://backend:8080/"), {
+  //   credentials: "include",
+  //   headers: {
+  //     Cookie: Object.entries(getCookies())
+  //       .map(([key, value]) => `${key}=${value}`)
+  //       .join("; "),
+  //   },
+  // })
+  //   .then((response) => {
+  //     console.log("Response:", response.status);
+  //     return response.json();
+  //   })
+  //   .then((json) => console.log(json))
+  //   .catch((error) => console.error("Error:", error));
+
+  const res = await getServerFoods();
+  console.log("Data:", res?.result);
+});
+
 export const Route = createFileRoute("/_protected/")({
-  loader: ({ context }) => {},
   component: App,
+  beforeLoad: () => {
+    return fn1();
+  },
 });
 
 function App() {
-  const initialData = Route.useLoaderData();
   const { data, refetch } = useQuery({
     ...getFoodsOptions(),
+    enabled: false,
   });
 
   const features = [
@@ -86,6 +111,16 @@ function App() {
               }}
             >
               Click
+            </Button>
+
+            <Button
+              onClick={(e) => {
+                e.preventDefault();
+                // console.log("Clicked");
+                fn1();
+              }}
+            >
+              Click1
             </Button>
           </div>
           <p className="text-2xl md:text-3xl text-gray-300 mb-4 font-light">

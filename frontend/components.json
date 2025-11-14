@@ -21,6 +21,8 @@
   "registries": {
     "@supabase": "https://supabase.com/ui/r/{name}.json",
     "@animate-ui": "https://animate-ui.com/r/{name}.json",
-    "@reui": "https://reui.io/r/{name}.json"
+    "@reui": "https://reui.io/r/{name}.json",
+    "@blocks": "https://blocks.so/r/{name}.json",
+    "@eo-n": "https://eo-n.vercel.app/r/{name}"
   }
 }

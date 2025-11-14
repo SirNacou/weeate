@@ -3,6 +3,9 @@
 import type { Client, Options as Options2, TDataShape } from "./client";
 import { client } from "./client.gen";
 import type {
+	DeleteFoodsByIdData,
+	DeleteFoodsByIdErrors,
+	DeleteFoodsByIdResponses,
 	GetData,
 	GetErrors,
 	GetFoodsData,
@@ -12,6 +15,9 @@ import type {
 	PostFoodsData,
 	PostFoodsErrors,
 	PostFoodsResponses,
+	PutFoodsByIdData,
+	PutFoodsByIdErrors,
+	PutFoodsByIdResponses,
 } from "./types.gen";
 
 export type Options<
@@ -58,7 +64,6 @@ export const getFoods = <ThrowOnError extends boolean = false>(
 		GetFoodsErrors,
 		ThrowOnError
 	>({
-		responseType: "json",
 		url: "/foods/",
 		...options,
 	});
@@ -68,14 +73,54 @@ export const getFoods = <ThrowOnError extends boolean = false>(
  * Add new food
  */
 export const postFoods = <ThrowOnError extends boolean = false>(
-	options?: Options<PostFoodsData, ThrowOnError>,
+	options: Options<PostFoodsData, ThrowOnError>,
 ) => {
-	return (options?.client ?? client).post<
+	return (options.client ?? client).post<
 		PostFoodsResponses,
 		PostFoodsErrors,
 		ThrowOnError
 	>({
 		url: "/foods/",
 		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * Delete a food item by its ID
+ */
+export const deleteFoodsById = <ThrowOnError extends boolean = false>(
+	options: Options<DeleteFoodsByIdData, ThrowOnError>,
+) => {
+	return (options.client ?? client).delete<
+		DeleteFoodsByIdResponses,
+		DeleteFoodsByIdErrors,
+		ThrowOnError
+	>({
+		url: "/foods/{id}",
+		...options,
+	});
+};
+
+/**
+ * Update food
+ */
+export const putFoodsById = <ThrowOnError extends boolean = false>(
+	options: Options<PutFoodsByIdData, ThrowOnError>,
+) => {
+	return (options.client ?? client).put<
+		PutFoodsByIdResponses,
+		PutFoodsByIdErrors,
+		ThrowOnError
+	>({
+		url: "/foods/{id}",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
 	});
 };

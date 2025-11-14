@@ -3,66 +3,76 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
-	"net/http"
-	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
+	"github.com/gofiber/contrib/fiberzerolog"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/supabase-community/supabase-go"
 
 	"github.com/SirNacou/weeate/backend/internal/api/auth"
+	"github.com/SirNacou/weeate/backend/internal/api/common"
 	"github.com/SirNacou/weeate/backend/internal/api/foods"
 	application "github.com/SirNacou/weeate/backend/internal/app"
 	domain "github.com/SirNacou/weeate/backend/internal/domain"
 	config "github.com/SirNacou/weeate/backend/internal/infrastructure/configs"
 	"github.com/SirNacou/weeate/backend/internal/infrastructure/db"
+	"github.com/SirNacou/weeate/backend/internal/infrastructure/logger"
 	"github.com/SirNacou/weeate/backend/internal/infrastructure/repositories"
-	"github.com/labstack/echo/v4"
 )
 
 func main() {
+	// Setup logger
+	log := logger.NewLogger()
+
+	// Setup context
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	ctx = log.WithContext(ctx)
+
 	// Setup configuration
-	config, err := config.LoadConfig()
+	envConfig, err := config.LoadConfig()
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal().Err(err)
+	}
+
+	// Setup Supabase auth
+	supabaseClient, err := supabase.NewClient(envConfig.SUPABASE_URL, envConfig.SUPABASE_API_KEY, &supabase.ClientOptions{})
+	if err != nil {
+		fmt.Println("Failed to initalize the client: ", err)
 	}
 
 	// Database connection
-	db, err := db.ConnectToPostgres(ctx, config)
+	db, err := db.ConnectToPostgres(ctx, envConfig)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal().Err(err)
 	}
 
 	db.AutoMigrate(&domain.Food{})
 
-	// Initialize Fiber app
+	// Setup repositories
+	repos := repositories.NewRepositories(db)
+
+	// Setup application handlers
+	handlers := application.NewHandlers(&repos, supabaseClient)
+
+	// Setup Fiber app
 	app := fiber.New()
 
-	app.Use(logger.New(logger.ConfigDefault))
-
-	app.Use(cors.New(cors.Config{
-		AllowOrigins:     strings.Join([]string{"http://localhost:3000", "http://localhost:3001", "http://localhost:8080", "https://weeate.nacou.uk"}, ", "),
-		AllowMethods:     strings.Join([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch, http.MethodOptions}, ", "),
-		AllowHeaders:     strings.Join([]string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization}, ", "),
-		AllowCredentials: true,
+	app.Use(fiberzerolog.New(fiberzerolog.Config{
+		Logger: &log,
 	}))
 
-	authware, err := auth.NewAuthMiddleware(ctx, config)
+	app.Use(common.CORSMiddleware(envConfig))
+
+	authMiddleware, err := common.AuthMiddleware(ctx, envConfig)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal().Err(err)
 	}
-	app.Use(authware.Handle)
+	app.Use(authMiddleware)
 
 	api := humafiber.New(app, huma.DefaultConfig("Weeate API", "v1.0.0"))
-
-	repos := repositories.NewRepositories(db)
-	handlers := application.NewHandlers(&repos)
 	foodsEndpoint := foods.NewFoodsEndpoint(handlers)
 
 	foodsEndpoint.Register(api)
@@ -75,7 +85,7 @@ func main() {
 		return &user, nil
 	})
 
-	if err := app.Listen(fmt.Sprintf(":%v", config.PORT)); err != nil {
-		log.Fatalf("Failed to run server: %v", err)
+	if err := app.Listen(fmt.Sprintf(":%v", envConfig.PORT)); err != nil {
+		log.Fatal().Msgf("Failed to run server: %v", err)
 	}
 }

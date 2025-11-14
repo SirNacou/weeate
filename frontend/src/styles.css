@@ -12,6 +12,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.Root {
+  @apply isolate;
+}
 
 code {
   font-family:

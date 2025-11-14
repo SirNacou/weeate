@@ -2,6 +2,7 @@ package foods
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/SirNacou/weeate/backend/internal/api"
 	"github.com/SirNacou/weeate/backend/internal/app/foods"
@@ -16,12 +17,12 @@ type GetFoodsResponse struct {
 }
 
 type GetFoodsResponseItem struct {
-	ID          uuid.UUID `json:"id"`
-	Name        string    `json:"name"`
-	ImageURL    string    `json:"image_url"`
-	Description string    `json:"description"`
-	Price       float64   `json:"price"`
-	UserID      uuid.UUID `json:"user_id"`
+	ID          uuid.UUID         `json:"id"`
+	Name        string            `json:"name"`
+	ImageURL    string            `json:"image_url"`
+	Description string            `json:"description"`
+	Price       int64             `json:"price"`
+	User        foods.UserProfile `json:"user"`
 }
 
 type GetFoodEndpoint struct {
@@ -34,13 +35,23 @@ func NewGetFoodEndpoint(getFoodsHdl foods.GetFoodsQueryHandler) *GetFoodEndpoint
 	}
 }
 
+func (e *GetFoodEndpoint) Register(group huma.API) {
+	huma.Register(group, huma.Operation{
+		Method:        http.MethodGet,
+		Path:          "/",
+		Summary:       "Get List Foods",
+		Description:   "Retrieve a list of foods.",
+		DefaultStatus: http.StatusOK,
+	}, e.GetFoods)
+}
+
 func (e *GetFoodEndpoint) GetFoods(ctx context.Context, req *struct{}) (*api.Response[GetFoodsResponse], error) {
 	r, err := e.getFoodsHandler.Handle(ctx, foods.GetFoodsQuery{})
 	if err != nil {
 		return nil, huma.Error400BadRequest("", err)
 	}
 
-	res := make([]GetFoodsResponseItem, len(r))
+	res := make([]GetFoodsResponseItem, 0, len(r))
 	for _, food := range r {
 		res = append(res, GetFoodsResponseItem{
 			ID:          food.ID,
@@ -48,7 +59,7 @@ func (e *GetFoodEndpoint) GetFoods(ctx context.Context, req *struct{}) (*api.Res
 			ImageURL:    food.ImageURL,
 			Description: food.Description,
 			Price:       food.Price,
-			UserID:      food.UserID,
+			User:        food.User,
 		})
 	}
 

@@ -1,28 +1,42 @@
-import { createRouter } from '@tanstack/react-router'
-import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
-import * as TanstackQuery from './integrations/tanstack-query/root-provider'
+import { createRouter, ErrorComponent } from "@tanstack/react-router";
+import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
+import * as TanstackQuery from "./integrations/tanstack-query/root-provider";
 
 // Import the generated route tree
-import { routeTree } from './routeTree.gen'
+import { routeTree } from "./routeTree.gen";
 
-// Create a new router instance
+// Setup client interceptors (only runs on client)
 export const getRouter = () => {
-  const rqContext = TanstackQuery.getContext()
+  const rqContext = TanstackQuery.getContext();
 
   const router = createRouter({
     routeTree,
     context: { ...rqContext },
-    defaultPreload: 'intent',
+    defaultPreload: "intent",
+    defaultErrorComponent: ({ error }) => <ErrorComponent error={error} />,
     Wrap: (props: { children: React.ReactNode }) => {
       return (
         <TanstackQuery.Provider {...rqContext}>
           {props.children}
         </TanstackQuery.Provider>
-      )
+      );
     },
-  })
+  });
 
-  setupRouterSsrQueryIntegration({ router, queryClient: rqContext.queryClient })
+  setupRouterSsrQueryIntegration({
+    router,
+    queryClient: rqContext.queryClient,
+  });
 
-  return router
+  return router;
+};
+
+// This code is only for TypeScript
+declare global {
+  interface Window {
+    __TANSTACK_QUERY_CLIENT__: import("@tanstack/query-core").QueryClient;
+  }
 }
+
+// This code is for all users
+window.__TANSTACK_QUERY_CLIENT__ = TanstackQuery.getContext().queryClient;

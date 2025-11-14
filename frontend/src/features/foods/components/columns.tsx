@@ -1,7 +1,12 @@
 import { GetFoodsResponseItem } from "@/client";
 import { ColumnDef } from "@tanstack/react-table";
+import { Image } from "@imagekit/react";
+import TableActionMenuDialog from "./table-action-menu-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export const columns: ColumnDef<GetFoodsResponseItem>[] = [
+export const createColumns = (
+  currentUserId?: string
+): ColumnDef<GetFoodsResponseItem>[] => [
   {
     id: "name",
     header: "Name",
@@ -13,7 +18,10 @@ export const columns: ColumnDef<GetFoodsResponseItem>[] = [
     accessorFn: (row) => row.image_url,
     cell: (info) =>
       info.getValue() ?
-        <img src={info.getValue() as string} alt={info.row.getValue("name")} />
+        <Image
+          src={info.getValue() as string}
+          alt={info.row.getValue("name")}
+        />
       : <span>No image</span>,
   },
   {
@@ -30,13 +38,48 @@ export const columns: ColumnDef<GetFoodsResponseItem>[] = [
     },
   },
   {
-    id: "user_id",
-    header: "User ID",
-    accessorFn: (row) => row.user_id,
+    id: "user",
+    header: "User",
+    accessorFn: (row) => row.user,
+    cell: ({ getValue }) => {
+      const user = getValue() as GetFoodsResponseItem["user"];
+      return (
+        <div className="flex items-center gap-2">
+          <Avatar>
+            <AvatarImage src={user.avatar_url} alt={user.display_name} />
+            <AvatarFallback>{user.display_name.slice(0, 2).toUpperCase()}</AvatarFallback>
+          </Avatar>
+
+          <span>{user.display_name}</span>
+        </div>
+      );
+    },
   },
   {
     id: "description",
     header: "Description",
     accessorFn: (row) => row.description,
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => {
+      // Only show actions if the current user owns this food item
+      if (row.original.user.id !== currentUserId) {
+        return null;
+      }
+
+      return (
+        <TableActionMenuDialog
+          data={{
+            id: row.original.id,
+            description: row.original.description,
+            name: row.original.name,
+            price: row.original.price,
+            imageFileUrl: row.original.image_url,
+          }}
+        />
+      );
+    },
   },
 ];

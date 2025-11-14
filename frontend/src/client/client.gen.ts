@@ -7,7 +7,7 @@ import {
 	createConfig,
 } from "./client";
 import type { ClientOptions as ClientOptions2 } from "./types.gen";
-import { createClientConfig } from "../api/api-client.ts";
+import { createClientConfig } from "../api/api-client-config.ts";
 
 /**
  * The `createClientConfig()` function will be called on client initialization
@@ -22,5 +22,9 @@ export type CreateClientConfig<T extends ClientOptions = ClientOptions2> = (
 ) => Config<Required<ClientOptions> & T>;
 
 export const client = createClient(
-	createClientConfig(createConfig<ClientOptions2>()),
+	createClientConfig(
+		createConfig<ClientOptions2>({
+			baseUrl: "http://localhost:8080",
+		}),
+	),
 );

@@ -3,6 +3,9 @@ package auth
 import (
 	"context"
 	"errors"
+	"time"
+
+	"github.com/gofrs/uuid/v5"
 )
 
 // SupabaseSession represents the complete session object
@@ -66,6 +69,13 @@ type IdentityData struct {
 	EmailVerified bool   `json:"email_verified"`
 	PhoneVerified bool   `json:"phone_verified"`
 	Subject       string `json:"sub"`
+}
+
+type UserProfile struct {
+	ID          uuid.UUID `json:"id"`
+	AvatarURL   string    `json:"avatar_url"`
+	DisplayName string    `json:"display_name"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 func GetUserContext(ctx context.Context) (User, error) {
