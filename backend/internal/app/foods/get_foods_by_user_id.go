@@ -17,7 +17,7 @@ type GetFoodsByUserIDQueryResult struct {
 	Name        string    `json:"name"`
 	ImageURL    string    `json:"image_url"`
 	Description string    `json:"description"`
-	Price       float64   `json:"price"`
+	Price       int64     `json:"price"`
 	UserID      uuid.UUID `json:"user_id"`
 }
 

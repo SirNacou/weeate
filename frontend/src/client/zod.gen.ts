@@ -2,6 +2,19 @@
 
 import { z } from "zod";
 
+export const zAddFoodRequest = z.object({
+	$schema: z.optional(z.url().readonly()),
+	description: z.optional(z.string()),
+	image_file_id: z.optional(z.string()),
+	name: z.string().min(1),
+	price: z.coerce.bigint().gte(BigInt(0)),
+});
+
+export const zAddFoodResponse = z.object({
+	$schema: z.optional(z.url().readonly()),
+	food_id: z.string(),
+});
+
 export const zAppMetadata = z.object({
 	avatar_url: z.string(),
 	display_name: z.string(),
@@ -25,20 +38,6 @@ export const zErrorModel = z.object({
 	type: z.optional(z.url()).default("about:blank"),
 });
 
-export const zGetFoodsResponseItem = z.object({
-	description: z.string(),
-	id: z.string(),
-	image_url: z.string(),
-	name: z.string(),
-	price: z.number(),
-	user_id: z.string(),
-});
-
-export const zGetFoodsResponse = z.object({
-	$schema: z.optional(z.url().readonly()),
-	result: z.union([z.array(zGetFoodsResponseItem), z.null()]),
-});
-
 export const zIdentityData = z.object({
 	email: z.string(),
 	email_verified: z.boolean(),
@@ -58,8 +57,47 @@ export const zIdentity = z.object({
 	user_id: z.string(),
 });
 
+export const zUpdateFoodRequest = z.object({
+	$schema: z.optional(z.url().readonly()),
+	description: z.string(),
+	image_file_id: z.string(),
+	name: z.string(),
+	price: z.coerce.bigint(),
+});
+
 export const zUserMetadata = z.object({
 	email_verified: z.boolean(),
+});
+
+export const zUserProfile = z.object({
+	avatar_url: z.string(),
+	display_name: z.string(),
+	id: z.string(),
+});
+
+export const zGetFoodsResponseItem = z.object({
+	description: z.string(),
+	id: z.string(),
+	image_url: z.string(),
+	name: z.string(),
+	price: z.coerce.bigint(),
+	user: zUserProfile,
+});
+
+export const zGetFoodsResponse = z.object({
+	$schema: z.optional(z.url().readonly()),
+	result: z.union([z.array(zGetFoodsResponseItem), z.null()]),
+});
+
+export const zAddFoodRequestWritable = z.object({
+	description: z.optional(z.string()),
+	image_file_id: z.optional(z.string()),
+	name: z.string().min(1),
+	price: z.coerce.bigint().gte(BigInt(0)),
+});
+
+export const zAddFoodResponseWritable = z.object({
+	food_id: z.string(),
 });
 
 export const zErrorModelWritable = z.object({
@@ -73,6 +111,13 @@ export const zErrorModelWritable = z.object({
 
 export const zGetFoodsResponseWritable = z.object({
 	result: z.union([z.array(zGetFoodsResponseItem), z.null()]),
+});
+
+export const zUpdateFoodRequestWritable = z.object({
+	description: z.string(),
+	image_file_id: z.string(),
+	name: z.string(),
+	price: z.coerce.bigint(),
 });
 
 export const zGetData = z.object({
@@ -98,7 +143,38 @@ export const zGetFoodsData = z.object({
 export const zGetFoodsResponse2 = zGetFoodsResponse;
 
 export const zPostFoodsData = z.object({
-	body: z.optional(z.never()),
+	body: zAddFoodRequestWritable,
 	path: z.optional(z.never()),
 	query: z.optional(z.never()),
 });
+
+/**
+ * OK
+ */
+export const zPostFoodsResponse = zAddFoodResponse;
+
+export const zDeleteFoodsByIdData = z.object({
+	body: z.optional(z.never()),
+	path: z.object({
+		id: z.uuid(),
+	}),
+	query: z.optional(z.never()),
+});
+
+/**
+ * No Content
+ */
+export const zDeleteFoodsByIdResponse = z.void();
+
+export const zPutFoodsByIdData = z.object({
+	body: zUpdateFoodRequestWritable,
+	path: z.object({
+		id: z.uuid(),
+	}),
+	query: z.optional(z.never()),
+});
+
+/**
+ * No Content
+ */
+export const zPutFoodsByIdResponse = z.void();

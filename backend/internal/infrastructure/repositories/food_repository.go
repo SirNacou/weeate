@@ -20,6 +20,11 @@ func (r *GormFoodRepository) WithTx(tx *gorm.DB) domain.FoodRepository {
 	return &GormFoodRepository{db: tx}
 }
 
+// FindAll implements domain.FoodRepository.
+func (r *GormFoodRepository) FindAll(ctx context.Context) ([]domain.Food, error) {
+	return gorm.G[domain.Food](r.db).Find(ctx)
+}
+
 func (r *GormFoodRepository) FindByID(ctx context.Context, id uuid.UUID) (domain.Food, error) {
 	return gorm.G[domain.Food](r.db).Where(&domain.Food{ID: id}).First(ctx)
 }

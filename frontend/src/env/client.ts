@@ -1,11 +1,7 @@
 import { createEnv } from "@t3-oss/env-core";
-import { z } from "zod";
+import z from "zod";
 
 export const env = createEnv({
-  server: {
-    SERVER_URL: z.url().optional(),
-  },
-
   /**
    * The prefix that client-side variables must have. This is enforced both at
    * a type-level and at runtime.
@@ -18,6 +14,8 @@ export const env = createEnv({
     VITE_SUPABASE_PUBLISHABLE_OR_ANON_KEY: z.string(),
     VITE_BACKEND_URL: z.url(),
     VITE_AUTH_COOKIE_NAME: z.string(),
+    VITE_IMAGEKIT_URL: z.url(),
+    VITE_IMAGEKIT_PUBLIC_KEY: z.string(),
   },
 
   /**

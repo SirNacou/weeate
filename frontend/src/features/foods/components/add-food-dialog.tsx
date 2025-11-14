@@ -1,3 +1,8 @@
+import {
+  getFoodsQueryKey,
+  postFoodsMutation,
+} from "@/client/@tanstack/react-query.gen";
+import ImageUpload from "@/components/comp-545";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,63 +20,85 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  AnyFieldApi,
-  formOptions,
-  FormOptions,
-  useForm,
-} from "@tanstack/react-form";
+import { Spinner } from "@/components/ui/spinner";
+import { FileWithPreview } from "@/hooks/use-file-upload";
+import { useForm } from "@tanstack/react-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
 import * as z from "zod";
-import FluentAdd12Filled from "~icons/fluent/add-12-filled";
-
-function FieldInfo({ field }: { field: AnyFieldApi }) {
-  return (
-    <>
-      {field.state.meta.isTouched && !field.state.meta.isValid ?
-        <em>{field.state.meta.errors.map((err) => err.message).join(",")}</em>
-      : null}
-      {field.state.meta.isValidating ? "Validating..." : null}
-    </>
-  );
-}
+import FluentAdd32Filled from "~icons/fluent/add-32-filled";
 
 const foodSchema = z.object({
   name: z.string().min(1, "Name is required"),
   price: z.number().min(0, "Price must be non-negative").multipleOf(1000),
   description: z.string().default(""),
   imageFile: z.file().nullish(),
-});
-
-const foodFormOptions = formOptions({
-  defaultValues: {
-    name: "",
-    price: 0,
-    description: "",
-    imageFile: null,
-  },
-  validators: {
-    // @ts-ignore
-    onChange: foodSchema,
-  },
-  onSubmit: (values) => {
-    console.log("Submitted values:", values);
-  },
+  imageFileId: z.string().optional(),
 });
 
 const AddFoodDialog = () => {
-  const form = useForm(foodFormOptions);
+  const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  const addFood = useMutation({
+    ...postFoodsMutation(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getFoodsQueryKey() });
+      setOpen(false);
+      form.reset();
+    },
+  });
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      price: 0,
+      description: "",
+      imageFile: null as File | null,
+      imageFileId: "",
+    },
+    validators: {
+      // @ts-ignore
+      onChange: foodSchema,
+    },
+    onSubmit: async ({ value }) => {
+      console.log("Submitted values:", value);
+      const result = await addFood.mutateAsync({
+        body: {
+          name: value.name,
+          price: value.price,
+          description: value.description,
+          image_file_id: value.imageFileId || undefined,
+        },
+      });
+      console.log("Add food result:", result);
+    },
+  });
+
+  const handleFileChange = useCallback(
+    (files: FileWithPreview[]) => {
+      console.log("File changed:", files);
+      const file = files.at(0);
+      if (file?.file instanceof File) {
+        // Update the imageFile field
+        setTimeout(() => {
+          form.setFieldValue("imageFile", file.file as File);
+          form.setFieldValue("imageFileId", file.file.name);
+        }, 5000);
+      }
+      console.log("handleFileChange completed");
+    },
+    [form]
+  );
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <FluentAdd12Filled />
+          <FluentAdd32Filled />
           Add
         </Button>
       </DialogTrigger>
-      <DialogContent
-        className="sm:max-w-md"
-        onInteractOutside={(e) => e.preventDefault()}
-      >
+      <DialogContent className="sm:max-w-md" aria-description="Add food dialog">
         <form
           className="grid gap-4"
           onSubmit={(e) => {
@@ -158,7 +185,35 @@ const AddFoodDialog = () => {
                 }}
               />
 
-              
+              <form.Field
+                name="imageFileId"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Image</FieldLabel>
+
+                      <ImageUpload
+                        maxSizeMB={5}
+                        onFilesChange={handleFileChange}
+                      />
+
+                      <Input
+                        hidden={true}
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        readOnly
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
+              />
             </FieldGroup>
           </div>
           <DialogFooter>
@@ -176,7 +231,12 @@ const AddFoodDialog = () => {
                   type="submit"
                   disabled={!canSubmit || isPristine || isSubmitting}
                 >
-                  {isSubmitting ? "Adding..." : "Add"}
+                  {isSubmitting ?
+                    <>
+                      <Spinner />
+                      Adding...
+                    </>
+                  : "Add"}
                 </Button>
               )}
             />
