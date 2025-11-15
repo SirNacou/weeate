@@ -9,7 +9,7 @@ import (
 )
 
 type Food struct {
-	ID          uuid.UUID `gorm:"primaryKey;autoIncrement"`
+	Base
 	Name        string    `gorm:"type:varchar(100);not null"`
 	Description string    `gorm:"type:text"`
 	Price       int64     `gorm:"not null"`
@@ -33,7 +33,7 @@ func NewFood(name, image_file_id, imageUrl, description string, price int64, use
 	}
 
 	return &Food{
-		ID:          foodID,
+		Base:        Base{ID: foodID},
 		Name:        name,
 		ImageURL:    imageUrl,
 		Description: description,

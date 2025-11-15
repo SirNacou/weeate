@@ -12,7 +12,7 @@ import (
 	"github.com/SirNacou/weeate/backend/internal/api/foods"
 	domain "github.com/SirNacou/weeate/backend/internal/domain"
 	"github.com/SirNacou/weeate/backend/internal/infrastructure/configs"
-	"github.com/SirNacou/weeate/backend/internal/infrastructure/db"
+	"github.com/SirNacou/weeate/backend/internal/infrastructure/data"
 	"github.com/SirNacou/weeate/backend/internal/usecase"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
@@ -35,13 +35,16 @@ func (a *application) mount(ctx context.Context) http.Handler {
 	}
 
 	// Database connection
-	db, err := db.ConnectToPostgres(ctx, a.config.DSN)
+	db, err := data.ConnectToPostgres(ctx, a.config.DSN)
 	if err != nil {
 		slog.Error("Failed to connect to database", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
 
-	db.AutoMigrate(&domain.Food{})
+	if err := data.MigratePostgresDB(db, &domain.Food{}, &domain.Poll{}); err != nil {
+		slog.Error("Failed to migrate database", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
 
 	// Setup application handlers
 	handlers := usecase.NewHandlers(db, supabaseClient)
