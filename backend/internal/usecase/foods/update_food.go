@@ -5,6 +5,7 @@ import (
 
 	"github.com/SirNacou/weeate/backend/internal/domain"
 	"github.com/gofrs/uuid/v5"
+	"gorm.io/gorm"
 )
 
 type UpdateFoodCommand struct {
@@ -16,24 +17,24 @@ type UpdateFoodCommand struct {
 }
 
 type UpdateFoodCommandHandler struct {
-	foodRepo domain.FoodRepository
+	db *gorm.DB
 }
 
-func NewUpdateFoodCommandHandler(foodRepo domain.FoodRepository) UpdateFoodCommandHandler {
+func NewUpdateFoodCommandHandler(db *gorm.DB) UpdateFoodCommandHandler {
 	return UpdateFoodCommandHandler{
-		foodRepo: foodRepo,
+		db: db,
 	}
 }
 
 func (h *UpdateFoodCommandHandler) Handle(ctx context.Context, cmd UpdateFoodCommand) error {
-	food, err := h.foodRepo.FindByID(ctx, cmd.ID)
-	if err != nil {
+	food := domain.Food{}
+	if err := h.db.WithContext(ctx).First(&food, "id = ?", cmd.ID).Error; err != nil {
 		return err
 	}
 
-	if err = food.UpdateDetails(cmd.Name, cmd.ImageFileId, "", cmd.Description, cmd.Price); err != nil {
+	if err := food.UpdateDetails(cmd.Name, cmd.ImageFileId, "", cmd.Description, cmd.Price); err != nil {
 		return err
 	}
 
-	return h.foodRepo.Update(ctx, &food)
+	return h.db.WithContext(ctx).Save(&food).Error
 }

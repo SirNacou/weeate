@@ -7,6 +7,7 @@ import (
 	"github.com/SirNacou/weeate/backend/internal/api/auth"
 	"github.com/SirNacou/weeate/backend/internal/domain"
 	"github.com/gofrs/uuid/v5"
+	"gorm.io/gorm"
 )
 
 type AddFoodCommand struct {
@@ -21,12 +22,12 @@ type AddFoodResult struct {
 }
 
 type AddFoodCommandHandler struct {
-	foodRepo domain.FoodRepository
+	db *gorm.DB
 }
 
-func NewAddFoodCommandHandler(foodRepo domain.FoodRepository) AddFoodCommandHandler {
+func NewAddFoodCommandHandler(db *gorm.DB) AddFoodCommandHandler {
 	return AddFoodCommandHandler{
-		foodRepo: foodRepo,
+		db: db,
 	}
 }
 
@@ -48,7 +49,7 @@ func (h *AddFoodCommandHandler) Handle(ctx context.Context, command AddFoodComma
 		return nil, err
 	}
 
-	if err := h.foodRepo.Create(ctx, food); err != nil {
+	if err := h.db.WithContext(ctx).Create(food).Error; err != nil {
 		return nil, fmt.Errorf("failed to create food: %w", err)
 	}
 

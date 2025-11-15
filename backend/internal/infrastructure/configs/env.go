@@ -1,7 +1,8 @@
-package config
+package configs
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/caarlos0/env/v11"
 )
@@ -11,14 +12,10 @@ const (
 	EnvProduction  = "production"
 )
 
-type Config struct {
+type Env struct {
 	PORT                      int    `env:"PORT" envDefault:"8080"`
 	Timezone                  string `env:"TZ" envDefault:"UTC"`
-	DBHost                    string `env:"DB_HOST" envDefault:"localhost"`
-	DBPort                    int    `env:"DB_PORT" envDefault:"5432"`
-	DBUser                    string `env:"DB_USER" envDefault:"weeate_user"`
-	DBPassword                string `env:"DB_PASSWORD" envDefault:"weeate_password"`
-	DBName                    string `env:"DB_NAME" envDefault:"weeate_db"`
+	DB                        db
 	SUPABASE_URL              string `env:"SUPABASE_URL" required:"true"`
 	SUPABASE_AUTH_URL         string `env:"SUPABASE_AUTH_URL" required:"true"`
 	SUPABASE_API_KEY          string `env:"SUPABASE_API_KEY" required:"true"`
@@ -28,10 +25,28 @@ type Config struct {
 	IMAGEKIT_URL              string `env:"IMAGEKIT_URL" required:"true"`
 }
 
-func LoadConfig() (Config, error) {
-	c, err := env.ParseAs[Config]()
-	if err != nil {
-		return Config{}, fmt.Errorf("failed to parse config from environment variables: %w", err)
-	}
-	return c, nil
+type db struct {
+	Host     string `env:"DB_HOST" envDefault:"localhost"`
+	Port     int    `env:"DB_PORT" envDefault:"5432"`
+	User     string `env:"DB_USER" envDefault:"weeate_user"`
+	Password string `env:"DB_PASSWORD" envDefault:"weeate_password"`
+	Name     string `env:"DB_NAME" envDefault:"weeate_db"`
+}
+
+func (e *Env) GetDBDsn() string {
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=%s",
+		e.DB.Host,
+		e.DB.User,
+		e.DB.Password,
+		e.DB.Name,
+		strconv.Itoa(e.DB.Port),
+		e.Timezone,
+	)
+	return dsn
+}
+
+func LoadEnv() (Env, error) {
+	e := Env{}
+	err := env.Parse(&e)
+	return e, err
 }

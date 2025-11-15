@@ -10,6 +10,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/supabase-community/supabase-go"
+	"gorm.io/gorm"
 )
 
 type GetFoodsQuery struct{}
@@ -29,20 +30,20 @@ type UserProfile struct {
 	DisplayName string    `json:"display_name"`
 }
 type GetFoodsQueryHandler struct {
-	foodRepo       domain.FoodRepository
+	db             *gorm.DB
 	supabaseClient *supabase.Client
 }
 
-func NewGetFoodsQueryHandler(foodRepo domain.FoodRepository, client *supabase.Client) GetFoodsQueryHandler {
+func NewGetFoodsQueryHandler(db *gorm.DB, client *supabase.Client) GetFoodsQueryHandler {
 	return GetFoodsQueryHandler{
-		foodRepo:       foodRepo,
+		db:             db,
 		supabaseClient: client,
 	}
 }
 
 func (h *GetFoodsQueryHandler) Handle(ctx context.Context, query GetFoodsQuery) ([]GetFoodsQueryResult, error) {
-	res, err := h.foodRepo.FindAll(ctx)
-	if err != nil {
+	res := []domain.Food{}
+	if err := h.db.WithContext(ctx).Find(&res).Error; err != nil {
 		return nil, err
 	}
 

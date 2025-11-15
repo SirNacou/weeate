@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/SirNacou/weeate/backend/internal/api"
-	"github.com/SirNacou/weeate/backend/internal/app/foods"
+	"github.com/SirNacou/weeate/backend/internal/usecase/foods"
 	"github.com/danielgtaylor/huma/v2"
 )
 

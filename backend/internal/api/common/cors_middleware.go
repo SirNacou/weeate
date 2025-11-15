@@ -9,8 +9,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
-func CORSMiddleware(cfg config.Config) fiber.Handler {
-	if cfg.GO_ENV == config.EnvDevelopment {
+func CORSMiddleware(goEnv string) fiber.Handler {
+	if goEnv == config.EnvDevelopment {
 		return cors.New(cors.Config{
 			AllowOriginsFunc: func(origin string) bool {
 				return true // Allow all origins in development

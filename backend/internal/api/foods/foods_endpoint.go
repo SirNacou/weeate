@@ -1,15 +1,15 @@
 package foods
 
 import (
-	"github.com/SirNacou/weeate/backend/internal/app"
+	"github.com/SirNacou/weeate/backend/internal/usecase"
 	"github.com/danielgtaylor/huma/v2"
 )
 
 type FoodsEndpoint struct {
-	handlers app.Handlers
+	handlers usecase.Handlers
 }
 
-func NewFoodsEndpoint(h app.Handlers) *FoodsEndpoint {
+func NewFoodsEndpoint(h usecase.Handlers) *FoodsEndpoint {
 	return &FoodsEndpoint{
 		handlers: h,
 	}
