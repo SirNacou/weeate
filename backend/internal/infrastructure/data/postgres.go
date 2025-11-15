@@ -1,4 +1,4 @@
-package db
+package data
 
 import (
 	"context"
@@ -15,4 +15,11 @@ func ConnectToPostgres(ctx context.Context, dsn string) (*gorm.DB, error) {
 	}
 
 	return db.WithContext(ctx), nil
+}
+
+func MigratePostgresDB(db *gorm.DB, models ...interface{}) error {
+	if err := db.AutoMigrate(models...); err != nil {
+		return fmt.Errorf("failed to migrate database: %w", err)
+	}
+	return nil
 }
