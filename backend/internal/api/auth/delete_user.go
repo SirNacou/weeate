@@ -3,7 +3,7 @@ package auth
 import (
 	"net/http"
 
-	app_auth "github.com/SirNacou/weeate/backend/internal/app/auth"
+	app_auth "github.com/SirNacou/weeate/backend/internal/usecase/auth"
 	"github.com/gofiber/fiber/v2"
 )
 

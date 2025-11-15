@@ -1,6 +1,6 @@
 package auth
 
-import app_auth "github.com/SirNacou/weeate/backend/internal/app/auth"
+import app_auth "github.com/SirNacou/weeate/backend/internal/usecase/auth"
 
 type AuthEndpoint struct {
 	registerCH   app_auth.RegisterCommandHandler

@@ -5,6 +5,7 @@ import (
 
 	"github.com/SirNacou/weeate/backend/internal/domain"
 	"github.com/gofrs/uuid/v5"
+	"gorm.io/gorm"
 )
 
 type DeleteFoodCommand struct {
@@ -12,18 +13,17 @@ type DeleteFoodCommand struct {
 }
 
 type DeleteFoodCommandHandler struct {
-	// Add necessary dependencies here, e.g., food repository
-	foodRepo domain.FoodRepository
+	db *gorm.DB
 }
 
-func NewDeleteFoodCommandHandler(foodRepo domain.FoodRepository) DeleteFoodCommandHandler {
+func NewDeleteFoodCommandHandler(db *gorm.DB) DeleteFoodCommandHandler {
 	return DeleteFoodCommandHandler{
-		foodRepo: foodRepo,
+		db: db,
 	}
 }
 
 func (h *DeleteFoodCommandHandler) Handle(ctx context.Context, command DeleteFoodCommand) error {
-	if err := h.foodRepo.Delete(ctx, command.FoodID); err != nil {
+	if err := h.db.WithContext(ctx).Delete(&domain.Food{}, "id = ?", command.FoodID).Error; err != nil {
 		return err
 	}
 

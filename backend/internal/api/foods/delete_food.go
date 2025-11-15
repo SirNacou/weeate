@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/SirNacou/weeate/backend/internal/app/foods"
+	"github.com/SirNacou/weeate/backend/internal/usecase/foods"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/gofrs/uuid/v5"
 )

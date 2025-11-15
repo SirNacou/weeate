@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/SirNacou/weeate/backend/internal/api/auth"
-	config "github.com/SirNacou/weeate/backend/internal/infrastructure/configs"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/lestrrat-go/httprc/v3"
@@ -23,7 +22,7 @@ import (
 	"github.com/lestrrat-go/jwx/v3/jwk"
 )
 
-func AuthMiddleware(ctx context.Context, config config.Config) (fiber.Handler, error) {
+func AuthMiddleware(ctx context.Context, authUrl, cookieName string) (fiber.Handler, error) {
 	jwkCache, err := jwk.NewCache(ctx, httprc.NewClient(
 		httprc.WithErrorSink(errsink.NewSlog(slog.Default())),
 		httprc.WithHTTPClient(http.DefaultClient),
@@ -33,11 +32,9 @@ func AuthMiddleware(ctx context.Context, config config.Config) (fiber.Handler, e
 		return nil, err
 	}
 
-	if err = jwkCache.Register(ctx, config.SUPABASE_AUTH_URL, jwk.WithMaxInterval(10*time.Minute)); err != nil {
+	if err = jwkCache.Register(ctx, authUrl, jwk.WithMaxInterval(10*time.Minute)); err != nil {
 		return nil, err
 	}
-
-	cookieName := config.SUPABASE_COOKIE_AUTH_NAME
 
 	return func(c *fiber.Ctx) error {
 		if strings.Contains(c.Path(), "/docs") || strings.Contains(c.Path(), "/openapi") {
