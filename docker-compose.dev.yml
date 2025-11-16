@@ -9,6 +9,7 @@ services:
       - 8080:8080
     env_file:
       - .env
+      - .env.local
     depends_on:
       - postgres
     volumes:
@@ -23,6 +24,7 @@ services:
     container_name: postgres
     env_file:
       - .env
+      - .env.local
     ports:
       - "5432:5432"
     volumes:
@@ -37,6 +39,7 @@ services:
     container_name: frontend
     env_file:
       - .env
+      - .env.local
       - .env.dev
     environment:
       - CHOKIDAR_USEPOLLING=true
