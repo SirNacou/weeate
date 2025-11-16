@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/SirNacou/weeate/backend/internal/api/auth"
-	"github.com/SirNacou/weeate/backend/internal/api/common"
-	"github.com/SirNacou/weeate/backend/internal/api/foods"
-	domain "github.com/SirNacou/weeate/backend/internal/domain"
-	"github.com/SirNacou/weeate/backend/internal/infrastructure/configs"
-	"github.com/SirNacou/weeate/backend/internal/infrastructure/data"
-	"github.com/SirNacou/weeate/backend/internal/usecase"
+	"github.com/SirNacou/weeate/backend/internal/common/api"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/configs"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/data"
+	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	"github.com/SirNacou/weeate/backend/internal/features/foods"
+	foods_domain "github.com/SirNacou/weeate/backend/internal/features/foods/domain"
+	polls_domain "github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
 	"github.com/gofiber/fiber/v2"
@@ -34,6 +34,8 @@ func (a *application) mount(ctx context.Context) http.Handler {
 		slog.Error("Failed to initalize the client: ", slog.String("error", err.Error()))
 	}
 
+	supabaseService := auth.NewSupabaseService(supabaseClient)
+
 	// Database connection
 	db, err := data.ConnectToPostgres(ctx, a.config.DSN)
 	if err != nil {
@@ -41,13 +43,10 @@ func (a *application) mount(ctx context.Context) http.Handler {
 		os.Exit(1)
 	}
 
-	if err := data.MigratePostgresDB(db, &domain.Food{}, &domain.Poll{}); err != nil {
+	if err := data.MigratePostgresDB(db, &foods_domain.Food{}, &polls_domain.Poll{}); err != nil {
 		slog.Error("Failed to migrate database", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
-
-	// Setup application handlers
-	handlers := usecase.NewHandlers(db, supabaseClient)
 
 	// Setup Fiber app
 	app := fiber.New(fiber.Config{})
@@ -56,8 +55,8 @@ func (a *application) mount(ctx context.Context) http.Handler {
 
 	app.Use(recover.New())
 
-	app.Use(common.CORSMiddleware(a.config.GO_ENV))
-	authMiddleware, err := common.AuthMiddleware(ctx, a.config.SUPABASE_AUTH_URL, a.config.SUPABASE_COOKIE_AUTH_NAME)
+	app.Use(api.CORSMiddleware(a.config.GO_ENV))
+	authMiddleware, err := api.AuthMiddleware(ctx, a.config.SUPABASE_AUTH_URL, a.config.SUPABASE_COOKIE_AUTH_NAME)
 	if err != nil {
 		slog.Error("Failed to initialize auth middleware", slog.String("error", err.Error()))
 		os.Exit(1)
@@ -65,8 +64,8 @@ func (a *application) mount(ctx context.Context) http.Handler {
 	app.Use(authMiddleware)
 
 	api := humafiber.New(app, huma.DefaultConfig("Weeate API", "v1.0.0"))
-	foodsEndpoint := foods.NewFoodsEndpoint(handlers)
-	foodsEndpoint.Register(api)
+
+	foods.RegisterFoodsGroup(db, supabaseService, api)
 
 	huma.Get(api, "/", func(ctx context.Context, i *struct{}) (*auth.User, error) {
 		user, err := auth.GetUserContext(ctx)

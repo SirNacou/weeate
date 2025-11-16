@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/SirNacou/weeate/backend/internal/infrastructure/configs"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/configs"
 )
 
 func main() {
