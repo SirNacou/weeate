@@ -3,6 +3,7 @@ module github.com/SirNacou/weeate
 go 1.25.3
 
 require (
+	github.com/ThreeDotsLabs/watermill v1.5.1
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/danielgtaylor/huma/v2 v2.34.1
 	github.com/gofiber/fiber/v2 v2.52.9
@@ -17,9 +18,11 @@ require (
 )
 
 require (
-	github.com/ThreeDotsLabs/watermill v1.5.1 // indirect
+	github.com/ThreeDotsLabs/watermill-sql v1.4.0 // indirect
+	github.com/ThreeDotsLabs/watermill-sql/v4 v4.1.2 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/lib/pq v1.10.9 // indirect
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/SirNacou/weeate/backend/internal/features/auth"
 	"github.com/SirNacou/weeate/backend/internal/common/api"
+	"github.com/SirNacou/weeate/backend/internal/features/auth"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/gofrs/uuid/v5"
 )

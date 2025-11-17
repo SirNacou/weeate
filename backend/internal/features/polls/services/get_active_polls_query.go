@@ -1,7 +1,8 @@
-package get_active_polls
+package services
 
 import (
 	"context"
+	"time"
 
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
 	food_domain "github.com/SirNacou/weeate/backend/internal/features/foods/domain"
@@ -11,7 +12,34 @@ import (
 	"gorm.io/gorm"
 )
 
-type GetActivePollsQuery struct{}
+type (
+	GetActivePollsQuery         struct{}
+	GetActivePollsQueryResponse struct {
+		ID                string              `json:"id"`
+		Creator           auth.UserProfile    `json:"creator"`
+		ScheduledClosesAt time.Time           `json:"scheduled_closes_at"`
+		FinalTotalPrice   int64               `json:"final_total_price"`
+		Strategy          domain.PollStrategy `json:"strategy"`
+		ClosedAt          *time.Time          `json:"closed_at"`
+		PollOptions       []PollOption        `json:"poll_options"`
+	}
+
+	PollOption struct {
+		ID              string `json:"id"`
+		Food            Food   `json:"food"`
+		PriceAtCreation int64  `json:"price_at_creation"`
+		Votes           []Vote `json:"votes"`
+	}
+
+	Food struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	}
+
+	Vote struct {
+		Voter auth.UserProfile `json:"voter"`
+	}
+)
 
 type GetActivePollsQueryHandler struct {
 	// Add necessary dependencies here, e.g., database connection
@@ -19,8 +47,8 @@ type GetActivePollsQueryHandler struct {
 	supabaseService *auth.SupabaseService
 }
 
-func NewGetActivePollsQueryHandler(db *gorm.DB, s *auth.SupabaseService) GetActivePollsQueryHandler {
-	return GetActivePollsQueryHandler{
+func NewGetActivePollsQueryHandler(db *gorm.DB, s *auth.SupabaseService) *GetActivePollsQueryHandler {
+	return &GetActivePollsQueryHandler{
 		db:              db,
 		supabaseService: s,
 	}
