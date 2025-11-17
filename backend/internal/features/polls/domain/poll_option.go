@@ -15,6 +15,15 @@ type PollOption struct {
 	Votes           []Vote    `gorm:"foreignKey:PollOptionID;constraint:OnDelete:CASCADE;"`
 }
 
+func NewPollOption(pollID, foodID uuid.UUID, priceAtCreation int64) *PollOption {
+	return &PollOption{
+		PollID:          pollID,
+		FoodID:          foodID,
+		PriceAtCreation: priceAtCreation,
+		Votes:           []Vote{},
+	}
+}
+
 var (
 	ErrPollOptionAlreadyExists = errors.New("poll option already exists for this food in the poll")
 	ErrInvalidPollOption       = errors.New("invalid poll option")

@@ -8,11 +8,14 @@ import (
 	"os"
 
 	"github.com/SirNacou/weeate/backend/internal/common/api"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/bus"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/configs"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/data"
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
 	"github.com/SirNacou/weeate/backend/internal/features/foods"
 	foods_domain "github.com/SirNacou/weeate/backend/internal/features/foods/domain"
+	"github.com/SirNacou/weeate/backend/internal/features/orders"
+	"github.com/SirNacou/weeate/backend/internal/features/polls"
 	polls_domain "github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
@@ -25,6 +28,7 @@ import (
 type application struct {
 	config config
 	logger *slog.Logger
+	bus    *bus.Bus
 }
 
 func (a *application) mount(ctx context.Context) http.Handler {
@@ -65,7 +69,9 @@ func (a *application) mount(ctx context.Context) http.Handler {
 
 	api := humafiber.New(app, huma.DefaultConfig("Weeate API", "v1.0.0"))
 
-	foods.RegisterFoodsGroup(db, supabaseService, api)
+	foods.RegisterFoodsGroup(api, db, supabaseService)
+	polls.RegisterPollsGroup(api, a.bus, db, supabaseService)
+	orders.RegisterOrdersGroup(api, db, supabaseService)
 
 	huma.Get(api, "/", func(ctx context.Context, i *struct{}) (*auth.User, error) {
 		user, err := auth.GetUserContext(ctx)

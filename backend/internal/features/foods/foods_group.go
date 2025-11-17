@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterFoodsGroup(db *gorm.DB, supabaseService *auth.SupabaseService, api huma.API) {
+func RegisterFoodsGroup(api huma.API, db *gorm.DB, supabaseService *auth.SupabaseService) {
 	getFoodHdl := get_foods.NewGetFoodsQueryHandler(db, supabaseService)
 	addFoodHdl := add_food.NewAddFoodCommandHandler(db)
 	updateFoodHdl := update_food.NewUpdateFoodCommandHandler(db)

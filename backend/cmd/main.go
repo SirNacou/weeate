@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/bus"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/configs"
 )
 
@@ -17,6 +18,13 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{}))
 	slog.SetDefault(logger)
 
+	// Setup Bus
+	bus, err := bus.NewBus(logger)
+	if err != nil {
+		logger.Error("Failed to create bus", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
+
 	// Setup configuration
 	env, err := configs.LoadEnv()
 	if err != nil {
@@ -28,7 +36,16 @@ func main() {
 	app := application{
 		config: config,
 		logger: logger,
+		bus:    bus,
 	}
+
+	// Start bus
+	go func() {
+		if err := bus.Start(ctx); err != nil {
+			logger.Error("Failed to start bus", slog.String("error", err.Error()))
+			os.Exit(1)
+		}
+	}()
 
 	// Start server
 	if err := app.run(app.mount(ctx)); err != nil {
