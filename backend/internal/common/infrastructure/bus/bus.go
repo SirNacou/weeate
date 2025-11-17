@@ -2,11 +2,15 @@ package bus
 
 import (
 	"context"
+	"database/sql"
 	"log/slog"
 	"time"
 
 	"github.com/ThreeDotsLabs/watermill"
+	wsql "github.com/ThreeDotsLabs/watermill-sql/v4/pkg/sql"
+
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
+	"github.com/ThreeDotsLabs/watermill/components/forwarder"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
@@ -14,13 +18,14 @@ import (
 
 type Bus struct {
 	router           *message.Router
+	forwarder        *forwarder.Forwarder
 	CommandBus       *cqrs.CommandBus
 	commandProcessor *cqrs.CommandProcessor
 	EventBus         *cqrs.EventBus
 	EventProcessor   *cqrs.EventProcessor
 }
 
-func NewBus(l *slog.Logger) (*Bus, error) {
+func NewBus(conn *sql.Conn, l *slog.Logger) (*Bus, error) {
 	logger := watermill.NewSlogLoggerWithLevelMapping(l, map[slog.Level]slog.Level{
 		slog.LevelDebug: slog.LevelDebug,
 		slog.LevelInfo:  slog.LevelInfo,
@@ -41,7 +46,9 @@ func NewBus(l *slog.Logger) (*Bus, error) {
 	}
 
 	goChannel := gochannel.NewGoChannel(gochannel.Config{
-		Persistent: true,
+		Persistent:                     true,
+		PreserveContext:                true,
+		BlockPublishUntilSubscriberAck: true,
 	}, logger)
 
 	// CQRS is built on messages router. Detailed documentation: https://watermill.io/docs/messages-router/
@@ -153,6 +160,22 @@ func NewBus(l *slog.Logger) (*Bus, error) {
 			Logger:    logger,
 		},
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	sqlSubcriber, err := wsql.NewSubscriber(wsql.BeginnerFromStdSQL(conn), wsql.SubscriberConfig{
+		InitializeSchema: true,
+		SchemaAdapter:    wsql.DefaultPostgreSQLSchema{},
+		OffsetsAdapter:   wsql.DefaultPostgreSQLOffsetsAdapter{},
+	}, logger)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = forwarder.NewForwarder(sqlSubcriber, goChannel, logger, forwarder.Config{
+		Router: router,
+	})
 	if err != nil {
 		return nil, err
 	}

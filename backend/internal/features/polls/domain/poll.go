@@ -4,17 +4,20 @@ import (
 	"time"
 
 	"github.com/SirNacou/weeate/backend/internal/common/domain"
+	"github.com/SirNacou/weeate/backend/internal/common/events"
 	"github.com/gofrs/uuid/v5"
 	"github.com/samber/lo"
 )
 
 type Poll struct {
 	domain.Base
-	OrderDate         time.Time    `gorm:"type:date;not null;index"`
-	ScheduledClosesAt time.Time    `gorm:"not null"`
-	Strategy          PollStrategy `gorm:"type:varchar(100);not null;check:strategy IN ('ORDER_MULTIPLE_ITEMS', 'ORDER_CONSENSUS_ITEM')"`
-	ClosedAt          *time.Time   `gorm:"nullable"`
-	PollOptions       []PollOption `gorm:"foreignKey:PollID;constraint:OnDelete:CASCADE;"`
+	BuyerID           string         `gorm:"not null;uniqueIndex:idx_poll_order_date_buyer"`
+	OrderDate         time.Time      `gorm:"type:date;not null;uniqueIndex:idx_poll_order_date_buyer"`
+	ScheduledClosesAt time.Time      `gorm:"not null"`
+	Strategy          PollStrategy   `gorm:"type:varchar(100);not null;check:strategy IN ('ORDER_MULTIPLE_ITEMS', 'ORDER_CONSENSUS_ITEM')"`
+	ClosedAt          *time.Time     `gorm:"nullable"`
+	PollOptions       []PollOption   `gorm:"foreignKey:PollID;constraint:OnDelete:CASCADE;"`
+	events            []domain.Event `gorm:"-"`
 }
 
 func NewPoll(orderDate, scheduledClosesAt time.Time, strategy PollStrategy, pollOptions []PollOption) (*Poll, error) {
@@ -44,6 +47,31 @@ func NewPoll(orderDate, scheduledClosesAt time.Time, strategy PollStrategy, poll
 func (p *Poll) Close() {
 	now := time.Now().UTC()
 	p.ClosedAt = &now
+	p.events = append(p.events, events.PollClosedEvent{
+		PollID:    p.ID,
+		BuyerID:   p.BuyerID,
+		OrderDate: p.OrderDate,
+		Strategy:  string(p.Strategy),
+		ClosedAt:  now,
+		Results: lo.Map(p.PollOptions, func(option PollOption, _ int) events.OptionResult {
+			return events.OptionResult{
+				FoodID:          option.FoodID,
+				PriceAtCreation: option.PriceAtCreation,
+				Votes: lo.Map(option.Votes, func(vote Vote, _ int) events.VoteResult {
+					return events.VoteResult{
+						UserID:   vote.UserID,
+						Quantity: 1, // Each vote represents a quantity of 1
+					}
+				}),
+			}
+		}),
+	})
+}
+
+func (p *Poll) PullEvents() []domain.Event {
+	events := p.events
+	p.events = nil
+	return events
 }
 
 func (p *Poll) CastVote(optionID uuid.UUID, userID string) (*Vote, error) {

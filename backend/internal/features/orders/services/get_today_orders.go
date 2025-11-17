@@ -1,4 +1,4 @@
-package get_today_orders
+package services
 
 import (
 	"context"
@@ -11,12 +11,31 @@ import (
 	"gorm.io/gorm"
 )
 
-type GetTodayOrdersQuery struct{}
+type (
+	GetTodayOrdersQuery    struct{}
+	GetTodayOrdersResponse struct {
+		PollID     uuid.UUID
+		Buyer      auth.UserProfile
+		TotalPrice int64
+		OrderItems []OrderItem
+	}
+	OrderItem struct {
+		FoodName     string
+		FoodImageUrl string
+		PriceAtOrder int64
+		Details      []OrderItemDetail
+	}
 
-type GetTodayOrdersQueryHandler struct {
-	db              *gorm.DB
-	supabaseService *auth.SupabaseService
-}
+	OrderItemDetail struct {
+		User     auth.UserProfile
+		Quantity int64
+	}
+
+	GetTodayOrdersQueryHandler struct {
+		db              *gorm.DB
+		supabaseService *auth.SupabaseService
+	}
+)
 
 func NewGetTodayOrdersQueryHandler(db *gorm.DB, supabaseService *auth.SupabaseService) *GetTodayOrdersQueryHandler {
 	return &GetTodayOrdersQueryHandler{
@@ -50,7 +69,7 @@ func (h *GetTodayOrdersQueryHandler) Handle(ctx context.Context, query *GetToday
 }
 
 func collectIDs(orders []domain.Order) (userIDs []string, foodIDs []uuid.UUID) {
-	userIDMap := make(map[uuid.UUID]struct{})
+	userIDMap := make(map[string]struct{})
 	foodIDMap := make(map[uuid.UUID]struct{})
 
 	for _, order := range orders {
@@ -64,7 +83,7 @@ func collectIDs(orders []domain.Order) (userIDs []string, foodIDs []uuid.UUID) {
 	}
 
 	for id := range userIDMap {
-		userIDs = append(userIDs, id.String())
+		userIDs = append(userIDs, id)
 	}
 
 	for id := range foodIDMap {
@@ -99,10 +118,10 @@ func (h *GetTodayOrdersQueryHandler) fetchData(ctx context.Context, userIDs []st
 func buildResponse(ctx context.Context, orders []domain.Order, userProfileMap map[string]auth.UserProfile, foodMap map[uuid.UUID]domain_food.Food) []GetTodayOrdersResponse {
 	var response []GetTodayOrdersResponse
 	for _, order := range orders {
-		buyerProfile, ok := userProfileMap[order.BuyerUserID.String()]
+		buyerProfile, ok := userProfileMap[order.BuyerUserID]
 		if !ok {
 			slog.ErrorContext(ctx, "buyer not found",
-				"buyerID", order.BuyerUserID.String(),
+				"buyerID", order.BuyerUserID,
 				"orderID", order.ID.String())
 			continue
 		}
@@ -112,20 +131,19 @@ func buildResponse(ctx context.Context, orders []domain.Order, userProfileMap ma
 			food, ok := foodMap[item.FoodID]
 			if !ok {
 				slog.ErrorContext(ctx, "food not found",
-					"foodID", item.FoodID.String(),
-					"orderID", order.ID.String(),
-					"orderItemID", item.ID.String())
+					"foodID", item.FoodID,
+					"orderID", order.ID.String())
 				continue
 			}
 
 			var details []OrderItemDetail
 			for _, detail := range item.Details {
-				userProfile, ok := userProfileMap[detail.UserID.String()]
+				userProfile, ok := userProfileMap[detail.UserID]
 				if !ok {
 					slog.ErrorContext(ctx, "user not found",
-						"userID", detail.UserID.String(),
+						"userID", detail.UserID,
 						"orderID", order.ID.String(),
-						"orderItemID", item.ID.String())
+						"foodID", item.FoodID)
 					continue
 				}
 				details = append(details, OrderItemDetail{User: userProfile, Quantity: detail.Quantity})

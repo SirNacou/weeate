@@ -1,11 +1,10 @@
-package create_poll
+package services
 
 import (
 	"context"
 	"fmt"
 	"time"
 
-	"github.com/SirNacou/weeate/backend/internal/common/service"
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
 	food_domain "github.com/SirNacou/weeate/backend/internal/features/foods/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/domain"
@@ -15,7 +14,14 @@ import (
 )
 
 type CreatePollCommand struct {
-	FoodIDs []string
+	OrderDate        time.Time `json:"order_date" doc:"Date for which the poll is being created in RFC3339 format"`
+	ScheduledCloseAt time.Time `json:"scheduled_close_at" doc:"Scheduled closing time for the poll in RFC3339 format"`
+	FoodIDs          []string  `json:"food_ids" minItems:"1" doc:"List of food IDs to include in the poll"`
+	Strategy         string    `json:"strategy" enum:"ORDER_MULTIPLE_ITEMS,ORDER_CONSENSUS_ITEM" doc:"Polling strategy to be used"`
+}
+
+type CreatePollResponse struct {
+	PollID string `json:"poll_id" doc:"The ID of the created poll"`
 }
 
 type CreatePollCommandHandler struct {
@@ -28,8 +34,11 @@ func NewCreatePollCommandHandler(db *gorm.DB) *CreatePollCommandHandler {
 	}
 }
 
-func (h *CreatePollCommandHandler) Handle(ctx context.Context, req CreatePollRequest) (*CreatePollResponse, error) {
-	user := ctx.Value(service.ContextKeyUser).(auth.User)
+func (h *CreatePollCommandHandler) Handle(ctx context.Context, req CreatePollCommand) (*CreatePollResponse, error) {
+	user, ok := auth.UserFromContext(ctx)
+	if !ok {
+		return nil, auth.ErrUserNotFoundInContext
+	}
 
 	foods, err := gorm.G[food_domain.Food](h.db).
 		Where("id IN ?", req.FoodIDs).

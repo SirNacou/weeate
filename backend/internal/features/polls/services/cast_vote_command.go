@@ -1,16 +1,20 @@
-package cast_vote
+package services
 
 import (
 	"context"
 
-	"github.com/SirNacou/weeate/backend/internal/common/service"
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/domain"
+	"github.com/gofrs/uuid/v5"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
+type CastVoteCommand struct {
+	PollID       uuid.UUID `json:"poll_id" format:"uuid" doc:"The ID of the poll to vote in"`
+	PollOptionID uuid.UUID `json:"poll_option_id" format:"uuid" doc:"The ID of the poll option to vote for"`
+}
 type CastVoteCommandHandler struct {
 	db *gorm.DB
 }
@@ -21,8 +25,11 @@ func NewCastVoteCommandHandler(db *gorm.DB) *CastVoteCommandHandler {
 	}
 }
 
-func (h *CastVoteCommandHandler) Handle(ctx context.Context, req CastVoteRequest) error {
-	user := ctx.Value(service.ContextKeyUser).(auth.User)
+func (h *CastVoteCommandHandler) Handle(ctx context.Context, req CastVoteCommand) error {
+	user, ok := auth.UserFromContext(ctx)
+	if !ok {
+		return auth.ErrUserNotFoundInContext
+	}
 
 	poll, err := gorm.G[domain.Poll](h.db).
 		Where("id = ?", req.PollID).
