@@ -13,10 +13,3 @@ type Base struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
-
-func (b *Base) BeforeCreate(tx *gorm.DB) (err error) {
-	if b.ID == uuid.Nil {
-		b.ID, err = uuid.NewV7()
-	}
-	return err
-}

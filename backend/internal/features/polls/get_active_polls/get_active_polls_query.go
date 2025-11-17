@@ -43,7 +43,7 @@ func (h *GetActivePollsQueryHandler) Handle(ctx context.Context, query GetActive
 		for _, opt := range p.PollOptions {
 			foodIDs = append(foodIDs, opt.FoodID.String())
 			for _, vote := range opt.Votes {
-				userIDs = append(userIDs, vote.UserID.String())
+				userIDs = append(userIDs, vote.UserID)
 			}
 		}
 	}
@@ -82,7 +82,7 @@ func (h *GetActivePollsQueryHandler) Handle(ctx context.Context, query GetActive
 					PriceAtCreation: option.PriceAtCreation,
 					Votes: lo.Map(option.Votes, func(vote domain.Vote, _ int) Vote {
 						return Vote{
-							Voter: userProfileMap[vote.UserID.String()],
+							Voter: userProfileMap[vote.UserID],
 						}
 					}),
 				}

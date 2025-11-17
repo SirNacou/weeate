@@ -27,3 +27,23 @@ type OrderItemDetail struct {
 	UserID   uuid.UUID
 	Quantity int
 }
+
+func NewOrder(pollID, buyerUserID uuid.UUID, orderDate time.Time, totalPrice int64, orderItems []OrderItem) (*Order, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return nil, err
+	}
+
+	order := &Order{
+		Base: domain.Base{
+			ID: id,
+		},
+		PollID:      pollID,
+		BuyerUserID: buyerUserID,
+		OrderDate:   orderDate,
+		TotalPrice:  totalPrice,
+		OrderItems:  orderItems,
+	}
+
+	return order, nil
+}
