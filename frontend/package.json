@@ -83,6 +83,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
     "@hey-api/openapi-ts": "0.87.1",
+    "@iconify-json/fluent": "^1.2.34",
     "@iconify-json/logos": "^1.2.10",
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",

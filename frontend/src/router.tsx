@@ -38,5 +38,7 @@ declare global {
   }
 }
 
-// This code is for all users
-window.__TANSTACK_QUERY_CLIENT__ = TanstackQuery.getContext().queryClient;
+if (typeof window !== "undefined") {
+  // This code is for all users
+  window.__TANSTACK_QUERY_CLIENT__ = TanstackQuery.getContext().queryClient;
+}

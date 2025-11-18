@@ -1,3 +1,5 @@
 package domain
 
-type Event interface{}
+type Event interface{
+	Name() string
+}
