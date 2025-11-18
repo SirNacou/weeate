@@ -38,7 +38,7 @@ func newServer(ctx context.Context, config configs.Env, logger *slog.Logger, db 
 
 	foods.RegisterFoodsModule(api, db, supabaseService)
 	polls.RegisterPollsModule(api, bus, db, supabaseService)
-	orders.RegisterOrdersModule(api, db, supabaseService)
+	orders.RegisterOrdersModule(api, bus, db, supabaseService)
 
 	huma.Get(api, "/", func(ctx context.Context, i *struct{}) (*auth.User, error) {
 		user, err := auth.GetUserContext(ctx)
