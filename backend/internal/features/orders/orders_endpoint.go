@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/SirNacou/weeate/backend/internal/common/api"
+	"github.com/SirNacou/weeate/backend/internal/common/api/http"
 	"github.com/SirNacou/weeate/backend/internal/features/orders/services"
 )
 
@@ -17,12 +18,12 @@ func NewOrdersEndpoint(g *services.GetTodayOrdersQueryHandler) *OrdersEndpoint {
 	}
 }
 
-func (e *OrdersEndpoint) getTodayOrders(ctx context.Context, request *struct{ Body services.GetTodayOrdersQuery }) (
+func (e *OrdersEndpoint) getTodayOrders(ctx context.Context, request *struct{}) (
 	*api.Response[[]services.GetTodayOrdersResponse], error,
 ) {
-	orders, err := e.getTodayOrdersQueryHandler.Handle(ctx, &request.Body)
+	orders, err := e.getTodayOrdersQueryHandler.Handle(ctx, nil)
 	if err != nil {
-		return nil, err
+		return nil, http.MapError(err)
 	}
 	return api.NewResponse(orders), nil
 }

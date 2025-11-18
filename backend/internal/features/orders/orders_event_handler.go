@@ -12,14 +12,14 @@ type OrdersEventHandler struct {
 }
 
 func NewOrdersEventHandler(
-	createOrderOnPollClosedHandler *services.CreateOrderCommandHandler,
+	createOrderHandler *services.CreateOrderCommandHandler,
 ) *OrdersEventHandler {
 	return &OrdersEventHandler{
-		createOrderHandler: createOrderOnPollClosedHandler,
+		createOrderHandler: createOrderHandler,
 	}
 }
 
-func (h *OrdersEventHandler) createOrderOnPollClosed(ctx context.Context, event *events.PollClosedEvent) error {
+func (h *OrdersEventHandler) onPollClosed(ctx context.Context, event *events.PollClosedEvent) error {
 	// Register the CreateOrderOnPollClosedHandler for PollClosedEvent
 	return h.createOrderHandler.Handle(ctx, &services.CreateOrderCommand{})
 }

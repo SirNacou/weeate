@@ -12,7 +12,6 @@ import (
 )
 
 type (
-	GetTodayOrdersQuery    struct{}
 	GetTodayOrdersResponse struct {
 		PollID     uuid.UUID
 		Buyer      auth.UserProfile
@@ -44,7 +43,7 @@ func NewGetTodayOrdersQueryHandler(db *gorm.DB, supabaseService *auth.SupabaseSe
 	}
 }
 
-func (h *GetTodayOrdersQueryHandler) Handle(ctx context.Context, query *GetTodayOrdersQuery) ([]GetTodayOrdersResponse, error) {
+func (h *GetTodayOrdersQueryHandler) Handle(ctx context.Context, query *struct{}) ([]GetTodayOrdersResponse, error) {
 	var orders []domain.Order
 	err := h.db.WithContext(ctx).
 		Preload("OrderItems.Details").

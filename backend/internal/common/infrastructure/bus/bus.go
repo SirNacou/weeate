@@ -3,14 +3,12 @@ package bus
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"log/slog"
 	"time"
 
 	"github.com/SirNacou/weeate/backend/internal/common/domain"
 	"github.com/ThreeDotsLabs/watermill"
 	wsql "github.com/ThreeDotsLabs/watermill-sql/v4/pkg/sql"
-	"github.com/samber/lo"
 
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/ThreeDotsLabs/watermill/components/forwarder"
@@ -19,16 +17,19 @@ import (
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 )
 
+const EventsToForwardTopic = "eventsToForward"
+
 type Bus struct {
 	router           *message.Router
+	cqrsMarshaler    cqrs.ProtoMarshaler
 	logger           watermill.LoggerAdapter
 	CommandBus       *cqrs.CommandBus
-	commandProcessor *cqrs.CommandProcessor
+	CommandProcessor *cqrs.CommandProcessor
 	EventBus         *cqrs.EventBus
 	EventProcessor   *cqrs.EventProcessor
 }
 
-func NewBus(conn *sql.Conn, l *slog.Logger) (*Bus, error) {
+func NewBus(db *sql.DB, l *slog.Logger) (*Bus, error) {
 	logger := watermill.NewSlogLoggerWithLevelMapping(l, map[slog.Level]slog.Level{
 		slog.LevelDebug: slog.LevelDebug,
 		slog.LevelInfo:  slog.LevelInfo,
@@ -38,14 +39,6 @@ func NewBus(conn *sql.Conn, l *slog.Logger) (*Bus, error) {
 
 	cqrsMarshaler := cqrs.ProtoMarshaler{
 		GenerateName: cqrs.StructName,
-	}
-
-	generateEventsTopic := func(eventName string) string {
-		return "events." + eventName
-	}
-
-	generateCommandsTopic := func(commandName string) string {
-		return "commands." + commandName
 	}
 
 	goChannel := gochannel.NewGoChannel(gochannel.Config{
@@ -172,13 +165,14 @@ func NewBus(conn *sql.Conn, l *slog.Logger) (*Bus, error) {
 		SchemaAdapter:    wsql.DefaultPostgreSQLSchema{},
 		OffsetsAdapter:   wsql.DefaultPostgreSQLOffsetsAdapter{},
 	}
-	sqlSubcriber, err := wsql.NewSubscriber(wsql.BeginnerFromStdSQL(conn), forwarderConfig, logger)
+	sqlSubcriber, err := wsql.NewSubscriber(wsql.BeginnerFromStdSQL(db), forwarderConfig, logger)
 	if err != nil {
 		return nil, err
 	}
 
 	_, err = forwarder.NewForwarder(sqlSubcriber, goChannel, logger, forwarder.Config{
-		Router: router,
+		Router:         router,
+		ForwarderTopic: EventsToForwardTopic,
 	})
 	if err != nil {
 		return nil, err
@@ -187,9 +181,10 @@ func NewBus(conn *sql.Conn, l *slog.Logger) (*Bus, error) {
 	// Initialize bus operations if necessary
 	return &Bus{
 		router:           router,
+		cqrsMarshaler:    cqrsMarshaler,
 		logger:           logger,
 		CommandBus:       commandBus,
-		commandProcessor: commandProcessor,
+		CommandProcessor: commandProcessor,
 		EventBus:         eventBus,
 		EventProcessor:   eventProcessor,
 	}, nil
@@ -200,8 +195,9 @@ func (b *Bus) Start(ctx context.Context) error {
 }
 
 type SqlPublisher struct {
-	pub    message.Publisher
-	logger watermill.LoggerAdapter
+	pub       message.Publisher
+	marshaler cqrs.ProtoMarshaler
+	logger    watermill.LoggerAdapter
 }
 
 func (b *Bus) NewSqlPublisher(tx *sql.Tx) (*SqlPublisher, error) {
@@ -218,35 +214,45 @@ func (b *Bus) NewSqlPublisher(tx *sql.Tx) (*SqlPublisher, error) {
 	}
 
 	return &SqlPublisher{
-		pub:    publisher,
-		logger: b.logger,
+		pub:       publisher,
+		marshaler: b.cqrsMarshaler,
+		logger:    b.logger,
 	}, nil
 }
 
 func (p *SqlPublisher) Publish(ctx context.Context, events ...domain.Event) error {
 	// Decorate publisher so it wraps an event in an envelope understood by the Forwarder component.
 	publisher := forwarder.NewPublisher(p.pub, forwarder.PublisherConfig{
-		ForwarderTopic: "eventsToForward",
+		ForwarderTopic: EventsToForwardTopic,
 	})
 
-	// Publish an event announcing the lottery winner. Please note we're publishing to a Google Cloud topic here,
-	// while using decorated MySQL publisher.
-	groupedEvents := lo.GroupBy(events, func(e domain.Event) string { return e.Name() })
-	for eventName, eventList := range groupedEvents {
-		messages := []*message.Message{}
-		for _, event := range eventList {
-			payload, err := json.Marshal(event)
-			if err != nil {
-				return err
-			}
-			messages = append(messages, message.NewMessageWithContext(ctx, watermill.NewULID(), payload))
+	for _, event := range events {
+		eventName := p.marshaler.Name(event)
+		msg, err := p.marshaler.Marshal(event)
+		if err != nil {
+			return err
 		}
-		err := publisher.Publish("sql_events."+eventName,
-			messages...,
-		)
+
+		p.logger.Info("Publishing event to be forwarded", watermill.LogFields{
+			"event_name": eventName,
+		})
+
+		msg.Metadata.Set("published_at", time.Now().String())
+		msg.SetContext(ctx)
+
+		err = publisher.Publish(generateEventsTopic(eventName), msg)
 		if err != nil {
 			return err
 		}
 	}
+
 	return nil
+}
+
+func generateEventsTopic(eventName string) string {
+	return "events." + eventName
+}
+
+func generateCommandsTopic(commandName string) string {
+	return "commands." + commandName
 }

@@ -1,6 +1,8 @@
 package orders
 
 import (
+	"github.com/SirNacou/weeate/backend/internal/common/api/http"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/bus"
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
 	"github.com/SirNacou/weeate/backend/internal/features/orders/services"
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
@@ -8,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterOrdersModule(api huma.API, db *gorm.DB, supabaseService *auth.SupabaseService) {
+func RegisterOrdersModule(api huma.API, bus *bus.Bus, db *gorm.DB, supabaseService *auth.SupabaseService) {
 	group := huma.NewGroup(api, "/orders")
 	group.OpenAPI().Tags = append(group.OpenAPI().Tags, &huma.Tag{
 		Name:        "Orders",
@@ -17,11 +19,13 @@ func RegisterOrdersModule(api huma.API, db *gorm.DB, supabaseService *auth.Supab
 
 	getTodayOrderHandler := services.NewGetTodayOrdersQueryHandler(db, supabaseService)
 	ordersEndpoint := NewOrdersEndpoint(getTodayOrderHandler)
-	huma.Get(group, "/today", ordersEndpoint.getTodayOrders)
+	huma.Get(group, "/today", http.Handle(ordersEndpoint.getTodayOrders))
 
 	ordersEventHandler := NewOrdersEventHandler(
 		services.NewCreateOrderCommandHandler(db, supabaseService),
 	)
 
-	cqrs.NewGroupEventHandler(ordersEventHandler.createOrderOnPollClosed)
+	bus.EventProcessor.AddHandlers(
+		cqrs.NewEventHandler("orders.onPollClosed", ordersEventHandler.onPollClosed),
+	)
 }

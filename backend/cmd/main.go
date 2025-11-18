@@ -13,8 +13,6 @@ import (
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/configs"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/data"
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
-	foods_domain "github.com/SirNacou/weeate/backend/internal/features/foods/domain"
-	polls_domain "github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 	"github.com/supabase-community/supabase-go"
 	"golang.org/x/sync/errgroup"
 )
@@ -42,7 +40,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := data.MigratePostgresDB(db, &foods_domain.Food{}, &polls_domain.Poll{}); err != nil {
+	if err := data.MigratePostgresDB(db, ); err != nil {
 		slog.Error("Failed to migrate database", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
@@ -53,12 +51,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	conn, err := sqlDB.Conn(ctx)
-	if err != nil {
-		slog.Error("Failed to connect to pgx", slog.String("error", err.Error()))
-		os.Exit(1)
-	}
-	defer conn.Close()
+	// conn, err := sqlDB.Conn(ctx)
+	// if err != nil {
+	// 	slog.Error("Failed to connect to pgx", slog.String("error", err.Error()))
+	// 	os.Exit(1)
+	// }
+	// defer conn.Close()
 
 	// Setup Supabase auth
 	supabaseClient, err := supabase.NewClient(env.SUPABASE_URL, env.SUPABASE_API_KEY, &supabase.ClientOptions{})
@@ -68,7 +66,7 @@ func main() {
 	supabaseService := auth.NewSupabaseService(supabaseClient)
 
 	// Setup Bus
-	bus, err := bus.NewBus(conn, logger)
+	bus, err := bus.NewBus(sqlDB, logger)
 	if err != nil {
 		logger.Error("Failed to create bus", slog.String("error", err.Error()))
 		os.Exit(1)

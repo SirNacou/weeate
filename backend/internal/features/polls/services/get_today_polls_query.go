@@ -55,8 +55,9 @@ func NewGetActivePollsQueryHandler(db *gorm.DB, s *auth.SupabaseService) *GetAct
 }
 
 func (h *GetActivePollsQueryHandler) Handle(ctx context.Context, query GetActivePollsQuery) ([]GetActivePollsQueryResponse, error) {
+	now := time.Now()
 	polls, err := data.GetPollAggregate(h.db).
-		Where("closed_at IS NULL").
+		Where("created_at >= ? AND created_at < ?", now.Truncate(24*time.Hour), now.Truncate(24*time.Hour).Add(24*time.Hour)).
 		Find(ctx)
 	if err != nil {
 		return nil, err
