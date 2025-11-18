@@ -15,6 +15,10 @@ type PollClosedEvent struct {
 	Results   []OptionResult
 }
 
+func (e PollClosedEvent) Name() string {
+	return "PollClosedEvent"
+}
+
 type OptionResult struct {
 	FoodID          uuid.UUID
 	PriceAtCreation int64

@@ -3,11 +3,14 @@ package bus
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"log/slog"
 	"time"
 
+	"github.com/SirNacou/weeate/backend/internal/common/domain"
 	"github.com/ThreeDotsLabs/watermill"
 	wsql "github.com/ThreeDotsLabs/watermill-sql/v4/pkg/sql"
+	"github.com/samber/lo"
 
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/ThreeDotsLabs/watermill/components/forwarder"
@@ -18,7 +21,7 @@ import (
 
 type Bus struct {
 	router           *message.Router
-	forwarder        *forwarder.Forwarder
+	logger           watermill.LoggerAdapter
 	CommandBus       *cqrs.CommandBus
 	commandProcessor *cqrs.CommandProcessor
 	EventBus         *cqrs.EventBus
@@ -164,11 +167,12 @@ func NewBus(conn *sql.Conn, l *slog.Logger) (*Bus, error) {
 		return nil, err
 	}
 
-	sqlSubcriber, err := wsql.NewSubscriber(wsql.BeginnerFromStdSQL(conn), wsql.SubscriberConfig{
+	forwarderConfig := wsql.SubscriberConfig{
 		InitializeSchema: true,
 		SchemaAdapter:    wsql.DefaultPostgreSQLSchema{},
 		OffsetsAdapter:   wsql.DefaultPostgreSQLOffsetsAdapter{},
-	}, logger)
+	}
+	sqlSubcriber, err := wsql.NewSubscriber(wsql.BeginnerFromStdSQL(conn), forwarderConfig, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -183,6 +187,7 @@ func NewBus(conn *sql.Conn, l *slog.Logger) (*Bus, error) {
 	// Initialize bus operations if necessary
 	return &Bus{
 		router:           router,
+		logger:           logger,
 		CommandBus:       commandBus,
 		commandProcessor: commandProcessor,
 		EventBus:         eventBus,
@@ -192,4 +197,56 @@ func NewBus(conn *sql.Conn, l *slog.Logger) (*Bus, error) {
 
 func (b *Bus) Start(ctx context.Context) error {
 	return b.router.Run(ctx)
+}
+
+type SqlPublisher struct {
+	pub    message.Publisher
+	logger watermill.LoggerAdapter
+}
+
+func (b *Bus) NewSqlPublisher(tx *sql.Tx) (*SqlPublisher, error) {
+	var publisher message.Publisher
+	publisher, err := wsql.NewPublisher(
+		wsql.TxFromStdSQL(tx),
+		wsql.PublisherConfig{
+			SchemaAdapter: wsql.DefaultPostgreSQLSchema{},
+		},
+		b.logger,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &SqlPublisher{
+		pub:    publisher,
+		logger: b.logger,
+	}, nil
+}
+
+func (p *SqlPublisher) Publish(ctx context.Context, events ...domain.Event) error {
+	// Decorate publisher so it wraps an event in an envelope understood by the Forwarder component.
+	publisher := forwarder.NewPublisher(p.pub, forwarder.PublisherConfig{
+		ForwarderTopic: "eventsToForward",
+	})
+
+	// Publish an event announcing the lottery winner. Please note we're publishing to a Google Cloud topic here,
+	// while using decorated MySQL publisher.
+	groupedEvents := lo.GroupBy(events, func(e domain.Event) string { return e.Name() })
+	for eventName, eventList := range groupedEvents {
+		messages := []*message.Message{}
+		for _, event := range eventList {
+			payload, err := json.Marshal(event)
+			if err != nil {
+				return err
+			}
+			messages = append(messages, message.NewMessageWithContext(ctx, watermill.NewULID(), payload))
+		}
+		err := publisher.Publish("sql_events."+eventName,
+			messages...,
+		)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

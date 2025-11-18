@@ -11,7 +11,7 @@ import (
 func RegisterPollsModule(api huma.API, b *bus.Bus, db *gorm.DB, supabaseService *auth.SupabaseService) {
 	getActivePollsHandler := services.NewGetActivePollsQueryHandler(db, supabaseService)
 	createPollHandler := services.NewCreatePollCommandHandler(db)
-	closePollHandler := services.NewClosePollCommandHandler(db, b.EventBus)
+	closePollHandler := services.NewClosePollCommandHandler(db, b)
 	castVoteHandler := services.NewCastVoteCommandHandler(db)
 
 	pollsEndpoint := NewPollsEndpoint(

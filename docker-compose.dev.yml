@@ -52,6 +52,7 @@ services:
       - ./frontend/public/:/app/frontend/public/
       - ./.env:/app/.env
       - ./.env.dev:/app/.env.dev
+      - ./.env.local:/app/.env.local
     restart: on-failure
 
 volumes:
