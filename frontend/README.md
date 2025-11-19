@@ -63,6 +63,7 @@ console.log(env.VITE_APP_TITLE);
 
 ## Routing
 
+
 This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
 
 ### Adding A Route
@@ -100,6 +101,8 @@ Here is an example layout that includes a header:
 ```tsx
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { Outlet, createRootRoute } from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import { Link } from "@tanstack/react-router";
 
@@ -116,6 +119,7 @@ export const Route = createRootRoute({
       <TanStackRouterDevtools />
     </>
   ),
+});
 });
 ```
 

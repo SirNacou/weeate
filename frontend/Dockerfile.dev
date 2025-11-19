@@ -5,16 +5,18 @@ WORKDIR /app
 COPY .env .
 COPY .env.dev .
 COPY .env.local .
+COPY .env.dev .
+COPY .env.local .
 
 WORKDIR /app/frontend
 
 COPY ./frontend/package.json ./
 COPY ./frontend/bun.lock ./
 
-RUN bun install --frozen-lockfile
+RUN npm install
 
 COPY ./frontend/ ./
 
 EXPOSE 3000
 
-CMD [ "bun", "run", "dev" ]
+CMD [ "npm", "run", "dev" ]

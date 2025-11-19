@@ -7,9 +7,9 @@ COPY ./.env ./
 WORKDIR /app/frontend
 
 COPY ./frontend/package.json ./
-COPY ./frontend/bun.lock ./
+COPY ./frontend/package-lock.json ./
 
-RUN bun install --frozen-lockfile
+RUN npm ci
 
 COPY ./frontend/ ./
 RUN bunx dotenvx run -f ../.env -- bun run build
