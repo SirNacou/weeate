@@ -11,8 +11,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import LucidePlus from "~icons/lucide/plus?width=2em&height=2em";
 import LucideCalendar from "~icons/lucide/calendar";
 import LucideUserRound from "~icons/lucide/user-round";
+import { Badge } from "@/components/ui/badge";
+import CloseTimer from "@/components/close-timer";
+import { add } from "date-fns";
+import PollStrategyBadge from "@/features/polls/components/poll-strategy-badge";
+import PollCard from "@/features/polls/components/poll-card";
 
-export const Route = createFileRoute("/_protected/polls/active/")({
+export const Route = createFileRoute("/_protected/polls/today/")({
   component: RouteComponent,
   head: () => {
     return {
@@ -62,6 +67,12 @@ function RouteComponent() {
       </div>
 
       <div className="flex flex-col gap-3">
+        <PollCard
+          avatarUrl=""
+          buyerName="Anh"
+          strategy="ORDER_CONSENSUS_ITEM"
+          options={["one", "two", "three"]}
+        />
         <Card>
           <CardHeader>
             <CardTitle className="flex gap-1 items-center text-lg">
@@ -69,6 +80,38 @@ function RouteComponent() {
               <span>
                 <b>Tomorrow's Breakfast</b> - Vote now!
               </span>
+
+              <Badge className="text-sm">Eat what you pick</Badge>
+            </CardTitle>
+            <CardDescription className="flex gap-1 items-center text-base">
+              <LucideUserRound />
+              <span>
+                <b>User</b> will buy the winning option for <b>everyone</b>
+              </span>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Replace with actual poll list */}
+            <p>No active polls at the moment.</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex gap-2 items-center text-lg">
+              <div className="flex gap-1">
+                <LucideCalendar />
+                <span>
+                  <b>Tomorrow's Breakfast</b> - Vote now!
+                </span>
+              </div>
+
+              <PollStrategyBadge strategy="ORDER_CONSENSUS_ITEM" />
+
+              <CloseTimer
+                className="text-sm ml-auto px-3"
+                closesAt={add(Date.now(), { minutes: 120 })}
+              />
             </CardTitle>
             <CardDescription className="flex gap-1 items-center text-base">
               <LucideUserRound />

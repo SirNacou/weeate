@@ -1,4 +1,4 @@
-FROM node:22-alpine AS builder
+FROM oven/bun:1 AS builder
 
 WORKDIR /app
 
@@ -7,12 +7,12 @@ COPY ./.env ./
 WORKDIR /app/frontend
 
 COPY ./frontend/package.json ./
-COPY ./frontend/package-lock.json ./
+COPY ./frontend/bun.lock ./
 
-RUN npm ci
+RUN bun install --frozen-lockfile
 
 COPY ./frontend/ ./
-RUN npx dotenvx run -f ../.env -- npm run build
+RUN bunx dotenvx run -f ../.env -- bun run build
 
 FROM nginx:mainline-alpine
 

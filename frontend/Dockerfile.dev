@@ -1,4 +1,4 @@
-FROM node:22-alpine AS builder
+FROM oven/bun:1 AS builder
 
 WORKDIR /app
 
@@ -9,12 +9,12 @@ COPY .env.local .
 WORKDIR /app/frontend
 
 COPY ./frontend/package.json ./
-COPY ./frontend/package-lock.json ./
+COPY ./frontend/bun.lock ./
 
-RUN npm install
+RUN bun install --frozen-lockfile
 
 COPY ./frontend/ ./
 
 EXPOSE 3000
 
-CMD [ "npm", "run", "dev" ]
+CMD [ "bun", "run", "dev" ]

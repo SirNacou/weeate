@@ -5,8 +5,8 @@ Welcome to your new TanStack app!
 To run this application:
 
 ```bash
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
 # Building For Production
@@ -14,7 +14,7 @@ npm run dev
 To build this application for production:
 
 ```bash
-npm run build
+bun run build
 ```
 
 ## Testing
@@ -22,7 +22,7 @@ npm run build
 This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
 
 ```bash
-npm run test
+bun run test
 ```
 
 ## Styling
@@ -34,9 +34,9 @@ This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
 This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
 
 ```bash
-npm run lint
-npm run format
-npm run check
+bun run lint
+bun run format
+bun run check
 ```
 
 ## Shadcn
@@ -163,7 +163,7 @@ React-Query is an excellent addition or alternative to route loading and integra
 First add your dependencies:
 
 ```bash
-npm install @tanstack/react-query @tanstack/react-query-devtools
+bun add @tanstack/react-query @tanstack/react-query-devtools
 ```
 
 Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
@@ -244,7 +244,7 @@ Another common requirement for React applications is state management. There are
 First you need to add TanStack Store as a dependency:
 
 ```bash
-npm install @tanstack/store
+bun add @tanstack/store
 ```
 
 Now let's create a simple counter in the `src/App.tsx` file as a demonstration.

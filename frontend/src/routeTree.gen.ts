@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProtectedRouteRouteImport } from './routes/_protected/route'
-import { Route as ProtectedRouteRouteImport } from './routes/_protected/route'
 import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoStorybookRouteImport } from './routes/demo/storybook'
@@ -30,12 +29,11 @@ import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
 import { Route as DemoApiTqTodosRouteImport } from './routes/demo/api.tq-todos'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
 import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
-import { Route as ProtectedPollsActiveIndexRouteImport } from './routes/_protected/polls/today/index'
+import { Route as ProtectedPollsTodayIndexRouteImport } from './routes/_protected/polls/today/index'
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
 import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
 
-const ProtectedRouteRoute = ProtectedRouteRouteImport.update({
 const ProtectedRouteRoute = ProtectedRouteRouteImport.update({
   id: '/_protected',
   getParentRoute: () => rootRouteImport,
@@ -43,7 +41,6 @@ const ProtectedRouteRoute = ProtectedRouteRouteImport.update({
 const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => ProtectedRouteRoute,
   getParentRoute: () => ProtectedRouteRoute,
 } as any)
 const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
@@ -69,7 +66,6 @@ const AuthConfirmRoute = AuthConfirmRouteImport.update({
 const ProtectedProtectedRoute = ProtectedProtectedRouteImport.update({
   id: '/protected',
   path: '/protected',
-  getParentRoute: () => ProtectedRouteRoute,
   getParentRoute: () => ProtectedRouteRoute,
 } as any)
 const AuthUpdatePasswordRoute = AuthUpdatePasswordRouteImport.update({
@@ -100,7 +96,6 @@ const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
 const ProtectedFoodsIndexRoute = ProtectedFoodsIndexRouteImport.update({
   id: '/foods/',
   path: '/foods/',
-  getParentRoute: () => ProtectedRouteRoute,
   getParentRoute: () => ProtectedRouteRoute,
 } as any)
 const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
@@ -138,17 +133,10 @@ const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
   path: '/demo/start/ssr/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProtectedPollsActiveIndexRoute =
-  ProtectedPollsActiveIndexRouteImport.update({
-    id: '/polls/active/',
-    path: '/polls/active/',
-    getParentRoute: () => ProtectedRouteRoute,
-  } as any)
-} as any)
-const ProtectedPollsActiveIndexRoute =
-  ProtectedPollsActiveIndexRouteImport.update({
-    id: '/polls/active/',
-    path: '/polls/active/',
+const ProtectedPollsTodayIndexRoute =
+  ProtectedPollsTodayIndexRouteImport.update({
+    id: '/polls/today/',
+    path: '/polls/today/',
     getParentRoute: () => ProtectedRouteRoute,
   } as any)
 const DemoStartSsrSpaModeRoute = DemoStartSsrSpaModeRouteImport.update({
@@ -189,8 +177,7 @@ export interface FileRoutesByFullPath {
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/polls/active': typeof ProtectedPollsActiveIndexRoute
-  '/polls/active': typeof ProtectedPollsActiveIndexRoute
+  '/polls/today': typeof ProtectedPollsTodayIndexRoute
   '/demo/start/ssr': typeof DemoStartSsrIndexRoute
 }
 export interface FileRoutesByTo {
@@ -215,13 +202,11 @@ export interface FileRoutesByTo {
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/polls/active': typeof ProtectedPollsActiveIndexRoute
-  '/polls/active': typeof ProtectedPollsActiveIndexRoute
+  '/polls/today': typeof ProtectedPollsTodayIndexRoute
   '/demo/start/ssr': typeof DemoStartSsrIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_protected': typeof ProtectedRouteRouteWithChildren
   '/_protected': typeof ProtectedRouteRouteWithChildren
   '/_auth/forgot-password': typeof AuthForgotPasswordRoute
   '/_auth/login': typeof AuthLoginRoute
@@ -244,8 +229,7 @@ export interface FileRoutesById {
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/_protected/polls/active/': typeof ProtectedPollsActiveIndexRoute
-  '/_protected/polls/active/': typeof ProtectedPollsActiveIndexRoute
+  '/_protected/polls/today/': typeof ProtectedPollsTodayIndexRoute
   '/demo/start/ssr/': typeof DemoStartSsrIndexRoute
 }
 export interface FileRouteTypes {
@@ -272,8 +256,7 @@ export interface FileRouteTypes {
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
-    | '/polls/active'
-    | '/polls/active'
+    | '/polls/today'
     | '/demo/start/ssr'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -298,8 +281,7 @@ export interface FileRouteTypes {
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
-    | '/polls/active'
-    | '/polls/active'
+    | '/polls/today'
     | '/demo/start/ssr'
   id:
     | '__root__'
@@ -325,13 +307,11 @@ export interface FileRouteTypes {
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
-    | '/_protected/polls/active/'
-    | '/_protected/polls/active/'
+    | '/_protected/polls/today/'
     | '/demo/start/ssr/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  ProtectedRouteRoute: typeof ProtectedRouteRouteWithChildren
   ProtectedRouteRoute: typeof ProtectedRouteRouteWithChildren
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
@@ -361,7 +341,6 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof ProtectedRouteRouteImport
-      preLoaderRoute: typeof ProtectedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_protected/': {
@@ -369,7 +348,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof ProtectedIndexRouteImport
-      parentRoute: typeof ProtectedRouteRoute
       parentRoute: typeof ProtectedRouteRoute
     }
     '/demo/tanstack-query': {
@@ -405,7 +383,6 @@ declare module '@tanstack/react-router' {
       path: '/protected'
       fullPath: '/protected'
       preLoaderRoute: typeof ProtectedProtectedRouteImport
-      parentRoute: typeof ProtectedRouteRoute
       parentRoute: typeof ProtectedRouteRoute
     }
     '/_auth/update-password': {
@@ -448,7 +425,6 @@ declare module '@tanstack/react-router' {
       path: '/foods'
       fullPath: '/foods'
       preLoaderRoute: typeof ProtectedFoodsIndexRouteImport
-      parentRoute: typeof ProtectedRouteRoute
       parentRoute: typeof ProtectedRouteRoute
     }
     '/demo/start/server-funcs': {
@@ -500,18 +476,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoStartSsrIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_protected/polls/active/': {
-      id: '/_protected/polls/active/'
-      path: '/polls/active'
-      fullPath: '/polls/active'
-      preLoaderRoute: typeof ProtectedPollsActiveIndexRouteImport
-      parentRoute: typeof ProtectedRouteRoute
-    }
-    '/_protected/polls/active/': {
-      id: '/_protected/polls/active/'
-      path: '/polls/active'
-      fullPath: '/polls/active'
-      preLoaderRoute: typeof ProtectedPollsActiveIndexRouteImport
+    '/_protected/polls/today/': {
+      id: '/_protected/polls/today/'
+      path: '/polls/today'
+      fullPath: '/polls/today'
+      preLoaderRoute: typeof ProtectedPollsTodayIndexRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
     '/demo/start/ssr/spa-mode': {
@@ -539,31 +508,24 @@ declare module '@tanstack/react-router' {
 }
 
 interface ProtectedRouteRouteChildren {
-interface ProtectedRouteRouteChildren {
   ProtectedProtectedRoute: typeof ProtectedProtectedRoute
   ProtectedIndexRoute: typeof ProtectedIndexRoute
   ProtectedFoodsIndexRoute: typeof ProtectedFoodsIndexRoute
-  ProtectedPollsActiveIndexRoute: typeof ProtectedPollsActiveIndexRoute
-  ProtectedPollsActiveIndexRoute: typeof ProtectedPollsActiveIndexRoute
+  ProtectedPollsTodayIndexRoute: typeof ProtectedPollsTodayIndexRoute
 }
 
-const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
 const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
   ProtectedProtectedRoute: ProtectedProtectedRoute,
   ProtectedIndexRoute: ProtectedIndexRoute,
   ProtectedFoodsIndexRoute: ProtectedFoodsIndexRoute,
-  ProtectedPollsActiveIndexRoute: ProtectedPollsActiveIndexRoute,
-  ProtectedPollsActiveIndexRoute: ProtectedPollsActiveIndexRoute,
+  ProtectedPollsTodayIndexRoute: ProtectedPollsTodayIndexRoute,
 }
 
-const ProtectedRouteRouteWithChildren = ProtectedRouteRoute._addFileChildren(
-  ProtectedRouteRouteChildren,
 const ProtectedRouteRouteWithChildren = ProtectedRouteRoute._addFileChildren(
   ProtectedRouteRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
-  ProtectedRouteRoute: ProtectedRouteRouteWithChildren,
   ProtectedRouteRoute: ProtectedRouteRouteWithChildren,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,

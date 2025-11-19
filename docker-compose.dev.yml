@@ -48,8 +48,8 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./frontend/src/:/app/frontend/src/
-      - ./frontend/public/:/app/frontend/public/
+      - ./frontend/:/app/frontend/
+      - /app/frontend/node_modules
       - ./.env:/app/.env
       - ./.env.dev:/app/.env.dev
       - ./.env.local:/app/.env.local
