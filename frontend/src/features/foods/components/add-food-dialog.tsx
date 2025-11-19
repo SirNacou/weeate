@@ -29,11 +29,10 @@ import * as z from "zod";
 import FluentAdd32Filled from "~icons/fluent/add-32-filled";
 
 const foodSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().nonempty("Name is required"),
   price: z.number().min(0, "Price must be non-negative").multipleOf(1000),
-  description: z.string().default(""),
-  imageFile: z.file().nullish(),
-  imageFileId: z.string().optional(),
+  description: z.string(),
+  imageFileId: z.string(),
 });
 
 const AddFoodDialog = () => {
@@ -53,11 +52,9 @@ const AddFoodDialog = () => {
       name: "",
       price: 0,
       description: "",
-      imageFile: null as File | null,
       imageFileId: "",
     },
     validators: {
-      // @ts-ignore
       onChange: foodSchema,
     },
     onSubmit: async ({ value }) => {
@@ -81,7 +78,6 @@ const AddFoodDialog = () => {
       if (file?.file instanceof File) {
         // Update the imageFile field
         setTimeout(() => {
-          form.setFieldValue("imageFile", file.file as File);
           form.setFieldValue("imageFileId", file.file.name);
         }, 5000);
       }

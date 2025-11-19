@@ -45,9 +45,9 @@ const DATA: NavData[] = [
   },
   {
     linkOptions: {
-      to: "/polls/active",
+      to: "/polls/today",
     },
-    label: "Active Polls",
+    label: "Today Polls",
     icon: LucideVote,
   },
   {

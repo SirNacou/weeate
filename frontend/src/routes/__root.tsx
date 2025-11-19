@@ -15,6 +15,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { ImageKitProvider } from "@imagekit/react";
 import { MotionConfig } from "motion/react";
 import { env } from "@/env/client";
+import { Toaster } from "@/components/ui/sonner";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -52,14 +53,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ImageKitProvider
-          urlEndpoint={env.VITE_APP_TITLE}
-          key={env.VITE_IMAGEKIT_PUBLIC_KEY}
+          urlEndpoint={env.VITE_IMAGEKIT_PUBLIC_KEY}
           transformationPosition="query"
         >
           <MotionConfig reducedMotion="user">
             <div className="Root">{children}</div>
           </MotionConfig>
         </ImageKitProvider>
+        <Toaster position="top-center" />
         <TanStackDevtools
           config={{
             position: "bottom-right",

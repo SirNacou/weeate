@@ -34,13 +34,13 @@ function RouteComponent() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-3">
-        <div className="flex justify-between items-center gap-3">
-          <div className="flex flex-col">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+          <div className="flex flex-col self-start">
             <h1 className="text-2xl font-bold">Today Food Polls</h1>
             <p>Vote for your favorite meals and let your voice be heard!</p>
           </div>
 
-          <Button>
+          <Button className="w-full sm:w-auto">
             <LucidePlus />
             Create New
           </Button>
@@ -66,12 +66,25 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <PollCard
           avatarUrl=""
           buyerName="Anh"
           strategy="ORDER_CONSENSUS_ITEM"
-          options={["one", "two", "three"]}
+          options={[
+            {
+              id: "1",
+              foodName: "Pizza",
+              foodImageUrl: "",
+              price: 100000,
+            },
+            {
+              id: "2",
+              foodName: "Burger",
+              foodImageUrl: "",
+              price: 80000,
+            },
+          ]}
         />
         <Card>
           <CardHeader>
