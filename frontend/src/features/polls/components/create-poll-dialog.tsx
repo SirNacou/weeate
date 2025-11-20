@@ -1,8 +1,7 @@
 import { serverClient } from "@/api";
-import { CreatePollCommand, listPollsToday, postPolls } from "@/client";
+import { CreatePollCommand, postPolls } from "@/client";
 import {
-  listOrdersTodayOptions,
-  listPollsTodayOptions,
+  listFoodsQueryKey,
   listPollsTodayQueryKey,
 } from "@/client/@tanstack/react-query.gen";
 import { zCreatePollCommandWritable } from "@/client/zod.gen";
@@ -17,12 +16,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/animate-ui/components/radix/dialog";
-import { LogoutButton } from "@/components/logout-button";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createServerFn, useServerFn } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start";
 import LucidePlus from "~icons/lucide/plus?width=2em&height=2em";
-import { listPollsTodayServerFn } from "../api/get-today-polls";
+import { getFoodsServer } from "@/features/foods/functions/get-server-foods";
+import { Route as ProtectedRoute } from "@/routes/_protected/route";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { MultiSelect, MultiSelectOption } from "@/components/multi-select";
+import { useMemo } from "react";
+import { Label } from "@/components/ui/label";
+import { add } from "date-fns";
+import { DateTimePicker } from "@/components/datetime-picker";
 
 const createPollServerFn = createServerFn({ method: "POST" })
   .inputValidator(zCreatePollCommandWritable)
@@ -45,6 +56,8 @@ const createPollServerFn = createServerFn({ method: "POST" })
 type Props = {};
 
 const CreatePollDialog = ({}: Props) => {
+  const { user } = ProtectedRoute.useRouteContext();
+
   const createPoll = useMutation({
     mutationFn: createPollServerFn,
     onSuccess: () =>
@@ -52,23 +65,44 @@ const CreatePollDialog = ({}: Props) => {
         queryKey: listPollsTodayQueryKey(),
       }),
   });
-  const { data, isLoading, error } = useQuery({
-    queryKey: listPollsTodayQueryKey(),
-    queryFn: listPollsTodayServerFn,
+  const { data: foods } = useQuery({
+    queryKey: listFoodsQueryKey({ query: { user_id: user.id } }),
+    queryFn: () => getFoodsServer({ data: { query: { user_id: user.id } } }),
   });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const foodOptions = useMemo(() => {
+    return foods ?
+        foods.map(
+          (food) =>
+            ({
+              label: food.name,
+              value: food.id,
+            }) as MultiSelectOption
+        )
+      : [];
+  }, [foods]);
 
-  if (error) {
-    return <div>Error loading polls: {(error as Error).message}</div>;
-  }
+  const minDate = useMemo(() => {
+    const date = add(new Date(), { hours: 1 });
+    if (date.getMinutes() > 0 || date.getSeconds() > 0) {
+      date.setHours(date.getHours() + 1, 0, 0, 0);
+    } else {
+      date.setMinutes(0, 0, 0);
+    }
+    return date;
+  }, []);
 
+  const maxDate = useMemo(() => {
+    const date = add(new Date(), { days: 1 });
+    date.setHours(6, 0, 0, 0);
+    return date;
+  }, []);
+
+  const orderDate = new Date(add(Date.now(), { days: 1 }));
   const form = useForm({
     defaultValues: {
       food_ids: [] as CreatePollCommand["food_ids"],
-      order_date: new Date(Date.now()).toISOString(),
+      order_date: orderDate.toISOString(),
       scheduled_close_at: new Date(Date.now()).toISOString(),
       strategy: "ORDER_MULTIPLE_ITEMS" as CreatePollCommand["strategy"],
     },
@@ -82,7 +116,6 @@ const CreatePollDialog = ({}: Props) => {
       });
     },
   });
-  LogoutButton;
 
   return (
     <Dialog>
@@ -92,7 +125,13 @@ const CreatePollDialog = ({}: Props) => {
           Create New
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="flex flex-col gap-6">
+        <DialogHeader>
+          <DialogTitle>Create New Poll</DialogTitle>
+          <DialogDescription>
+            Fill out the form below to create a new food poll.
+          </DialogDescription>
+        </DialogHeader>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -100,13 +139,64 @@ const CreatePollDialog = ({}: Props) => {
             form.handleSubmit();
           }}
         >
-          <DialogHeader>
-            <DialogTitle>Create New Poll</DialogTitle>
-            <DialogDescription>
-              Fill out the form below to create a new food poll.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-1"></div>
+          <div className="flex flex-col gap-1">
+            <FieldGroup>
+              <form.Field
+                name="food_ids"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid} className="grid gap-1">
+                      <FieldLabel htmlFor={field.name}>Select Foods</FieldLabel>
+                      <MultiSelect
+                        id={field.name}
+                        name={field.name}
+                        variant={"default"}
+                        onBlur={field.handleBlur}
+                        options={foodOptions}
+                        value={field.state.value || []}
+                        onValueChange={field.handleChange}
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
+              />
+
+              <form.Field
+                name="scheduled_close_at"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid} className="grid gap-1">
+                      <FieldLabel htmlFor={field.name}>Select Foods</FieldLabel>
+                      <DateTimePicker
+                        onChange={(value) =>
+                          field.handleChange(value?.toISOString() || "")
+                        }
+                        value={new Date(field.state.value)}
+                        min={minDate}
+                        max={maxDate}
+                        timePicker={{
+                          hour: true,
+                          minute: false,
+                          second: false,
+                        }}
+                        
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
+              />
+            </FieldGroup>
+          </div>
           <DialogFooter>
             <DialogClose asChild>
               <Button variant={"outline"}>Cancel</Button>

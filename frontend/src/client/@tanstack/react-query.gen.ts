@@ -6,7 +6,7 @@ import { client } from "../client.gen";
 import {
 	deleteFoodsById,
 	get,
-	getFoods,
+	listFoods,
 	listOrdersToday,
 	listPollsToday,
 	type Options,
@@ -21,7 +21,7 @@ import type {
 	DeleteFoodsByIdError,
 	DeleteFoodsByIdResponse,
 	GetData,
-	GetFoodsData,
+	ListFoodsData,
 	ListOrdersTodayData,
 	ListPollsTodayData,
 	PostFoodsData,
@@ -102,18 +102,16 @@ export const getOptions = (options?: Options<GetData>) => {
 	});
 };
 
-export const getFoodsQueryKey = (options?: Options<GetFoodsData>) =>
-	createQueryKey("getFoods", options);
+export const listFoodsQueryKey = (options?: Options<ListFoodsData>) =>
+	createQueryKey("listFoods", options);
 
 /**
- * Get List Foods
- *
- * Retrieve a list of foods.
+ * List foods
  */
-export const getFoodsOptions = (options?: Options<GetFoodsData>) => {
+export const listFoodsOptions = (options?: Options<ListFoodsData>) => {
 	return queryOptions({
 		queryFn: async ({ queryKey, signal }) => {
-			const { data } = await getFoods({
+			const { data } = await listFoods({
 				...options,
 				...queryKey[0],
 				signal,
@@ -121,12 +119,12 @@ export const getFoodsOptions = (options?: Options<GetFoodsData>) => {
 			});
 			return data;
 		},
-		queryKey: getFoodsQueryKey(options),
+		queryKey: listFoodsQueryKey(options),
 	});
 };
 
 /**
- * Add new food
+ * Post foods
  */
 export const postFoodsMutation = (
 	options?: Partial<Options<PostFoodsData>>,
@@ -153,7 +151,7 @@ export const postFoodsMutation = (
 };
 
 /**
- * Delete a food item by its ID
+ * Delete foods by ID
  */
 export const deleteFoodsByIdMutation = (
 	options?: Partial<Options<DeleteFoodsByIdData>>,
@@ -180,7 +178,7 @@ export const deleteFoodsByIdMutation = (
 };
 
 /**
- * Update food
+ * Put foods by ID
  */
 export const putFoodsByIdMutation = (
 	options?: Partial<Options<PutFoodsByIdData>>,

@@ -4,22 +4,37 @@ export type ClientOptions = {
 	baseUrl: "http://localhost:8080" | (string & {});
 };
 
-export type AddFoodRequest = {
+export type AddFoodCommand = {
 	/**
 	 * A URL to the JSON Schema for this object.
 	 */
 	readonly $schema?: string;
-	description?: string;
+	/**
+	 * A description of the food item
+	 */
+	description: string;
+	/**
+	 * The ID of the image file for the food item
+	 */
 	image_file_id?: string;
+	/**
+	 * The name of the food item
+	 */
 	name: string;
+	/**
+	 * The price of the food item in cents
+	 */
 	price: number;
 };
 
-export type AddFoodResponse = {
+export type AddFoodResult = {
 	/**
 	 * A URL to the JSON Schema for this object.
 	 */
 	readonly $schema?: string;
+	/**
+	 * The ID of the newly created food item
+	 */
 	food_id: string;
 };
 
@@ -115,15 +130,7 @@ export type Food = {
 	name: string;
 };
 
-export type GetFoodsResponse = {
-	/**
-	 * A URL to the JSON Schema for this object.
-	 */
-	readonly $schema?: string;
-	result: Array<GetFoodsResponseItem> | null;
-};
-
-export type GetFoodsResponseItem = {
+export type GetFoodsQueryResponse = {
 	description: string;
 	id: string;
 	image_url: string;
@@ -187,14 +194,26 @@ export type PollOption = {
 	votes: Array<Vote> | null;
 };
 
-export type UpdateFoodRequest = {
+export type PutByIdRequest = {
 	/**
 	 * A URL to the JSON Schema for this object.
 	 */
 	readonly $schema?: string;
+	/**
+	 * A description of the food item
+	 */
 	description: string;
-	image_file_id: string;
+	/**
+	 * The ID of the image file for the food item
+	 */
+	image_file_id?: string;
+	/**
+	 * The name of the food item
+	 */
 	name: string;
+	/**
+	 * The price of the food item in cents
+	 */
 	price: number;
 };
 
@@ -213,14 +232,29 @@ export type Vote = {
 	voter: UserProfile;
 };
 
-export type AddFoodRequestWritable = {
-	description?: string;
+export type AddFoodCommandWritable = {
+	/**
+	 * A description of the food item
+	 */
+	description: string;
+	/**
+	 * The ID of the image file for the food item
+	 */
 	image_file_id?: string;
+	/**
+	 * The name of the food item
+	 */
 	name: string;
+	/**
+	 * The price of the food item in cents
+	 */
 	price: number;
 };
 
-export type AddFoodResponseWritable = {
+export type AddFoodResultWritable = {
+	/**
+	 * The ID of the newly created food item
+	 */
 	food_id: string;
 };
 
@@ -277,14 +311,22 @@ export type ErrorModelWritable = {
 	type?: string;
 };
 
-export type GetFoodsResponseWritable = {
-	result: Array<GetFoodsResponseItem> | null;
-};
-
-export type UpdateFoodRequestWritable = {
+export type PutByIdRequestWritable = {
+	/**
+	 * A description of the food item
+	 */
 	description: string;
-	image_file_id: string;
+	/**
+	 * The ID of the image file for the food item
+	 */
+	image_file_id?: string;
+	/**
+	 * The name of the food item
+	 */
 	name: string;
+	/**
+	 * The price of the food item in cents
+	 */
 	price: number;
 };
 
@@ -313,33 +355,38 @@ export type GetResponses = {
 
 export type GetResponse = GetResponses[keyof GetResponses];
 
-export type GetFoodsData = {
+export type ListFoodsData = {
 	body?: never;
 	path?: never;
-	query?: never;
+	query?: {
+		/**
+		 * The ID of the user whose foods to retrieve (optional)
+		 */
+		user_id?: string;
+	};
 	url: "/foods/";
 };
 
-export type GetFoodsErrors = {
+export type ListFoodsErrors = {
 	/**
 	 * Error
 	 */
 	default: ErrorModel;
 };
 
-export type GetFoodsError = GetFoodsErrors[keyof GetFoodsErrors];
+export type ListFoodsError = ListFoodsErrors[keyof ListFoodsErrors];
 
-export type GetFoodsResponses = {
+export type ListFoodsResponses = {
 	/**
 	 * OK
 	 */
-	200: GetFoodsResponse;
+	200: Array<GetFoodsQueryResponse> | null;
 };
 
-export type GetFoodsResponse2 = GetFoodsResponses[keyof GetFoodsResponses];
+export type ListFoodsResponse = ListFoodsResponses[keyof ListFoodsResponses];
 
 export type PostFoodsData = {
-	body: AddFoodRequestWritable;
+	body: AddFoodCommandWritable;
 	path?: never;
 	query?: never;
 	url: "/foods/";
@@ -358,7 +405,7 @@ export type PostFoodsResponses = {
 	/**
 	 * OK
 	 */
-	200: AddFoodResponse;
+	200: AddFoodResult;
 };
 
 export type PostFoodsResponse = PostFoodsResponses[keyof PostFoodsResponses];
@@ -366,6 +413,9 @@ export type PostFoodsResponse = PostFoodsResponses[keyof PostFoodsResponses];
 export type DeleteFoodsByIdData = {
 	body?: never;
 	path: {
+		/**
+		 * The ID of the food item to be deleted
+		 */
 		id: string;
 	};
 	query?: never;
@@ -393,8 +443,11 @@ export type DeleteFoodsByIdResponse =
 	DeleteFoodsByIdResponses[keyof DeleteFoodsByIdResponses];
 
 export type PutFoodsByIdData = {
-	body: UpdateFoodRequestWritable;
+	body: PutByIdRequestWritable;
 	path: {
+		/**
+		 * The ID of the food item to be updated
+		 */
 		id: string;
 	};
 	query?: never;

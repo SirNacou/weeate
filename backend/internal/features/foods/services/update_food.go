@@ -1,4 +1,4 @@
-package update_food
+package services
 
 import (
 	"context"
@@ -9,19 +9,19 @@ import (
 )
 
 type UpdateFoodCommand struct {
-	ID          uuid.UUID
-	Name        string
-	ImageFileId string
-	Description string
-	Price       int64
+	ID          uuid.UUID `json:"id" format:"uuid" doc:"The ID of the food item to be updated"`
+	Name        string    `json:"name" doc:"The name of the food item"`
+	ImageFileId string    `json:"image_file_id,omitempty" doc:"The ID of the image file for the food item"`
+	Description string    `json:"description" doc:"A description of the food item"`
+	Price       int64     `json:"price" doc:"The price of the food item in cents"`
 }
 
 type UpdateFoodCommandHandler struct {
 	db *gorm.DB
 }
 
-func NewUpdateFoodCommandHandler(db *gorm.DB) UpdateFoodCommandHandler {
-	return UpdateFoodCommandHandler{
+func NewUpdateFoodCommandHandler(db *gorm.DB) *UpdateFoodCommandHandler {
+	return &UpdateFoodCommandHandler{
 		db: db,
 	}
 }

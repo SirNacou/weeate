@@ -1,5 +1,5 @@
 import {
-  getFoodsQueryKey,
+  listFoodsQueryKey,
   putFoodsByIdMutation,
 } from "@/client/@tanstack/react-query.gen";
 import ImageUpload from "@/components/image-upload";
@@ -56,7 +56,7 @@ const AddFoodDialog = ({
     ...putFoodsByIdMutation(),
     onSuccess: () => {
       // Invalidate and refetch foods query
-      queryClient.invalidateQueries({ queryKey: getFoodsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: listFoodsQueryKey() });
       // Close the dialog
       onOpenChange?.(false);
     },

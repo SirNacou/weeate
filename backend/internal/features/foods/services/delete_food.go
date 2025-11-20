@@ -1,4 +1,4 @@
-package delete_food
+package services
 
 import (
 	"context"
@@ -16,8 +16,8 @@ type DeleteFoodCommandHandler struct {
 	db *gorm.DB
 }
 
-func NewDeleteFoodCommandHandler(db *gorm.DB) DeleteFoodCommandHandler {
-	return DeleteFoodCommandHandler{
+func NewDeleteFoodCommandHandler(db *gorm.DB) *DeleteFoodCommandHandler {
+	return &DeleteFoodCommandHandler{
 		db: db,
 	}
 }

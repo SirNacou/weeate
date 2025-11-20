@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,7 +7,6 @@ import {
 } from "@/components/ui/card";
 import { getPageTitle } from "@/lib/head-utils";
 import { createFileRoute } from "@tanstack/react-router";
-import LucidePlus from "~icons/lucide/plus?width=2em&height=2em";
 import LucideCalendar from "~icons/lucide/calendar";
 import LucideUserRound from "~icons/lucide/user-round";
 import { Badge } from "@/components/ui/badge";

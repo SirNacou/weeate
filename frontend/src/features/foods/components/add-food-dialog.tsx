@@ -1,5 +1,5 @@
 import {
-  getFoodsQueryKey,
+  listFoodsQueryKey,
   postFoodsMutation,
 } from "@/client/@tanstack/react-query.gen";
 import ImageUpload from "@/components/image-upload";
@@ -42,7 +42,7 @@ const AddFoodDialog = () => {
   const addFood = useMutation({
     ...postFoodsMutation(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getFoodsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: listFoodsQueryKey() });
       setOpen(false);
       form.reset();
     },
@@ -64,7 +64,7 @@ const AddFoodDialog = () => {
           name: value.name,
           price: value.price,
           description: value.description,
-          image_file_id: value.imageFileId || undefined,
+          image_file_id: value.imageFileId,
         },
       });
       console.log("Add food result:", result);

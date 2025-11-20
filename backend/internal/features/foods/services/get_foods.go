@@ -1,4 +1,4 @@
-package get_foods
+package services
 
 import (
 	"context"
@@ -11,11 +11,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type GetFoodsQuery struct{
-	
+type GetFoodsQuery struct {
+	UserID uuid.UUID `query:"user_id,omitempty" format:"uuid" doc:"The ID of the user whose foods to retrieve (optional)"`
 }
 
-type GetFoodsQueryResult struct {
+type GetFoodsQueryResponse struct {
 	ID          uuid.UUID        `json:"id"`
 	Name        string           `json:"name"`
 	ImageURL    string           `json:"image_url"`
@@ -29,16 +29,25 @@ type GetFoodsQueryHandler struct {
 	supabaseService *auth.SupabaseService
 }
 
-func NewGetFoodsQueryHandler(db *gorm.DB, s *auth.SupabaseService) GetFoodsQueryHandler {
-	return GetFoodsQueryHandler{
+func NewGetFoodsQueryHandler(db *gorm.DB, s *auth.SupabaseService) *GetFoodsQueryHandler {
+	return &GetFoodsQueryHandler{
 		db:              db,
 		supabaseService: s,
 	}
 }
 
-func (h *GetFoodsQueryHandler) Handle(ctx context.Context, query GetFoodsQuery) ([]GetFoodsQueryResult, error) {
+func (h *GetFoodsQueryHandler) Handle(ctx context.Context, query GetFoodsQuery) ([]GetFoodsQueryResponse, error) {
 	foods := []domain.Food{}
-	if err := h.db.WithContext(ctx).Find(&foods).Error; err != nil {
+	err := error(nil)
+
+	foodsTable := gorm.G[domain.Food](h.db)
+	if !query.UserID.IsNil() {
+		foods, err = foodsTable.Where("user_id = ?", query.UserID).Find(ctx)
+	} else {
+		foods, err = foodsTable.Find(ctx)
+	}
+
+	if err != nil {
 		return nil, err
 	}
 
@@ -65,9 +74,9 @@ func (h *GetFoodsQueryHandler) Handle(ctx context.Context, query GetFoodsQuery) 
 	})
 
 	// 4. Assemble the response DTO.
-	results := make([]GetFoodsQueryResult, 0, len(foods))
+	results := make([]GetFoodsQueryResponse, 0, len(foods))
 	for _, food := range foods {
-		result := GetFoodsQueryResult{
+		result := GetFoodsQueryResponse{
 			ID:          food.ID,
 			Name:        food.Name,
 			ImageURL:    food.ImageURL,

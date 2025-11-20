@@ -33,7 +33,7 @@ func (e *PollsEndpoint) getTodayPolls(ctx context.Context, req *struct{}) (*api.
 	if err != nil {
 		return nil, err
 	}
-	return api.NewResponse(res), nil
+	return api.NewResponse(&res), nil
 }
 
 func (e *PollsEndpoint) createPoll(ctx context.Context, req *struct {
@@ -44,7 +44,7 @@ func (e *PollsEndpoint) createPoll(ctx context.Context, req *struct {
 	if err != nil {
 		return nil, err
 	}
-	return api.NewResponse(*res), nil
+	return api.NewResponse(res), nil
 }
 
 func (e *PollsEndpoint) closePoll(ctx context.Context, req *struct{}) (*struct{}, error) {

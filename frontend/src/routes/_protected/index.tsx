@@ -1,6 +1,6 @@
 import { getFoodsOptions } from "@/client/@tanstack/react-query.gen";
 import { Button } from "@/components/ui/button";
-import { getServerFoods } from "@/features/foods/functions/get-server-foods";
+import { getFoodsServer } from "@/features/foods/functions/get-server-foods";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 const fn1 = createServerFn({ method: "GET" }).handler(async () => {
-  const res = await getServerFoods();
+  const res = await getFoodsServer();
   console.log("Data:", res?.result);
 });
 

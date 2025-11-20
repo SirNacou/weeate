@@ -12,6 +12,7 @@ export default defineConfig({
     format: "biome",
     lint: "biome",
   },
+  logs: undefined,
   plugins: [
     "@hey-api/typescript",
     { name: "@hey-api/sdk", validator: true },

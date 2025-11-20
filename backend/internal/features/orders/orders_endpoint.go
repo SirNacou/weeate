@@ -25,5 +25,5 @@ func (e *OrdersEndpoint) getTodayOrders(ctx context.Context, request *struct{}) 
 	if err != nil {
 		return nil, http.MapError(err)
 	}
-	return api.NewResponse(orders), nil
+	return api.NewResponse(&orders), nil
 }

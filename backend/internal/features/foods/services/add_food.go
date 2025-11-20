@@ -1,4 +1,4 @@
-package add_food
+package services
 
 import (
 	"context"
@@ -11,22 +11,22 @@ import (
 )
 
 type AddFoodCommand struct {
-	Name        string
-	Price       int64
-	Description string
-	ImageFileID string
+	Name        string `json:"name" doc:"The name of the food item"`
+	Price       int64  `json:"price" doc:"The price of the food item in cents"`
+	Description string `json:"description" doc:"A description of the food item"`
+	ImageFileID string `json:"image_file_id,omitempty" doc:"The ID of the image file for the food item"`
 }
 
 type AddFoodResult struct {
-	FoodID uuid.UUID
+	FoodID uuid.UUID `json:"food_id" doc:"The ID of the newly created food item"`
 }
 
 type AddFoodCommandHandler struct {
 	db *gorm.DB
 }
 
-func NewAddFoodCommandHandler(db *gorm.DB) AddFoodCommandHandler {
-	return AddFoodCommandHandler{
+func NewAddFoodCommandHandler(db *gorm.DB) *AddFoodCommandHandler {
+	return &AddFoodCommandHandler{
 		db: db,
 	}
 }
