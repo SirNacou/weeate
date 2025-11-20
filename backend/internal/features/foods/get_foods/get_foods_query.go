@@ -11,7 +11,9 @@ import (
 	"gorm.io/gorm"
 )
 
-type GetFoodsQuery struct{}
+type GetFoodsQuery struct{
+	
+}
 
 type GetFoodsQueryResult struct {
 	ID          uuid.UUID        `json:"id"`

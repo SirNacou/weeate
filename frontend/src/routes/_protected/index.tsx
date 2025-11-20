@@ -14,22 +14,6 @@ import {
 } from "lucide-react";
 
 const fn1 = createServerFn({ method: "GET" }).handler(async () => {
-  // console.log("Server Function Called with data:", getCookies());
-  // await fetch(new URL("http://backend:8080/"), {
-  //   credentials: "include",
-  //   headers: {
-  //     Cookie: Object.entries(getCookies())
-  //       .map(([key, value]) => `${key}=${value}`)
-  //       .join("; "),
-  //   },
-  // })
-  //   .then((response) => {
-  //     console.log("Response:", response.status);
-  //     return response.json();
-  //   })
-  //   .then((json) => console.log(json))
-  //   .catch((error) => console.error("Error:", error));
-
   const res = await getServerFoods();
   console.log("Data:", res?.result);
 });

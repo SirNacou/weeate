@@ -8,28 +8,28 @@ import (
 )
 
 type PollsEndpoint struct {
-	getActivePollsQueryHandler *services.GetActivePollsQueryHandler
-	createPollCommandHandler   *services.CreatePollCommandHandler
-	closePollCommandHandler    *services.ClosePollCommandHandler
-	castVoteCommandHandler     *services.CastVoteCommandHandler
+	getTodayPollsQueryHandler *services.GetTodayPollsQueryHandler
+	createPollCommandHandler  *services.CreatePollCommandHandler
+	closePollCommandHandler   *services.ClosePollCommandHandler
+	castVoteCommandHandler    *services.CastVoteCommandHandler
 }
 
 func NewPollsEndpoint(
-	get *services.GetActivePollsQueryHandler,
+	get *services.GetTodayPollsQueryHandler,
 	create *services.CreatePollCommandHandler,
 	close *services.ClosePollCommandHandler,
 	cast *services.CastVoteCommandHandler,
 ) *PollsEndpoint {
 	return &PollsEndpoint{
-		getActivePollsQueryHandler: get,
-		createPollCommandHandler:   create,
-		closePollCommandHandler:    close,
-		castVoteCommandHandler:     cast,
+		getTodayPollsQueryHandler: get,
+		createPollCommandHandler:  create,
+		closePollCommandHandler:   close,
+		castVoteCommandHandler:    cast,
 	}
 }
 
-func (e *PollsEndpoint) getActivePolls(ctx context.Context, req *struct{}) (*api.Response[[]services.GetActivePollsQueryResponse], error) {
-	res, err := e.getActivePollsQueryHandler.Handle(ctx, services.GetActivePollsQuery{})
+func (e *PollsEndpoint) getTodayPolls(ctx context.Context, req *struct{}) (*api.Response[[]services.GetTodayPollsQueryResponse], error) {
+	res, err := e.getTodayPollsQueryHandler.Handle(ctx, services.GetTodayPollsQuery{})
 	if err != nil {
 		return nil, err
 	}

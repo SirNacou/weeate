@@ -30,6 +30,40 @@ export type AppMetadata = {
 	providers: Array<string> | null;
 };
 
+export type CreatePollCommand = {
+	/**
+	 * A URL to the JSON Schema for this object.
+	 */
+	readonly $schema?: string;
+	/**
+	 * List of food IDs to include in the poll
+	 */
+	food_ids: Array<string> | null;
+	/**
+	 * Date for which the poll is being created in RFC3339 format
+	 */
+	order_date: Date;
+	/**
+	 * Scheduled closing time for the poll in RFC3339 format
+	 */
+	scheduled_close_at: Date;
+	/**
+	 * Polling strategy to be used
+	 */
+	strategy: "ORDER_MULTIPLE_ITEMS" | "ORDER_CONSENSUS_ITEM";
+};
+
+export type CreatePollResponse = {
+	/**
+	 * A URL to the JSON Schema for this object.
+	 */
+	readonly $schema?: string;
+	/**
+	 * The ID of the created poll
+	 */
+	poll_id: string;
+};
+
 export type ErrorDetail = {
 	/**
 	 * Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id'
@@ -76,6 +110,11 @@ export type ErrorModel = {
 	type?: string;
 };
 
+export type Food = {
+	id: string;
+	name: string;
+};
+
 export type GetFoodsResponse = {
 	/**
 	 * A URL to the JSON Schema for this object.
@@ -91,6 +130,23 @@ export type GetFoodsResponseItem = {
 	name: string;
 	price: number;
 	user: UserProfile;
+};
+
+export type GetTodayOrdersResponse = {
+	Buyer: UserProfile;
+	OrderItems: Array<OrderItem> | null;
+	PollID: string;
+	TotalPrice: number;
+};
+
+export type GetTodayPollsQueryResponse = {
+	closed_at: Date | null;
+	creator: UserProfile;
+	final_total_price: number;
+	id: string;
+	poll_options: Array<PollOption> | null;
+	scheduled_closes_at: Date;
+	strategy: string;
 };
 
 export type Identity = {
@@ -112,6 +168,25 @@ export type IdentityData = {
 	sub: string;
 };
 
+export type OrderItem = {
+	Details: Array<OrderItemDetail> | null;
+	FoodImageUrl: string;
+	FoodName: string;
+	PriceAtOrder: number;
+};
+
+export type OrderItemDetail = {
+	Quantity: number;
+	User: UserProfile;
+};
+
+export type PollOption = {
+	food: Food;
+	id: string;
+	price_at_creation: number;
+	votes: Array<Vote> | null;
+};
+
 export type UpdateFoodRequest = {
 	/**
 	 * A URL to the JSON Schema for this object.
@@ -129,8 +204,13 @@ export type UserMetadata = {
 
 export type UserProfile = {
 	avatar_url: string;
+	created_at: Date;
 	display_name: string;
 	id: string;
+};
+
+export type Vote = {
+	voter: UserProfile;
 };
 
 export type AddFoodRequestWritable = {
@@ -142,6 +222,32 @@ export type AddFoodRequestWritable = {
 
 export type AddFoodResponseWritable = {
 	food_id: string;
+};
+
+export type CreatePollCommandWritable = {
+	/**
+	 * List of food IDs to include in the poll
+	 */
+	food_ids: Array<string> | null;
+	/**
+	 * Date for which the poll is being created in RFC3339 format
+	 */
+	order_date: Date;
+	/**
+	 * Scheduled closing time for the poll in RFC3339 format
+	 */
+	scheduled_close_at: Date;
+	/**
+	 * Polling strategy to be used
+	 */
+	strategy: "ORDER_MULTIPLE_ITEMS" | "ORDER_CONSENSUS_ITEM";
+};
+
+export type CreatePollResponseWritable = {
+	/**
+	 * The ID of the created poll
+	 */
+	poll_id: string;
 };
 
 export type ErrorModelWritable = {
@@ -313,3 +419,135 @@ export type PutFoodsByIdResponses = {
 
 export type PutFoodsByIdResponse =
 	PutFoodsByIdResponses[keyof PutFoodsByIdResponses];
+
+export type ListOrdersTodayData = {
+	body?: never;
+	path?: never;
+	query?: never;
+	url: "/orders/today";
+};
+
+export type ListOrdersTodayErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type ListOrdersTodayError =
+	ListOrdersTodayErrors[keyof ListOrdersTodayErrors];
+
+export type ListOrdersTodayResponses = {
+	/**
+	 * OK
+	 */
+	200: Array<GetTodayOrdersResponse> | null;
+};
+
+export type ListOrdersTodayResponse =
+	ListOrdersTodayResponses[keyof ListOrdersTodayResponses];
+
+export type PostPollsData = {
+	body: CreatePollCommandWritable;
+	path?: never;
+	query?: never;
+	url: "/polls/";
+};
+
+export type PostPollsErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type PostPollsError = PostPollsErrors[keyof PostPollsErrors];
+
+export type PostPollsResponses = {
+	/**
+	 * OK
+	 */
+	200: CreatePollResponse;
+};
+
+export type PostPollsResponse = PostPollsResponses[keyof PostPollsResponses];
+
+export type PostPollsCloseData = {
+	body?: never;
+	path?: never;
+	query?: never;
+	url: "/polls/close";
+};
+
+export type PostPollsCloseErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type PostPollsCloseError =
+	PostPollsCloseErrors[keyof PostPollsCloseErrors];
+
+export type PostPollsCloseResponses = {
+	/**
+	 * No Content
+	 */
+	204: void;
+};
+
+export type PostPollsCloseResponse =
+	PostPollsCloseResponses[keyof PostPollsCloseResponses];
+
+export type ListPollsTodayData = {
+	body?: never;
+	path?: never;
+	query?: never;
+	url: "/polls/today";
+};
+
+export type ListPollsTodayErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type ListPollsTodayError =
+	ListPollsTodayErrors[keyof ListPollsTodayErrors];
+
+export type ListPollsTodayResponses = {
+	/**
+	 * OK
+	 */
+	200: Array<GetTodayPollsQueryResponse> | null;
+};
+
+export type ListPollsTodayResponse =
+	ListPollsTodayResponses[keyof ListPollsTodayResponses];
+
+export type PostPollsVoteData = {
+	body?: never;
+	path?: never;
+	query?: never;
+	url: "/polls/vote";
+};
+
+export type PostPollsVoteErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type PostPollsVoteError = PostPollsVoteErrors[keyof PostPollsVoteErrors];
+
+export type PostPollsVoteResponses = {
+	/**
+	 * No Content
+	 */
+	204: void;
+};
+
+export type PostPollsVoteResponse =
+	PostPollsVoteResponses[keyof PostPollsVoteResponses];

@@ -2,7 +2,7 @@ import {
   getFoodsQueryKey,
   putFoodsByIdMutation,
 } from "@/client/@tanstack/react-query.gen";
-import ImageUpload from "@/components/comp-545";
+import ImageUpload from "@/components/image-upload";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import {

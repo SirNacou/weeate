@@ -48,7 +48,7 @@ func (c *ClosePollCommandHandler) Handle(ctx context.Context, req ClosePollComma
 	return c.db.Transaction(func(tx *gorm.DB) error {
 		db, ok := tx.Statement.ConnPool.(*sql.Tx)
 		if !ok {
-			return errors.New("Failed to get sql transaction")
+			return errors.New("failed to get sql transaction")
 		}
 
 		if _, err := gorm.G[domain.Poll](tx).Updates(ctx, poll); err != nil {

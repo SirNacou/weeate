@@ -12,9 +12,24 @@ import type {
 	GetFoodsErrors,
 	GetFoodsResponses,
 	GetResponses,
+	ListOrdersTodayData,
+	ListOrdersTodayErrors,
+	ListOrdersTodayResponses,
+	ListPollsTodayData,
+	ListPollsTodayErrors,
+	ListPollsTodayResponses,
 	PostFoodsData,
 	PostFoodsErrors,
 	PostFoodsResponses,
+	PostPollsCloseData,
+	PostPollsCloseErrors,
+	PostPollsCloseResponses,
+	PostPollsData,
+	PostPollsErrors,
+	PostPollsResponses,
+	PostPollsVoteData,
+	PostPollsVoteErrors,
+	PostPollsVoteResponses,
 	PutFoodsByIdData,
 	PutFoodsByIdErrors,
 	PutFoodsByIdResponses,
@@ -122,5 +137,89 @@ export const putFoodsById = <ThrowOnError extends boolean = false>(
 			"Content-Type": "application/json",
 			...options.headers,
 		},
+	});
+};
+
+/**
+ * List orders today
+ */
+export const listOrdersToday = <ThrowOnError extends boolean = false>(
+	options?: Options<ListOrdersTodayData, ThrowOnError>,
+) => {
+	return (options?.client ?? client).get<
+		ListOrdersTodayResponses,
+		ListOrdersTodayErrors,
+		ThrowOnError
+	>({
+		url: "/orders/today",
+		...options,
+	});
+};
+
+/**
+ * Post polls
+ */
+export const postPolls = <ThrowOnError extends boolean = false>(
+	options: Options<PostPollsData, ThrowOnError>,
+) => {
+	return (options.client ?? client).post<
+		PostPollsResponses,
+		PostPollsErrors,
+		ThrowOnError
+	>({
+		url: "/polls/",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * Post polls close
+ */
+export const postPollsClose = <ThrowOnError extends boolean = false>(
+	options?: Options<PostPollsCloseData, ThrowOnError>,
+) => {
+	return (options?.client ?? client).post<
+		PostPollsCloseResponses,
+		PostPollsCloseErrors,
+		ThrowOnError
+	>({
+		url: "/polls/close",
+		...options,
+	});
+};
+
+/**
+ * List polls today
+ */
+export const listPollsToday = <ThrowOnError extends boolean = false>(
+	options?: Options<ListPollsTodayData, ThrowOnError>,
+) => {
+	return (options?.client ?? client).get<
+		ListPollsTodayResponses,
+		ListPollsTodayErrors,
+		ThrowOnError
+	>({
+		url: "/polls/today",
+		...options,
+	});
+};
+
+/**
+ * Post polls vote
+ */
+export const postPollsVote = <ThrowOnError extends boolean = false>(
+	options?: Options<PostPollsVoteData, ThrowOnError>,
+) => {
+	return (options?.client ?? client).post<
+		PostPollsVoteResponses,
+		PostPollsVoteErrors,
+		ThrowOnError
+	>({
+		url: "/polls/vote",
+		...options,
 	});
 };

@@ -6,7 +6,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/components/tooltip";
 import { cn } from "@/lib/utils";
 
 type PollStrategyBadgeProps = {
@@ -48,12 +48,7 @@ const PollStrategyBadge = ({ strategy, className }: PollStrategyBadgeProps) => {
     <TooltipProvider>
       <Tooltip delayDuration={200}>
         <TooltipTrigger asChild>
-          <div
-            className={cn(
-              "inline-flex items-center gap-2 cursor-help",
-              className
-            )}
-          >
+          <div className={cn("inline-flex items-center gap-2", className)}>
             {/* The Badge */}
             <Badge
               variant="outline"

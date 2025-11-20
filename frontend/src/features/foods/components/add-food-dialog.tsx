@@ -2,7 +2,7 @@ import {
   getFoodsQueryKey,
   postFoodsMutation,
 } from "@/client/@tanstack/react-query.gen";
-import ImageUpload from "@/components/comp-545";
+import ImageUpload from "@/components/image-upload";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

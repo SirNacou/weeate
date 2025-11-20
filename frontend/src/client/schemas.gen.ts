@@ -72,6 +72,63 @@ export const AppMetadataSchema = {
 	type: "object",
 } as const;
 
+export const CreatePollCommandSchema = {
+	additionalProperties: false,
+	properties: {
+		$schema: {
+			description: "A URL to the JSON Schema for this object.",
+			examples: ["https://example.com/schemas/CreatePollCommand.json"],
+			format: "uri",
+			readOnly: true,
+			type: "string",
+		},
+		food_ids: {
+			description: "List of food IDs to include in the poll",
+			items: {
+				type: "string",
+			},
+			minItems: 1,
+			type: ["array", "null"],
+		},
+		order_date: {
+			description: "Date for which the poll is being created in RFC3339 format",
+			format: "date-time",
+			type: "string",
+		},
+		scheduled_close_at: {
+			description: "Scheduled closing time for the poll in RFC3339 format",
+			format: "date-time",
+			type: "string",
+		},
+		strategy: {
+			description: "Polling strategy to be used",
+			enum: ["ORDER_MULTIPLE_ITEMS", "ORDER_CONSENSUS_ITEM"],
+			type: "string",
+		},
+	},
+	required: ["order_date", "scheduled_close_at", "food_ids", "strategy"],
+	type: "object",
+} as const;
+
+export const CreatePollResponseSchema = {
+	additionalProperties: false,
+	properties: {
+		$schema: {
+			description: "A URL to the JSON Schema for this object.",
+			examples: ["https://example.com/schemas/CreatePollResponse.json"],
+			format: "uri",
+			readOnly: true,
+			type: "string",
+		},
+		poll_id: {
+			description: "The ID of the created poll",
+			type: "string",
+		},
+	},
+	required: ["poll_id"],
+	type: "object",
+} as const;
+
 export const ErrorDetailSchema = {
 	additionalProperties: false,
 	properties: {
@@ -145,6 +202,20 @@ export const ErrorModelSchema = {
 	type: "object",
 } as const;
 
+export const FoodSchema = {
+	additionalProperties: false,
+	properties: {
+		id: {
+			type: "string",
+		},
+		name: {
+			type: "string",
+		},
+	},
+	required: ["id", "name"],
+	type: "object",
+} as const;
+
 export const GetFoodsResponseSchema = {
 	additionalProperties: false,
 	properties: {
@@ -190,6 +261,73 @@ export const GetFoodsResponseItemSchema = {
 		},
 	},
 	required: ["id", "name", "image_url", "description", "price", "user"],
+	type: "object",
+} as const;
+
+export const GetTodayOrdersResponseSchema = {
+	additionalProperties: false,
+	properties: {
+		Buyer: {
+			$ref: "#/components/schemas/UserProfile",
+		},
+		OrderItems: {
+			items: {
+				$ref: "#/components/schemas/OrderItem",
+			},
+			type: ["array", "null"],
+		},
+		PollID: {
+			type: "string",
+		},
+		TotalPrice: {
+			format: "int64",
+			type: "integer",
+		},
+	},
+	required: ["PollID", "Buyer", "TotalPrice", "OrderItems"],
+	type: "object",
+} as const;
+
+export const GetTodayPollsQueryResponseSchema = {
+	additionalProperties: false,
+	properties: {
+		closed_at: {
+			format: "date-time",
+			type: ["string", "null"],
+		},
+		creator: {
+			$ref: "#/components/schemas/UserProfile",
+		},
+		final_total_price: {
+			format: "int64",
+			type: "integer",
+		},
+		id: {
+			type: "string",
+		},
+		poll_options: {
+			items: {
+				$ref: "#/components/schemas/PollOption",
+			},
+			type: ["array", "null"],
+		},
+		scheduled_closes_at: {
+			format: "date-time",
+			type: "string",
+		},
+		strategy: {
+			type: "string",
+		},
+	},
+	required: [
+		"id",
+		"creator",
+		"scheduled_closes_at",
+		"final_total_price",
+		"strategy",
+		"closed_at",
+		"poll_options",
+	],
 	type: "object",
 } as const;
 
@@ -258,6 +396,69 @@ export const IdentityDataSchema = {
 	type: "object",
 } as const;
 
+export const OrderItemSchema = {
+	additionalProperties: false,
+	properties: {
+		Details: {
+			items: {
+				$ref: "#/components/schemas/OrderItemDetail",
+			},
+			type: ["array", "null"],
+		},
+		FoodImageUrl: {
+			type: "string",
+		},
+		FoodName: {
+			type: "string",
+		},
+		PriceAtOrder: {
+			format: "int64",
+			type: "integer",
+		},
+	},
+	required: ["FoodName", "FoodImageUrl", "PriceAtOrder", "Details"],
+	type: "object",
+} as const;
+
+export const OrderItemDetailSchema = {
+	additionalProperties: false,
+	properties: {
+		Quantity: {
+			format: "int64",
+			type: "integer",
+		},
+		User: {
+			$ref: "#/components/schemas/UserProfile",
+		},
+	},
+	required: ["User", "Quantity"],
+	type: "object",
+} as const;
+
+export const PollOptionSchema = {
+	additionalProperties: false,
+	properties: {
+		food: {
+			$ref: "#/components/schemas/Food",
+		},
+		id: {
+			type: "string",
+		},
+		price_at_creation: {
+			format: "int64",
+			type: "integer",
+		},
+		votes: {
+			items: {
+				$ref: "#/components/schemas/Vote",
+			},
+			type: ["array", "null"],
+		},
+	},
+	required: ["id", "food", "price_at_creation", "votes"],
+	type: "object",
+} as const;
+
 export const UpdateFoodRequestSchema = {
 	additionalProperties: false,
 	properties: {
@@ -303,6 +504,10 @@ export const UserProfileSchema = {
 		avatar_url: {
 			type: "string",
 		},
+		created_at: {
+			format: "date-time",
+			type: "string",
+		},
 		display_name: {
 			type: "string",
 		},
@@ -310,7 +515,18 @@ export const UserProfileSchema = {
 			type: "string",
 		},
 	},
-	required: ["id", "avatar_url", "display_name"],
+	required: ["id", "avatar_url", "display_name", "created_at"],
+	type: "object",
+} as const;
+
+export const VoteSchema = {
+	additionalProperties: false,
+	properties: {
+		voter: {
+			$ref: "#/components/schemas/UserProfile",
+		},
+	},
+	required: ["voter"],
 	type: "object",
 } as const;
 
@@ -346,6 +562,49 @@ export const AddFoodResponseWritableSchema = {
 		},
 	},
 	required: ["food_id"],
+	type: "object",
+} as const;
+
+export const CreatePollCommandWritableSchema = {
+	additionalProperties: false,
+	properties: {
+		food_ids: {
+			description: "List of food IDs to include in the poll",
+			items: {
+				type: "string",
+			},
+			minItems: 1,
+			type: ["array", "null"],
+		},
+		order_date: {
+			description: "Date for which the poll is being created in RFC3339 format",
+			format: "date-time",
+			type: "string",
+		},
+		scheduled_close_at: {
+			description: "Scheduled closing time for the poll in RFC3339 format",
+			format: "date-time",
+			type: "string",
+		},
+		strategy: {
+			description: "Polling strategy to be used",
+			enum: ["ORDER_MULTIPLE_ITEMS", "ORDER_CONSENSUS_ITEM"],
+			type: "string",
+		},
+	},
+	required: ["order_date", "scheduled_close_at", "food_ids", "strategy"],
+	type: "object",
+} as const;
+
+export const CreatePollResponseWritableSchema = {
+	additionalProperties: false,
+	properties: {
+		poll_id: {
+			description: "The ID of the created poll",
+			type: "string",
+		},
+	},
+	required: ["poll_id"],
 	type: "object",
 } as const;
 

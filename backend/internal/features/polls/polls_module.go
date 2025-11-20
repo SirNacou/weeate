@@ -9,13 +9,13 @@ import (
 )
 
 func RegisterPollsModule(api huma.API, b *bus.Bus, db *gorm.DB, supabaseService *auth.SupabaseService) {
-	getActivePollsHandler := services.NewGetActivePollsQueryHandler(db, supabaseService)
+	getTodayPollsHandler := services.NewGetTodayPollsQueryHandler(db, supabaseService)
 	createPollHandler := services.NewCreatePollCommandHandler(db)
 	closePollHandler := services.NewClosePollCommandHandler(db, b)
 	castVoteHandler := services.NewCastVoteCommandHandler(db)
 
 	pollsEndpoint := NewPollsEndpoint(
-		getActivePollsHandler,
+		getTodayPollsHandler,
 		createPollHandler,
 		closePollHandler,
 		castVoteHandler,
@@ -27,7 +27,7 @@ func RegisterPollsModule(api huma.API, b *bus.Bus, db *gorm.DB, supabaseService 
 		Description: "Endpoints for managing polls",
 	})
 
-	huma.Get(group, "/active", pollsEndpoint.getActivePolls)
+	huma.Get(group, "/today", pollsEndpoint.getTodayPolls)
 	huma.Post(group, "/", pollsEndpoint.createPoll)
 	huma.Post(group, "/close", pollsEndpoint.closePoll)
 	huma.Post(group, "/vote", pollsEndpoint.castVote)

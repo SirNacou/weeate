@@ -18,17 +18,23 @@ import { FieldGroup } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import PollOption, { Option } from "./poll-option";
 import { Spinner } from "@/components/ui/spinner";
-import { resolve } from "path";
-import { toast, useSonner } from "sonner";
+import { toast } from "sonner";
 
 type Props = {
   buyerName: string;
   avatarUrl: string;
   strategy: "ORDER_CONSENSUS_ITEM" | "ORDER_PERSONAL_CHOICE";
   options: Option[];
+  initialSelectedOption?: string;
 };
 
-const PollCard = ({ buyerName, avatarUrl, strategy, options }: Props) => {
+const PollCard = ({
+  buyerName,
+  avatarUrl,
+  strategy,
+  options,
+  initialSelectedOption,
+}: Props) => {
   const [now] = useState(Date.now());
 
   const validator = useMemo(() => {
@@ -44,7 +50,7 @@ const PollCard = ({ buyerName, avatarUrl, strategy, options }: Props) => {
 
   const form = useForm({
     defaultValues: {
-      selectedOption: "",
+      selectedOption: initialSelectedOption || "",
     },
     validators: {
       onChange: validator,
@@ -71,7 +77,7 @@ const PollCard = ({ buyerName, avatarUrl, strategy, options }: Props) => {
       }}
     >
       <Card>
-        <CardHeader className="px-6">
+        <CardHeader>
           <CardTitle className="flex flex-col sm:flex-row text-lg">
             <div className="flex items-center gap-2">
               <Avatar className="size-8 sm:size-10">
@@ -102,7 +108,7 @@ const PollCard = ({ buyerName, avatarUrl, strategy, options }: Props) => {
               children={(field) => {
                 return (
                   <RadioGroup
-                    className={"grid grid-cols-1 sm:grid-cols-2 gap-3"}
+                    className={"grid grid-cols-1 lg:grid-cols-2 gap-3"}
                     value={field.state.value}
                     onValueChange={field.handleChange}
                   >

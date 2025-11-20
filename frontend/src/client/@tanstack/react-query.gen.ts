@@ -7,8 +7,13 @@ import {
 	deleteFoodsById,
 	get,
 	getFoods,
+	listOrdersToday,
+	listPollsToday,
 	type Options,
 	postFoods,
+	postPolls,
+	postPollsClose,
+	postPollsVote,
 	putFoodsById,
 } from "../sdk.gen";
 import type {
@@ -17,9 +22,20 @@ import type {
 	DeleteFoodsByIdResponse,
 	GetData,
 	GetFoodsData,
+	ListOrdersTodayData,
+	ListPollsTodayData,
 	PostFoodsData,
 	PostFoodsError,
 	PostFoodsResponse,
+	PostPollsCloseData,
+	PostPollsCloseError,
+	PostPollsCloseResponse,
+	PostPollsData,
+	PostPollsError,
+	PostPollsResponse,
+	PostPollsVoteData,
+	PostPollsVoteError,
+	PostPollsVoteResponse,
 	PutFoodsByIdData,
 	PutFoodsByIdError,
 	PutFoodsByIdResponse,
@@ -180,6 +196,134 @@ export const putFoodsByIdMutation = (
 	> = {
 		mutationFn: async (fnOptions) => {
 			const { data } = await putFoodsById({
+				...options,
+				...fnOptions,
+				throwOnError: true,
+			});
+			return data;
+		},
+	};
+	return mutationOptions;
+};
+
+export const listOrdersTodayQueryKey = (
+	options?: Options<ListOrdersTodayData>,
+) => createQueryKey("listOrdersToday", options);
+
+/**
+ * List orders today
+ */
+export const listOrdersTodayOptions = (
+	options?: Options<ListOrdersTodayData>,
+) => {
+	return queryOptions({
+		queryFn: async ({ queryKey, signal }) => {
+			const { data } = await listOrdersToday({
+				...options,
+				...queryKey[0],
+				signal,
+				throwOnError: true,
+			});
+			return data;
+		},
+		queryKey: listOrdersTodayQueryKey(options),
+	});
+};
+
+/**
+ * Post polls
+ */
+export const postPollsMutation = (
+	options?: Partial<Options<PostPollsData>>,
+): UseMutationOptions<
+	PostPollsResponse,
+	PostPollsError,
+	Options<PostPollsData>
+> => {
+	const mutationOptions: UseMutationOptions<
+		PostPollsResponse,
+		PostPollsError,
+		Options<PostPollsData>
+	> = {
+		mutationFn: async (fnOptions) => {
+			const { data } = await postPolls({
+				...options,
+				...fnOptions,
+				throwOnError: true,
+			});
+			return data;
+		},
+	};
+	return mutationOptions;
+};
+
+/**
+ * Post polls close
+ */
+export const postPollsCloseMutation = (
+	options?: Partial<Options<PostPollsCloseData>>,
+): UseMutationOptions<
+	PostPollsCloseResponse,
+	PostPollsCloseError,
+	Options<PostPollsCloseData>
+> => {
+	const mutationOptions: UseMutationOptions<
+		PostPollsCloseResponse,
+		PostPollsCloseError,
+		Options<PostPollsCloseData>
+	> = {
+		mutationFn: async (fnOptions) => {
+			const { data } = await postPollsClose({
+				...options,
+				...fnOptions,
+				throwOnError: true,
+			});
+			return data;
+		},
+	};
+	return mutationOptions;
+};
+
+export const listPollsTodayQueryKey = (options?: Options<ListPollsTodayData>) =>
+	createQueryKey("listPollsToday", options);
+
+/**
+ * List polls today
+ */
+export const listPollsTodayOptions = (
+	options?: Options<ListPollsTodayData>,
+) => {
+	return queryOptions({
+		queryFn: async ({ queryKey, signal }) => {
+			const { data } = await listPollsToday({
+				...options,
+				...queryKey[0],
+				signal,
+				throwOnError: true,
+			});
+			return data;
+		},
+		queryKey: listPollsTodayQueryKey(options),
+	});
+};
+
+/**
+ * Post polls vote
+ */
+export const postPollsVoteMutation = (
+	options?: Partial<Options<PostPollsVoteData>>,
+): UseMutationOptions<
+	PostPollsVoteResponse,
+	PostPollsVoteError,
+	Options<PostPollsVoteData>
+> => {
+	const mutationOptions: UseMutationOptions<
+		PostPollsVoteResponse,
+		PostPollsVoteError,
+		Options<PostPollsVoteData>
+	> = {
+		mutationFn: async (fnOptions) => {
+			const { data } = await postPollsVote({
 				...options,
 				...fnOptions,
 				throwOnError: true,

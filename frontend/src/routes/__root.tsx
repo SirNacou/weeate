@@ -15,7 +15,8 @@ import type { QueryClient } from "@tanstack/react-query";
 import { ImageKitProvider } from "@imagekit/react";
 import { MotionConfig } from "motion/react";
 import { env } from "@/env/client";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "sonner";
+import useIsMobile from "@/hooks/use-is-mobile";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -46,6 +47,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { isMobile } = useIsMobile();
   return (
     <html lang="en">
       <head>
@@ -57,10 +59,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           transformationPosition="query"
         >
           <MotionConfig reducedMotion="user">
-            <div className="Root">{children}</div>
+            <div className="Root">
+              <Toaster
+                position={isMobile ? "top-center" : "top-right"}
+                richColors={true}
+              />
+              {children}
+            </div>
           </MotionConfig>
         </ImageKitProvider>
-        <Toaster position="top-center" />
         <TanStackDevtools
           config={{
             position: "bottom-right",

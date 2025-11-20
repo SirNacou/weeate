@@ -13,8 +13,8 @@ import (
 )
 
 type (
-	GetActivePollsQuery         struct{}
-	GetActivePollsQueryResponse struct {
+	GetTodayPollsQuery         struct{}
+	GetTodayPollsQueryResponse struct {
 		ID                string              `json:"id"`
 		Creator           auth.UserProfile    `json:"creator"`
 		ScheduledClosesAt time.Time           `json:"scheduled_closes_at"`
@@ -41,23 +41,23 @@ type (
 	}
 )
 
-type GetActivePollsQueryHandler struct {
+type GetTodayPollsQueryHandler struct {
 	// Add necessary dependencies here, e.g., database connection
 	db              *gorm.DB
 	supabaseService *auth.SupabaseService
 }
 
-func NewGetActivePollsQueryHandler(db *gorm.DB, s *auth.SupabaseService) *GetActivePollsQueryHandler {
-	return &GetActivePollsQueryHandler{
+func NewGetTodayPollsQueryHandler(db *gorm.DB, s *auth.SupabaseService) *GetTodayPollsQueryHandler {
+	return &GetTodayPollsQueryHandler{
 		db:              db,
 		supabaseService: s,
 	}
 }
 
-func (h *GetActivePollsQueryHandler) Handle(ctx context.Context, query GetActivePollsQuery) ([]GetActivePollsQueryResponse, error) {
+func (h *GetTodayPollsQueryHandler) Handle(ctx context.Context, query GetTodayPollsQuery) ([]GetTodayPollsQueryResponse, error) {
 	now := time.Now()
 	polls, err := data.GetPollAggregate(h.db).
-		Where("created_at >= ? AND created_at < ?", now.Truncate(24*time.Hour), now.Truncate(24*time.Hour).Add(24*time.Hour)).
+		Where("polls.created_at >= ? AND polls.created_at < ?", now.Truncate(24*time.Hour), now.Truncate(24*time.Hour).Add(24*time.Hour)).
 		Find(ctx)
 	if err != nil {
 		return nil, err
@@ -94,9 +94,9 @@ func (h *GetActivePollsQueryHandler) Handle(ctx context.Context, query GetActive
 	userProfileMap := lo.KeyBy(userProfiles, func(up auth.UserProfile) string { return up.ID.String() })
 
 	// 4. Assemble the response DTO using the maps for fast data retrieval.
-	res := make([]GetActivePollsQueryResponse, 0, len(polls))
+	res := make([]GetTodayPollsQueryResponse, 0, len(polls))
 	for _, poll := range polls {
-		res = append(res, GetActivePollsQueryResponse{
+		res = append(res, GetTodayPollsQueryResponse{
 			ID:                poll.ID.String(),
 			ScheduledClosesAt: poll.ScheduledClosesAt,
 			Strategy:          poll.Strategy,
