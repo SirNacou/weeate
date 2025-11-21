@@ -48,10 +48,10 @@ function PollOption({
     <div
       key={option.id}
       className={cn(
-        "relative rounded-xl border-2 transition-all overflow-hidden cursor-pointer",
+        "relative rounded-xl border-2 transition-all overflow-hidden cursor-pointer border-slate-200 ",
         {
           "border-primary shadow-lg": isSelected,
-          "border-slate-200 hover:border-zinc-400": !isSelected,
+          "hover:border-zinc-400": !isSelected && !disabled,
           "opacity-60": disabled,
         }
       )}
@@ -84,7 +84,7 @@ function PollOption({
           <span className="text-slate-900 font-medium text-xs sm:text-sm">
             {new Intl.NumberFormat("vi-VN").format(option.price)}
           </span>
-          <TablerCurrencyDong className="size-3 sm:size-3.5 text-slate-600" />
+          <TablerCurrencyDong className="size-4 sm:size-4.5 text-green-500" />
         </div>
       </div>
       <div className="p-3 sm:p-4 bg-white flex justify-between items-start gap-2 relative">
@@ -96,10 +96,11 @@ function PollOption({
             className="size-6 [&_svg]:size-4"
             value={option.id}
             id={option.id}
+            disabled={disabled}
           />
           <Label
             htmlFor={`option-${option.id}`}
-            className={`flex-1 cursor-pointer text-sm sm:text-base ${false ? "text-slate-900" : "text-slate-700"}`}
+            className={`flex-1 cursor-pointer text-base sm:text-lg ${false ? "text-slate-900" : "text-slate-700"}`}
           >
             {option.foodName}
           </Label>

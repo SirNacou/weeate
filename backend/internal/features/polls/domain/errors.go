@@ -13,5 +13,8 @@ var (
 	ErrScheduledCloseAtTooSoon = func(minTime time.Time) error {
 		return fmt.Errorf("scheduled time must be at least 1 hour in the future (after %v)", minTime.Format(time.Kitchen))
 	}
-	ErrUserAlreadyVoted = errors.New("user has already voted in this poll")
+	ErrUserAlreadyVoted                    = errors.New("user has already voted in this poll")
+	ErrClosedPollAlreadyExistsForOrderDate = func(orderDate time.Time) error {
+		return fmt.Errorf("a closed poll already exists for the order date %v", orderDate.Format("2006-01-02"))
+	}
 )

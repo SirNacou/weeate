@@ -5,6 +5,7 @@ import (
 
 	"github.com/SirNacou/weeate/backend/internal/common/api"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/services"
+	"github.com/gofrs/uuid/v5"
 )
 
 type PollsEndpoint struct {
@@ -47,10 +48,25 @@ func (e *PollsEndpoint) createPoll(ctx context.Context, req *struct {
 	return api.NewResponse(res), nil
 }
 
-func (e *PollsEndpoint) closePoll(ctx context.Context, req *struct{}) (*struct{}, error) {
-	return nil, nil
+func (e *PollsEndpoint) closePoll(ctx context.Context, req *struct {
+	ID uuid.UUID `path:"id" format:"uuid" doc:"The ID of the poll to be closed"`
+},
+) (*struct{}, error) {
+	err := e.closePollCommandHandler.Handle(ctx, services.ClosePollCommand{PollID: req.ID})
+
+	return nil, err
 }
 
-func (e *PollsEndpoint) castVote(ctx context.Context, req *struct{}) (*struct{}, error) {
-	return nil, nil
+func (e *PollsEndpoint) castVote(ctx context.Context, req *struct {
+	ID   uuid.UUID `path:"id" format:"uuid" doc:"The ID of the poll to cast a vote on"`
+	Body struct {
+		PollOptionID uuid.UUID `json:"poll_option_id" format:"uuid" doc:"The ID of the poll option to vote for"`
+	}
+},
+) (*struct{}, error) {
+	err := e.castVoteCommandHandler.Handle(ctx, services.CastVoteCommand{
+		PollID:       req.ID,
+		PollOptionID: req.Body.PollOptionID,
+	})
+	return nil, err
 }

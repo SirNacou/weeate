@@ -12,8 +12,8 @@ import {
 	type Options,
 	postFoods,
 	postPolls,
-	postPollsClose,
-	postPollsVote,
+	postPollsByIdClose,
+	postPollsByIdVote,
 	putFoodsById,
 } from "../sdk.gen";
 import type {
@@ -27,15 +27,15 @@ import type {
 	PostFoodsData,
 	PostFoodsError,
 	PostFoodsResponse,
-	PostPollsCloseData,
-	PostPollsCloseError,
-	PostPollsCloseResponse,
+	PostPollsByIdCloseData,
+	PostPollsByIdCloseError,
+	PostPollsByIdCloseResponse,
+	PostPollsByIdVoteData,
+	PostPollsByIdVoteError,
+	PostPollsByIdVoteResponse,
 	PostPollsData,
 	PostPollsError,
 	PostPollsResponse,
-	PostPollsVoteData,
-	PostPollsVoteError,
-	PostPollsVoteResponse,
 	PutFoodsByIdData,
 	PutFoodsByIdError,
 	PutFoodsByIdResponse,
@@ -255,33 +255,6 @@ export const postPollsMutation = (
 	return mutationOptions;
 };
 
-/**
- * Post polls close
- */
-export const postPollsCloseMutation = (
-	options?: Partial<Options<PostPollsCloseData>>,
-): UseMutationOptions<
-	PostPollsCloseResponse,
-	PostPollsCloseError,
-	Options<PostPollsCloseData>
-> => {
-	const mutationOptions: UseMutationOptions<
-		PostPollsCloseResponse,
-		PostPollsCloseError,
-		Options<PostPollsCloseData>
-	> = {
-		mutationFn: async (fnOptions) => {
-			const { data } = await postPollsClose({
-				...options,
-				...fnOptions,
-				throwOnError: true,
-			});
-			return data;
-		},
-	};
-	return mutationOptions;
-};
-
 export const listPollsTodayQueryKey = (options?: Options<ListPollsTodayData>) =>
 	createQueryKey("listPollsToday", options);
 
@@ -306,22 +279,49 @@ export const listPollsTodayOptions = (
 };
 
 /**
- * Post polls vote
+ * Post polls by ID close
  */
-export const postPollsVoteMutation = (
-	options?: Partial<Options<PostPollsVoteData>>,
+export const postPollsByIdCloseMutation = (
+	options?: Partial<Options<PostPollsByIdCloseData>>,
 ): UseMutationOptions<
-	PostPollsVoteResponse,
-	PostPollsVoteError,
-	Options<PostPollsVoteData>
+	PostPollsByIdCloseResponse,
+	PostPollsByIdCloseError,
+	Options<PostPollsByIdCloseData>
 > => {
 	const mutationOptions: UseMutationOptions<
-		PostPollsVoteResponse,
-		PostPollsVoteError,
-		Options<PostPollsVoteData>
+		PostPollsByIdCloseResponse,
+		PostPollsByIdCloseError,
+		Options<PostPollsByIdCloseData>
 	> = {
 		mutationFn: async (fnOptions) => {
-			const { data } = await postPollsVote({
+			const { data } = await postPollsByIdClose({
+				...options,
+				...fnOptions,
+				throwOnError: true,
+			});
+			return data;
+		},
+	};
+	return mutationOptions;
+};
+
+/**
+ * Post polls by ID vote
+ */
+export const postPollsByIdVoteMutation = (
+	options?: Partial<Options<PostPollsByIdVoteData>>,
+): UseMutationOptions<
+	PostPollsByIdVoteResponse,
+	PostPollsByIdVoteError,
+	Options<PostPollsByIdVoteData>
+> => {
+	const mutationOptions: UseMutationOptions<
+		PostPollsByIdVoteResponse,
+		PostPollsByIdVoteError,
+		Options<PostPollsByIdVoteData>
+	> = {
+		mutationFn: async (fnOptions) => {
+			const { data } = await postPollsByIdVote({
 				...options,
 				...fnOptions,
 				throwOnError: true,

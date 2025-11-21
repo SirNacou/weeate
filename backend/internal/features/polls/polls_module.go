@@ -29,6 +29,6 @@ func RegisterPollsModule(api huma.API, b *bus.Bus, db *gorm.DB, supabaseService 
 
 	huma.Get(group, "/today", pollsEndpoint.getTodayPolls)
 	huma.Post(group, "/", pollsEndpoint.createPoll)
-	huma.Post(group, "/close", pollsEndpoint.closePoll)
-	huma.Post(group, "/vote", pollsEndpoint.castVote)
+	huma.Post(group, "/{id}/close", pollsEndpoint.closePoll)
+	huma.Post(group, "/{id}/vote", pollsEndpoint.castVote)
 }

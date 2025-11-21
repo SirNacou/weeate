@@ -126,7 +126,6 @@ export type ErrorModel = {
 };
 
 export type Food = {
-  image_url: string;
 	id: string;
 	name: string;
 };
@@ -193,6 +192,17 @@ export type PollOption = {
 	id: string;
 	price_at_creation: number;
 	votes: Array<Vote> | null;
+};
+
+export type PostByIdVoteRequest = {
+	/**
+	 * A URL to the JSON Schema for this object.
+	 */
+	readonly $schema?: string;
+	/**
+	 * The ID of the poll option to vote for
+	 */
+	poll_option_id: string;
 };
 
 export type PutByIdRequest = {
@@ -310,6 +320,13 @@ export type ErrorModelWritable = {
 	 * A URI reference to human-readable documentation for the error.
 	 */
 	type?: string;
+};
+
+export type PostByIdVoteRequestWritable = {
+	/**
+	 * The ID of the poll option to vote for
+	 */
+	poll_option_id: string;
 };
 
 export type PutByIdRequestWritable = {
@@ -526,33 +543,6 @@ export type PostPollsResponses = {
 
 export type PostPollsResponse = PostPollsResponses[keyof PostPollsResponses];
 
-export type PostPollsCloseData = {
-	body?: never;
-	path?: never;
-	query?: never;
-	url: "/polls/close";
-};
-
-export type PostPollsCloseErrors = {
-	/**
-	 * Error
-	 */
-	default: ErrorModel;
-};
-
-export type PostPollsCloseError =
-	PostPollsCloseErrors[keyof PostPollsCloseErrors];
-
-export type PostPollsCloseResponses = {
-	/**
-	 * No Content
-	 */
-	204: void;
-};
-
-export type PostPollsCloseResponse =
-	PostPollsCloseResponses[keyof PostPollsCloseResponses];
-
 export type ListPollsTodayData = {
 	body?: never;
 	path?: never;
@@ -580,28 +570,66 @@ export type ListPollsTodayResponses = {
 export type ListPollsTodayResponse =
 	ListPollsTodayResponses[keyof ListPollsTodayResponses];
 
-export type PostPollsVoteData = {
+export type PostPollsByIdCloseData = {
 	body?: never;
-	path?: never;
+	path: {
+		/**
+		 * The ID of the poll to be closed
+		 */
+		id: string;
+	};
 	query?: never;
-	url: "/polls/vote";
+	url: "/polls/{id}/close";
 };
 
-export type PostPollsVoteErrors = {
+export type PostPollsByIdCloseErrors = {
 	/**
 	 * Error
 	 */
 	default: ErrorModel;
 };
 
-export type PostPollsVoteError = PostPollsVoteErrors[keyof PostPollsVoteErrors];
+export type PostPollsByIdCloseError =
+	PostPollsByIdCloseErrors[keyof PostPollsByIdCloseErrors];
 
-export type PostPollsVoteResponses = {
+export type PostPollsByIdCloseResponses = {
 	/**
 	 * No Content
 	 */
 	204: void;
 };
 
-export type PostPollsVoteResponse =
-	PostPollsVoteResponses[keyof PostPollsVoteResponses];
+export type PostPollsByIdCloseResponse =
+	PostPollsByIdCloseResponses[keyof PostPollsByIdCloseResponses];
+
+export type PostPollsByIdVoteData = {
+	body: PostByIdVoteRequestWritable;
+	path: {
+		/**
+		 * The ID of the poll to cast a vote on
+		 */
+		id: string;
+	};
+	query?: never;
+	url: "/polls/{id}/vote";
+};
+
+export type PostPollsByIdVoteErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type PostPollsByIdVoteError =
+	PostPollsByIdVoteErrors[keyof PostPollsByIdVoteErrors];
+
+export type PostPollsByIdVoteResponses = {
+	/**
+	 * No Content
+	 */
+	204: void;
+};
+
+export type PostPollsByIdVoteResponse =
+	PostPollsByIdVoteResponses[keyof PostPollsByIdVoteResponses];

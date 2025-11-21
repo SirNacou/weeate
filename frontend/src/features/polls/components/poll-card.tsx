@@ -18,25 +18,51 @@ import { Button } from "@/components/ui/button";
 import PollOption, { Option } from "./poll-option";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createServerFn } from "@tanstack/react-start";
+import { zPostPollsByIdVoteData } from "@/client/zod.gen";
+import { serverClient } from "@/api";
+import { postPollsByIdVote } from "@/client";
+import { getFormSubmissionStatus } from "../../../lib/form-utils";
+import { listPollsTodayQueryKey } from "@/client/@tanstack/react-query.gen";
+
+const castVoteServerFn = createServerFn({ method: "POST" })
+  .inputValidator(zPostPollsByIdVoteData)
+  .handler(async ({ data }) => {
+    const res = await postPollsByIdVote({
+      client: serverClient,
+      path: data.path,
+      body: data.body,
+    });
+    if (res.error) {
+      console.error(`Failed to cast vote:`, res.error);
+      throw new Error("Failed to cast vote");
+    }
+
+    return res.data;
+  });
 
 type Props = {
+  pollId: string;
   buyerName: string;
   avatarUrl: string;
   scheduled_close_at: Date;
+  closed_at: Date | null;
   strategy: "ORDER_CONSENSUS_ITEM" | "ORDER_PERSONAL_CHOICE";
   options: Option[];
   initialSelectedOption?: string;
 };
 
 const PollCard = ({
+  pollId,
   buyerName,
   avatarUrl,
   scheduled_close_at,
+  closed_at,
   strategy,
   options,
   initialSelectedOption,
 }: Props) => {
-
   const validator = useMemo(() => {
     return z.object({
       selectedOption: z
@@ -47,6 +73,16 @@ const PollCard = ({
         }),
     });
   }, [options]);
+  const queryClient = useQueryClient();
+
+  const castVoteMutation = useMutation({
+    mutationFn: castVoteServerFn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: listPollsTodayQueryKey(),
+      });
+    },
+  });
 
   const form = useForm({
     defaultValues: {
@@ -54,6 +90,7 @@ const PollCard = ({
     },
     validators: {
       onChange: validator,
+      onMount: validator,
     },
     listeners: {
       onChange(props) {
@@ -61,10 +98,22 @@ const PollCard = ({
       },
     },
     onSubmit: async ({ value }) => {
-      return new Promise((resolve) => setTimeout(resolve, 2000)).then(() => {
-        toast.success("Vote submitted successfully!");
-        console.log("Submitted value:", value);
-      });
+      try {
+        await castVoteMutation.mutateAsync({
+          data: {
+            path: {
+              id: pollId,
+            },
+            body: {
+              poll_option_id: value.selectedOption,
+            },
+          },
+        });
+        toast.success("Your vote has been submitted!");
+      } catch (error) {
+        console.error("Error submitting vote:", error);
+        toast.error("There was an error submitting your vote.");
+      }
     },
   });
 
@@ -95,7 +144,7 @@ const PollCard = ({
           <CardDescription className="mt-1 flex items-center justify-between text-sm sm:text-base">
             <CloseTimer
               className="text-sm sm:text-base shrink-0"
-              closesAt={scheduled_close_at}
+              closesAt={closed_at || scheduled_close_at}
             />
 
             <PollStrategyBadge strategy={strategy} />
@@ -116,9 +165,9 @@ const PollCard = ({
                       <PollOption
                         key={option.id}
                         option={option}
+                        disabled={!!closed_at}
                         isSelected={option.id === field.state.value}
                         onSelect={(id) => field.handleChange(id)}
-                        disabled={false}
                       />
                     ))}
                   </RadioGroup>
@@ -129,16 +178,12 @@ const PollCard = ({
         </CardContent>
         <CardFooter>
           <form.Subscribe
-            selector={(state) => [
-              state.isSubmitting,
-              state.canSubmit,
-              state.isPristine,
-            ]}
-            children={([isSubmitting, canSubmit, isPristine]) => (
+            selector={getFormSubmissionStatus}
+            children={({ canSubmit, isSubmitting }) => (
               <Button
                 type="submit"
                 className="w-full"
-                disabled={!canSubmit || isPristine}
+                disabled={!canSubmit || !!closed_at}
               >
                 {isSubmitting ?
                   <>

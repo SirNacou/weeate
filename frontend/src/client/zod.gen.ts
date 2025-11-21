@@ -75,6 +75,11 @@ export const zIdentity = z.object({
 	user_id: z.string(),
 });
 
+export const zPostByIdVoteRequest = z.object({
+	$schema: z.optional(z.url().readonly()),
+	poll_option_id: z.uuid(),
+});
+
 export const zPutByIdRequest = z.object({
 	$schema: z.optional(z.url().readonly()),
 	description: z.string(),
@@ -172,6 +177,10 @@ export const zErrorModelWritable = z.object({
 	status: z.optional(z.coerce.bigint()),
 	title: z.optional(z.string()),
 	type: z.optional(z.url()).default("about:blank"),
+});
+
+export const zPostByIdVoteRequestWritable = z.object({
+	poll_option_id: z.uuid(),
 });
 
 export const zPutByIdRequestWritable = z.object({
@@ -272,17 +281,6 @@ export const zPostPollsData = z.object({
  */
 export const zPostPollsResponse = zCreatePollResponse;
 
-export const zPostPollsCloseData = z.object({
-	body: z.optional(z.never()),
-	path: z.optional(z.never()),
-	query: z.optional(z.never()),
-});
-
-/**
- * No Content
- */
-export const zPostPollsCloseResponse = z.void();
-
 export const zListPollsTodayData = z.object({
 	body: z.optional(z.never()),
 	path: z.optional(z.never()),
@@ -297,13 +295,28 @@ export const zListPollsTodayResponse = z.union([
 	z.null(),
 ]);
 
-export const zPostPollsVoteData = z.object({
+export const zPostPollsByIdCloseData = z.object({
 	body: z.optional(z.never()),
-	path: z.optional(z.never()),
+	path: z.object({
+		id: z.uuid(),
+	}),
 	query: z.optional(z.never()),
 });
 
 /**
  * No Content
  */
-export const zPostPollsVoteResponse = z.void();
+export const zPostPollsByIdCloseResponse = z.void();
+
+export const zPostPollsByIdVoteData = z.object({
+	body: zPostByIdVoteRequestWritable,
+	path: z.object({
+		id: z.uuid(),
+	}),
+	query: z.optional(z.never()),
+});
+
+/**
+ * No Content
+ */
+export const zPostPollsByIdVoteResponse = z.void();
