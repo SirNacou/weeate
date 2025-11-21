@@ -97,7 +97,7 @@ export const zUserProfile = z.object({
 export const zGetFoodsQueryResponse = z.object({
 	description: z.string(),
 	id: z.string(),
-	image_url: z.string(),
+	image_url: z.optional(z.string()),
 	name: z.string(),
 	price: z.coerce.bigint(),
 	user: zUserProfile,
@@ -110,7 +110,7 @@ export const zOrderItemDetail = z.object({
 
 export const zOrderItem = z.object({
 	Details: z.union([z.array(zOrderItemDetail), z.null()]),
-	FoodImageUrl: z.string(),
+	FoodImageUrl: z.union([z.string(), z.null()]),
 	FoodName: z.string(),
 	PriceAtOrder: z.coerce.bigint(),
 });

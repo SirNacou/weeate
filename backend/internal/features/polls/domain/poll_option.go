@@ -9,14 +9,15 @@ import (
 
 type PollOption struct {
 	domain.Base
-	PollID          uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_poll_option_poll"`
-	FoodID          uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_poll_option_food"`
+	PollID          uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_poll_option_poll_food"`
+	FoodID          uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_poll_option_poll_food"`
 	PriceAtCreation int64     `gorm:"not null"`
 	Votes           []Vote    `gorm:"foreignKey:PollOptionID;constraint:OnDelete:CASCADE;"`
 }
 
 func NewPollOption(pollID, foodID uuid.UUID, priceAtCreation int64) *PollOption {
 	return &PollOption{
+		Base:            domain.NewBase(),
 		PollID:          pollID,
 		FoodID:          foodID,
 		PriceAtCreation: priceAtCreation,

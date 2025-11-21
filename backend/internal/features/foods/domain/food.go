@@ -16,10 +16,10 @@ type Food struct {
 	Price       int64     `gorm:"not null"`
 	UserID      uuid.UUID `gorm:"not null;index"`
 	ImageFileID string    `gorm:"type:varchar(255)"`
-	ImageURL    string    `gorm:"type:text"`
+	ImageURL    *string   `gorm:"type:text"`
 }
 
-func NewFood(name, image_file_id, imageUrl, description string, price int64, userID uuid.UUID) (*Food, error) {
+func NewFood(name, image_file_id string, imageUrl *string, description string, price int64, userID uuid.UUID) (*Food, error) {
 	foodID, err := uuid.NewV7()
 	if err != nil {
 		return nil, err
@@ -38,12 +38,12 @@ func NewFood(name, image_file_id, imageUrl, description string, price int64, use
 		Name:        name,
 		ImageURL:    imageUrl,
 		Description: description,
-		Price:       0.0,
+		Price:       price,
 		UserID:      userID,
 	}, nil
 }
 
-func (f *Food) UpdateDetails(name, image_file_id, imageUrl, description string, price int64) error {
+func (f *Food) UpdateDetails(name, image_file_id string, imageUrl *string, description string, price int64) error {
 	if price < 0 {
 		return ErrInvalidPrice
 	}
@@ -53,6 +53,7 @@ func (f *Food) UpdateDetails(name, image_file_id, imageUrl, description string, 
 	}
 
 	f.Name = name
+	f.ImageFileID = image_file_id
 	f.ImageURL = imageUrl
 	f.Description = description
 	f.Price = price

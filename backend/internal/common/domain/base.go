@@ -13,3 +13,9 @@ type Base struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
+
+func NewBase() Base {
+	return Base{
+		ID: uuid.Must(uuid.NewV7()),
+	}
+}

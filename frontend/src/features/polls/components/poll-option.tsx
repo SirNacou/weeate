@@ -39,7 +39,9 @@ function PollOption({
   isSelected = false,
   disabled = false,
 }: Props) {
-  const [isImageError, setIsImageError] = useState(false);
+  const [isImageError, setIsImageError] = useState(
+    option.foodImageUrl !== "" ? false : true
+  );
   const [isImageLoading, setIsImageLoading] = useState(true);
 
   return (

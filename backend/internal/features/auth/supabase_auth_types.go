@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"context"
-	"errors"
 	"time"
 
 	"github.com/gofrs/uuid/v5"
@@ -76,15 +74,4 @@ type UserProfile struct {
 	AvatarURL   string    `json:"avatar_url"`
 	DisplayName string    `json:"display_name"`
 	CreatedAt   time.Time `json:"created_at"`
-}
-
-func GetUserContext(ctx context.Context) (User, error) {
-	user := ctx.Value("user")
-
-	u, ok := user.(User)
-	if !ok {
-		return User{}, errors.New("invalid user in context")
-	}
-
-	return u, nil
 }

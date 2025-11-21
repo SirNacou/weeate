@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
@@ -62,6 +63,11 @@ func (h *GetTodayPollsQueryHandler) Handle(ctx context.Context, query GetTodayPo
 	if err != nil {
 		return nil, err
 	}
+	if len(polls) == 0 {
+		slog.InfoContext(ctx, "polls is empty", "time", now,
+			"start", now.Truncate(24*time.Hour),
+			"end", now.Truncate(24*time.Hour).Add(24*time.Hour))
+	}
 
 	// 1. Collect all unique food and user IDs from the polls.
 	var (
@@ -69,6 +75,7 @@ func (h *GetTodayPollsQueryHandler) Handle(ctx context.Context, query GetTodayPo
 		userIDs []string
 	)
 	for _, p := range polls {
+		userIDs = append(userIDs, p.BuyerID)
 		for _, opt := range p.PollOptions {
 			foodIDs = append(foodIDs, opt.FoodID.String())
 			for _, vote := range opt.Votes {
@@ -80,13 +87,20 @@ func (h *GetTodayPollsQueryHandler) Handle(ctx context.Context, query GetTodayPo
 	uniqueUserIDs := lo.Uniq(userIDs)
 
 	// 2. Fetch all required foods and user profiles in single queries.
-	foods, err := gorm.G[food_domain.Food](h.db).Where("id IN (?)", uniqueFoodIDs).Find(ctx)
-	if err != nil {
-		return nil, err
+	var foods []food_domain.Food
+	if len(uniqueFoodIDs) > 0 {
+		if err := h.db.WithContext(ctx).Where("id IN ?", uniqueFoodIDs).Find(&foods).Error; err != nil {
+			return nil, err
+		}
 	}
-	userProfiles, err := h.supabaseService.GetUserProfilesByIDs(uniqueUserIDs)
-	if err != nil {
-		return nil, err
+
+	var userProfiles []auth.UserProfile
+	if len(uniqueUserIDs) > 0 {
+		profiles, err := h.supabaseService.GetUserProfilesByIDs(uniqueUserIDs)
+		if err != nil {
+			return nil, err
+		}
+		userProfiles = profiles
 	}
 
 	// 3. Create maps for efficient O(1) lookups.
@@ -98,6 +112,7 @@ func (h *GetTodayPollsQueryHandler) Handle(ctx context.Context, query GetTodayPo
 	for _, poll := range polls {
 		res = append(res, GetTodayPollsQueryResponse{
 			ID:                poll.ID.String(),
+			Creator:           userProfileMap[poll.BuyerID],
 			ScheduledClosesAt: poll.ScheduledClosesAt,
 			Strategy:          poll.Strategy,
 			PollOptions: lo.Map(poll.PollOptions, func(option domain.PollOption, _ int) PollOption {

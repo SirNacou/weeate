@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
   TooltipContent,
@@ -21,12 +22,17 @@ type CloseTimerProps = {
 
 // 2. Accept className as a prop
 const CloseTimer = ({ closesAt, className }: CloseTimerProps) => {
-  const [now, setNow] = useState(new Date());
+  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
+    setNow(new Date());
     const timerId = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timerId);
   }, []);
+
+  if (!now) {
+    return <Skeleton className={cn("h-6 w-32 rounded-full", className)} />;
+  }
 
   const closeDate = new Date(closesAt);
   const totalSecondsLeft = differenceInSeconds(closeDate, now);

@@ -4,6 +4,7 @@ go 1.25.3
 
 require (
 	github.com/ThreeDotsLabs/watermill v1.5.1
+	github.com/ThreeDotsLabs/watermill-sql/v4 v4.1.2
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/danielgtaylor/huma/v2 v2.34.1
 	github.com/gofiber/fiber/v2 v2.52.9
@@ -18,8 +19,6 @@ require (
 )
 
 require (
-	github.com/ThreeDotsLabs/watermill-sql v1.4.0 // indirect
-	github.com/ThreeDotsLabs/watermill-sql/v4 v4.1.2 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/lib/pq v1.10.9 // indirect
@@ -63,7 +62,7 @@ require (
 	github.com/supabase-community/supabase-go v0.0.4
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.68.0 // indirect
-	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sync v0.18.0
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/text v0.31.0 // indirect
 )

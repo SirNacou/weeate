@@ -18,6 +18,7 @@ export const Route = createFileRoute("/_protected/polls/today/")({
   component: RouteComponent,
   loader: async () => {
     const polls = await listPollsTodayServerFn();
+    console.log("Loaded today polls:", polls);
     return { polls };
   },
   head: () => {
@@ -83,21 +84,22 @@ function RouteComponent() {
           return (
             <PollCard
               key={poll.id}
-              avatarUrl={poll.creator?.avatar_url || ""}
+              avatarUrl={poll.creator?.avatar_url}
               buyerName={poll.creator?.display_name || "Unknown"}
+              scheduled_close_at={poll.scheduled_closes_at}
               strategy={poll.strategy as any}
               initialSelectedOption={myVote?.id}
               options={
                 poll.poll_options?.map((option) => ({
                   id: option.id || "",
                   foodName: option.food?.name || "Unknown Food",
-                  foodImageUrl: "", // API doesn't seem to return image url in poll option yet
+                  foodImageUrl: option.food?.image_url || "",
                   price: option.price_at_creation || 0,
                   votes:
                     option.votes?.map((vote) => ({
                       userId: vote.voter?.id || "",
                       userName: vote.voter?.display_name || "Unknown",
-                      userAvatarUrl: vote.voter?.avatar_url || "",
+                      userAvatarUrl: vote.voter?.avatar_url,
                     })) || [],
                 })) || []
               }

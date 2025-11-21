@@ -18,7 +18,7 @@ type GetFoodsQuery struct {
 type GetFoodsQueryResponse struct {
 	ID          uuid.UUID        `json:"id"`
 	Name        string           `json:"name"`
-	ImageURL    string           `json:"image_url"`
+	ImageURL    *string          `json:"image_url,omitempty"`
 	Description string           `json:"description"`
 	Price       int64            `json:"price"`
 	User        auth.UserProfile `json:"user"`
@@ -37,17 +37,14 @@ func NewGetFoodsQueryHandler(db *gorm.DB, s *auth.SupabaseService) *GetFoodsQuer
 }
 
 func (h *GetFoodsQueryHandler) Handle(ctx context.Context, query GetFoodsQuery) ([]GetFoodsQueryResponse, error) {
-	foods := []domain.Food{}
-	err := error(nil)
+	var foods []domain.Food
+	dbQuery := h.db.WithContext(ctx)
 
-	foodsTable := gorm.G[domain.Food](h.db)
 	if !query.UserID.IsNil() {
-		foods, err = foodsTable.Where("user_id = ?", query.UserID).Find(ctx)
-	} else {
-		foods, err = foodsTable.Find(ctx)
+		dbQuery = dbQuery.Where("user_id = ?", query.UserID)
 	}
 
-	if err != nil {
+	if err := dbQuery.Find(&foods).Error; err != nil {
 		return nil, err
 	}
 

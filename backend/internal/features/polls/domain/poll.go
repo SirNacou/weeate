@@ -20,7 +20,7 @@ type Poll struct {
 	events            []domain.Event `gorm:"-"`
 }
 
-func NewPoll(orderDate, scheduledClosesAt time.Time, strategy PollStrategy, pollOptions []PollOption) (*Poll, error) {
+func NewPoll(orderDate, scheduledClosesAt time.Time, strategy PollStrategy, pollOptions []PollOption, buyerID string) (*Poll, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
 		return nil, err
@@ -32,9 +32,8 @@ func NewPoll(orderDate, scheduledClosesAt time.Time, strategy PollStrategy, poll
 	})
 
 	poll := &Poll{
-		Base: domain.Base{
-			ID: id,
-		},
+		Base:              domain.NewBase(),
+		BuyerID:           buyerID,
 		OrderDate:         orderDate,
 		Strategy:          strategy,
 		ScheduledClosesAt: scheduledClosesAt,

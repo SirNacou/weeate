@@ -12,11 +12,13 @@ export default defineConfig({
     format: "biome",
     lint: "biome",
   },
-  logs: undefined,
+  logs: {
+    path: "/openapi-logs",
+  },
   plugins: [
     "@hey-api/typescript",
     { name: "@hey-api/sdk", validator: true },
-    { name: "@hey-api/transformers", bigInt: false },
+    { name: "@hey-api/transformers", bigInt: false, dates: true },
     "@hey-api/schemas",
     {
       name: "@hey-api/client-fetch",

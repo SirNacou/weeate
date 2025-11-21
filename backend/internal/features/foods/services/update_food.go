@@ -32,7 +32,7 @@ func (h *UpdateFoodCommandHandler) Handle(ctx context.Context, cmd UpdateFoodCom
 		return err
 	}
 
-	if err := food.UpdateDetails(cmd.Name, cmd.ImageFileId, "", cmd.Description, cmd.Price); err != nil {
+	if err := food.UpdateDetails(cmd.Name, cmd.ImageFileId, nil, cmd.Description, cmd.Price); err != nil {
 		return err
 	}
 

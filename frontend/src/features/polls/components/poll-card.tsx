@@ -9,11 +9,10 @@ import {
 } from "@/components/ui/card";
 import PollStrategyBadge from "./poll-strategy-badge";
 import CloseTimer from "@/components/close-timer";
-import { add } from "date-fns";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { FieldGroup } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import PollOption, { Option } from "./poll-option";
@@ -23,6 +22,7 @@ import { toast } from "sonner";
 type Props = {
   buyerName: string;
   avatarUrl: string;
+  scheduled_close_at: Date;
   strategy: "ORDER_CONSENSUS_ITEM" | "ORDER_PERSONAL_CHOICE";
   options: Option[];
   initialSelectedOption?: string;
@@ -31,11 +31,11 @@ type Props = {
 const PollCard = ({
   buyerName,
   avatarUrl,
+  scheduled_close_at,
   strategy,
   options,
   initialSelectedOption,
 }: Props) => {
-  const [now] = useState(Date.now());
 
   const validator = useMemo(() => {
     return z.object({
@@ -95,7 +95,7 @@ const PollCard = ({
           <CardDescription className="mt-1 flex items-center justify-between text-sm sm:text-base">
             <CloseTimer
               className="text-sm sm:text-base shrink-0"
-              closesAt={add(now, { minutes: 1 })}
+              closesAt={scheduled_close_at}
             />
 
             <PollStrategyBadge strategy={strategy} />

@@ -20,7 +20,7 @@ type (
 	}
 	OrderItem struct {
 		FoodName     string
-		FoodImageUrl string
+		FoodImageUrl *string
 		PriceAtOrder int64
 		Details      []OrderItemDetail
 	}

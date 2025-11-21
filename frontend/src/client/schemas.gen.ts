@@ -241,7 +241,7 @@ export const GetFoodsQueryResponseSchema = {
 			$ref: "#/components/schemas/UserProfile",
 		},
 	},
-	required: ["id", "name", "image_url", "description", "price", "user"],
+	required: ["id", "name", "description", "price", "user"],
 	type: "object",
 } as const;
 
@@ -387,7 +387,7 @@ export const OrderItemSchema = {
 			type: ["array", "null"],
 		},
 		FoodImageUrl: {
-			type: "string",
+			type: ["string", "null"],
 		},
 		FoodName: {
 			type: "string",

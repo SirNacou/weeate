@@ -126,6 +126,7 @@ export type ErrorModel = {
 };
 
 export type Food = {
+  image_url: string;
 	id: string;
 	name: string;
 };
@@ -133,7 +134,7 @@ export type Food = {
 export type GetFoodsQueryResponse = {
 	description: string;
 	id: string;
-	image_url: string;
+	image_url?: string;
 	name: string;
 	price: number;
 	user: UserProfile;
@@ -177,7 +178,7 @@ export type IdentityData = {
 
 export type OrderItem = {
 	Details: Array<OrderItemDetail> | null;
-	FoodImageUrl: string;
+	FoodImageUrl: string | null;
 	FoodName: string;
 	PriceAtOrder: number;
 };

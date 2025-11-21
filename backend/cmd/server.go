@@ -25,12 +25,20 @@ func newServer(ctx context.Context, config configs.Env, logger *slog.Logger, db 
 	// Setup Fiber app
 	app := fiber.New(fiber.Config{})
 
-	app.Use(slogfiber.New(logger))
+	app.Use(slogfiber.NewWithConfig(logger, slogfiber.Config{
+		WithRequestID:      true,
+		WithTraceID:        true,
+		WithSpanID:         true,
+		WithRequestHeader:  true,
+		WithResponseHeader: true,
+		WithRequestBody:    true,
+		WithResponseBody:   true,
+	}))
 	app.Use(recover.New())
 	app.Use(api.CORSMiddleware(config.GO_ENV))
 	authMiddleware, err := api.AuthMiddleware(ctx, config.SUPABASE_AUTH_URL, config.SUPABASE_COOKIE_AUTH_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to initialize auth middleware: %v", err)
+		return nil, fmt.Errorf("failed to initialize auth middleware: %v", err)
 	}
 	app.Use(authMiddleware)
 
@@ -41,11 +49,11 @@ func newServer(ctx context.Context, config configs.Env, logger *slog.Logger, db 
 	orders.RegisterOrdersModule(api, bus, db, supabaseService)
 
 	huma.Get(api, "/", func(ctx context.Context, i *struct{}) (*auth.User, error) {
-		user, err := auth.GetUserContext(ctx)
-		if err != nil {
-			return nil, huma.Error401Unauthorized("Unauthorized", err)
+		user, ok := auth.UserFromContext(ctx)
+		if !ok {
+			return nil, huma.Error401Unauthorized("Unauthorized", fmt.Errorf("user not found in context"))
 		}
-		return &user, nil
+		return user, nil
 	})
 
 	return api.Adapter(), nil

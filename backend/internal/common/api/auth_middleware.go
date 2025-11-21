@@ -107,13 +107,16 @@ func AuthMiddleware(ctx context.Context, authUrl, cookieName string) (fiber.Hand
 			return c.SendStatus(http.StatusUnauthorized)
 		}
 
-		c.SetUserContext(auth.WithUser(c.UserContext(), &session.User))
+		ctx := c.UserContext()
+		ctx = auth.WithUser(ctx, &session.User)
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			c.SetUserContext(auth.WithUserClaims(c.UserContext(), claims))
+			ctx = auth.WithUserClaims(ctx, claims)
 		} else {
 			slog.Warn("user claims not found")
 		}
+
+		c.SetUserContext(ctx)
 
 		return c.Next()
 	}, nil
