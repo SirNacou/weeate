@@ -1,6 +1,6 @@
-import { getFoodsOptions } from "@/client/@tanstack/react-query.gen";
+import { listFoodsOptions } from "@/client/@tanstack/react-query.gen";
 import { Button } from "@/components/ui/button";
-import { getServerFoods } from "@/features/foods/functions/get-server-foods";
+import { getFoodsServer } from "@/features/foods/functions/get-server-foods";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
@@ -14,24 +14,8 @@ import {
 } from "lucide-react";
 
 const fn1 = createServerFn({ method: "GET" }).handler(async () => {
-  // console.log("Server Function Called with data:", getCookies());
-  // await fetch(new URL("http://backend:8080/"), {
-  //   credentials: "include",
-  //   headers: {
-  //     Cookie: Object.entries(getCookies())
-  //       .map(([key, value]) => `${key}=${value}`)
-  //       .join("; "),
-  //   },
-  // })
-  //   .then((response) => {
-  //     console.log("Response:", response.status);
-  //     return response.json();
-  //   })
-  //   .then((json) => console.log(json))
-  //   .catch((error) => console.error("Error:", error));
-
-  const res = await getServerFoods();
-  console.log("Data:", res?.result);
+  const res = await getFoodsServer({ data: {} });
+  console.log("Data:", res);
 });
 
 export const Route = createFileRoute("/_protected/")({
@@ -43,7 +27,7 @@ export const Route = createFileRoute("/_protected/")({
 
 function App() {
   const { data, refetch } = useQuery({
-    ...getFoodsOptions(),
+    ...listFoodsOptions(),
     enabled: false,
   });
 

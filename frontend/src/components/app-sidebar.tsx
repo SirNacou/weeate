@@ -25,8 +25,9 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "./animate-ui/components/radix/dropdown-menu";
-import FluentHome12Filled from "~icons/fluent/home-12-filled";
-import FluentFood16Filled from "~icons/fluent/food-16-filled?height=32&width=32px";
+import FluentHome32Filled from "~icons/fluent/home-32-filled";
+import FluentFood32Filled from "~icons/fluent/food-32-filled";
+import LucideVote from "~icons/lucide/vote?width=2em&height=2em";
 
 type NavData = {
   linkOptions: LinkOptions;
@@ -40,14 +41,21 @@ const DATA: NavData[] = [
       to: "/",
     },
     label: "Home",
-    icon: FluentHome12Filled,
+    icon: FluentHome32Filled,
+  },
+  {
+    linkOptions: {
+      to: "/polls/today",
+    },
+    label: "Today Polls",
+    icon: LucideVote,
   },
   {
     linkOptions: {
       to: "/foods",
     },
     label: "Foods",
-    icon: FluentFood16Filled,
+    icon: FluentFood32Filled,
   },
 ];
 

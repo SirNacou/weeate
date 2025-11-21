@@ -8,17 +8,54 @@ import type {
 	DeleteFoodsByIdResponses,
 	GetData,
 	GetErrors,
-	GetFoodsData,
-	GetFoodsErrors,
-	GetFoodsResponses,
 	GetResponses,
+	ListFoodsData,
+	ListFoodsErrors,
+	ListFoodsResponses,
+	ListOrdersTodayData,
+	ListOrdersTodayErrors,
+	ListOrdersTodayResponses,
+	ListPollsTodayData,
+	ListPollsTodayErrors,
+	ListPollsTodayResponses,
 	PostFoodsData,
 	PostFoodsErrors,
 	PostFoodsResponses,
+	PostPollsByIdCloseData,
+	PostPollsByIdCloseErrors,
+	PostPollsByIdCloseResponses,
+	PostPollsByIdVoteData,
+	PostPollsByIdVoteErrors,
+	PostPollsByIdVoteResponses,
+	PostPollsData,
+	PostPollsErrors,
+	PostPollsResponses,
 	PutFoodsByIdData,
 	PutFoodsByIdErrors,
 	PutFoodsByIdResponses,
 } from "./types.gen";
+import {
+	zDeleteFoodsByIdData,
+	zDeleteFoodsByIdResponse,
+	zGetData,
+	zGetResponse,
+	zListFoodsData,
+	zListFoodsResponse,
+	zListOrdersTodayData,
+	zListOrdersTodayResponse,
+	zListPollsTodayData,
+	zListPollsTodayResponse,
+	zPostFoodsData,
+	zPostFoodsResponse,
+	zPostPollsByIdCloseData,
+	zPostPollsByIdCloseResponse,
+	zPostPollsByIdVoteData,
+	zPostPollsByIdVoteResponse,
+	zPostPollsData,
+	zPostPollsResponse,
+	zPutFoodsByIdData,
+	zPutFoodsByIdResponse,
+} from "./zod.gen";
 
 export type Options<
 	TData extends TDataShape = TDataShape,
@@ -45,6 +82,12 @@ export const get = <ThrowOnError extends boolean = false>(
 ) => {
 	return (options?.client ?? client).get<GetResponses, GetErrors, ThrowOnError>(
 		{
+			requestValidator: async (data) => {
+				return await zGetData.parseAsync(data);
+			},
+			responseValidator: async (data) => {
+				return await zGetResponse.parseAsync(data);
+			},
 			url: "/",
 			...options,
 		},
@@ -52,25 +95,29 @@ export const get = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Get List Foods
- *
- * Retrieve a list of foods.
+ * List foods
  */
-export const getFoods = <ThrowOnError extends boolean = false>(
-	options?: Options<GetFoodsData, ThrowOnError>,
+export const listFoods = <ThrowOnError extends boolean = false>(
+	options?: Options<ListFoodsData, ThrowOnError>,
 ) => {
 	return (options?.client ?? client).get<
-		GetFoodsResponses,
-		GetFoodsErrors,
+		ListFoodsResponses,
+		ListFoodsErrors,
 		ThrowOnError
 	>({
+		requestValidator: async (data) => {
+			return await zListFoodsData.parseAsync(data);
+		},
+		responseValidator: async (data) => {
+			return await zListFoodsResponse.parseAsync(data);
+		},
 		url: "/foods/",
 		...options,
 	});
 };
 
 /**
- * Add new food
+ * Post foods
  */
 export const postFoods = <ThrowOnError extends boolean = false>(
 	options: Options<PostFoodsData, ThrowOnError>,
@@ -80,6 +127,12 @@ export const postFoods = <ThrowOnError extends boolean = false>(
 		PostFoodsErrors,
 		ThrowOnError
 	>({
+		requestValidator: async (data) => {
+			return await zPostFoodsData.parseAsync(data);
+		},
+		responseValidator: async (data) => {
+			return await zPostFoodsResponse.parseAsync(data);
+		},
 		url: "/foods/",
 		...options,
 		headers: {
@@ -90,7 +143,7 @@ export const postFoods = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Delete a food item by its ID
+ * Delete foods by ID
  */
 export const deleteFoodsById = <ThrowOnError extends boolean = false>(
 	options: Options<DeleteFoodsByIdData, ThrowOnError>,
@@ -100,13 +153,19 @@ export const deleteFoodsById = <ThrowOnError extends boolean = false>(
 		DeleteFoodsByIdErrors,
 		ThrowOnError
 	>({
+		requestValidator: async (data) => {
+			return await zDeleteFoodsByIdData.parseAsync(data);
+		},
+		responseValidator: async (data) => {
+			return await zDeleteFoodsByIdResponse.parseAsync(data);
+		},
 		url: "/foods/{id}",
 		...options,
 	});
 };
 
 /**
- * Update food
+ * Put foods by ID
  */
 export const putFoodsById = <ThrowOnError extends boolean = false>(
 	options: Options<PutFoodsByIdData, ThrowOnError>,
@@ -116,7 +175,131 @@ export const putFoodsById = <ThrowOnError extends boolean = false>(
 		PutFoodsByIdErrors,
 		ThrowOnError
 	>({
+		requestValidator: async (data) => {
+			return await zPutFoodsByIdData.parseAsync(data);
+		},
+		responseValidator: async (data) => {
+			return await zPutFoodsByIdResponse.parseAsync(data);
+		},
 		url: "/foods/{id}",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * List orders today
+ */
+export const listOrdersToday = <ThrowOnError extends boolean = false>(
+	options?: Options<ListOrdersTodayData, ThrowOnError>,
+) => {
+	return (options?.client ?? client).get<
+		ListOrdersTodayResponses,
+		ListOrdersTodayErrors,
+		ThrowOnError
+	>({
+		requestValidator: async (data) => {
+			return await zListOrdersTodayData.parseAsync(data);
+		},
+		responseValidator: async (data) => {
+			return await zListOrdersTodayResponse.parseAsync(data);
+		},
+		url: "/orders/today",
+		...options,
+	});
+};
+
+/**
+ * Post polls
+ */
+export const postPolls = <ThrowOnError extends boolean = false>(
+	options: Options<PostPollsData, ThrowOnError>,
+) => {
+	return (options.client ?? client).post<
+		PostPollsResponses,
+		PostPollsErrors,
+		ThrowOnError
+	>({
+		requestValidator: async (data) => {
+			return await zPostPollsData.parseAsync(data);
+		},
+		responseValidator: async (data) => {
+			return await zPostPollsResponse.parseAsync(data);
+		},
+		url: "/polls/",
+		...options,
+		headers: {
+			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+};
+
+/**
+ * List polls today
+ */
+export const listPollsToday = <ThrowOnError extends boolean = false>(
+	options?: Options<ListPollsTodayData, ThrowOnError>,
+) => {
+	return (options?.client ?? client).get<
+		ListPollsTodayResponses,
+		ListPollsTodayErrors,
+		ThrowOnError
+	>({
+		requestValidator: async (data) => {
+			return await zListPollsTodayData.parseAsync(data);
+		},
+		responseValidator: async (data) => {
+			return await zListPollsTodayResponse.parseAsync(data);
+		},
+		url: "/polls/today",
+		...options,
+	});
+};
+
+/**
+ * Post polls by ID close
+ */
+export const postPollsByIdClose = <ThrowOnError extends boolean = false>(
+	options: Options<PostPollsByIdCloseData, ThrowOnError>,
+) => {
+	return (options.client ?? client).post<
+		PostPollsByIdCloseResponses,
+		PostPollsByIdCloseErrors,
+		ThrowOnError
+	>({
+		requestValidator: async (data) => {
+			return await zPostPollsByIdCloseData.parseAsync(data);
+		},
+		responseValidator: async (data) => {
+			return await zPostPollsByIdCloseResponse.parseAsync(data);
+		},
+		url: "/polls/{id}/close",
+		...options,
+	});
+};
+
+/**
+ * Post polls by ID vote
+ */
+export const postPollsByIdVote = <ThrowOnError extends boolean = false>(
+	options: Options<PostPollsByIdVoteData, ThrowOnError>,
+) => {
+	return (options.client ?? client).post<
+		PostPollsByIdVoteResponses,
+		PostPollsByIdVoteErrors,
+		ThrowOnError
+	>({
+		requestValidator: async (data) => {
+			return await zPostPollsByIdVoteData.parseAsync(data);
+		},
+		responseValidator: async (data) => {
+			return await zPostPollsByIdVoteResponse.parseAsync(data);
+		},
+		url: "/polls/{id}/vote",
 		...options,
 		headers: {
 			"Content-Type": "application/json",

@@ -1,6 +1,6 @@
 import {
   deleteFoodsByIdMutation,
-  getFoodsQueryKey,
+  listFoodsQueryKey,
 } from "@/client/@tanstack/react-query.gen";
 import { Button } from "@/components/animate-ui/components/buttons/button";
 import {
@@ -24,7 +24,7 @@ const DeleteFoodDialog = ({ foodId, open, onOpenChange }: DeleteFoodDialog) => {
   const deleteFood = useMutation({
     ...deleteFoodsByIdMutation(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getFoodsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: listFoodsQueryKey() });
       onOpenChange?.(false);
     },
   });

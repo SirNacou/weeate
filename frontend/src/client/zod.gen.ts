@@ -2,15 +2,15 @@
 
 import { z } from "zod";
 
-export const zAddFoodRequest = z.object({
+export const zAddFoodCommand = z.object({
 	$schema: z.optional(z.url().readonly()),
-	description: z.optional(z.string()),
+	description: z.string(),
 	image_file_id: z.optional(z.string()),
-	name: z.string().min(1),
-	price: z.coerce.bigint().gte(BigInt(0)),
+	name: z.string(),
+	price: z.coerce.bigint(),
 });
 
-export const zAddFoodResponse = z.object({
+export const zAddFoodResult = z.object({
 	$schema: z.optional(z.url().readonly()),
 	food_id: z.string(),
 });
@@ -20,6 +20,19 @@ export const zAppMetadata = z.object({
 	display_name: z.string(),
 	provider: z.string(),
 	providers: z.union([z.array(z.string()), z.null()]),
+});
+
+export const zCreatePollCommand = z.object({
+	$schema: z.optional(z.url().readonly()),
+	food_ids: z.union([z.array(z.string()).min(1), z.null()]),
+	order_date: z.iso.datetime(),
+	scheduled_close_at: z.iso.datetime(),
+	strategy: z.enum(["ORDER_MULTIPLE_ITEMS", "ORDER_CONSENSUS_ITEM"]),
+});
+
+export const zCreatePollResponse = z.object({
+	$schema: z.optional(z.url().readonly()),
+	poll_id: z.string(),
 });
 
 export const zErrorDetail = z.object({
@@ -36,6 +49,11 @@ export const zErrorModel = z.object({
 	status: z.optional(z.coerce.bigint()),
 	title: z.optional(z.string()),
 	type: z.optional(z.url()).default("about:blank"),
+});
+
+export const zFood = z.object({
+	id: z.string(),
+	name: z.string(),
 });
 
 export const zIdentityData = z.object({
@@ -57,10 +75,15 @@ export const zIdentity = z.object({
 	user_id: z.string(),
 });
 
-export const zUpdateFoodRequest = z.object({
+export const zPostByIdVoteRequest = z.object({
+	$schema: z.optional(z.url().readonly()),
+	poll_option_id: z.uuid(),
+});
+
+export const zPutByIdRequest = z.object({
 	$schema: z.optional(z.url().readonly()),
 	description: z.string(),
-	image_file_id: z.string(),
+	image_file_id: z.optional(z.string()),
 	name: z.string(),
 	price: z.coerce.bigint(),
 });
@@ -71,33 +94,80 @@ export const zUserMetadata = z.object({
 
 export const zUserProfile = z.object({
 	avatar_url: z.string(),
+	created_at: z.iso.datetime(),
 	display_name: z.string(),
 	id: z.string(),
 });
 
-export const zGetFoodsResponseItem = z.object({
+export const zGetFoodsQueryResponse = z.object({
 	description: z.string(),
 	id: z.string(),
-	image_url: z.string(),
+	image_url: z.optional(z.string()),
 	name: z.string(),
 	price: z.coerce.bigint(),
 	user: zUserProfile,
 });
 
-export const zGetFoodsResponse = z.object({
-	$schema: z.optional(z.url().readonly()),
-	result: z.union([z.array(zGetFoodsResponseItem), z.null()]),
+export const zOrderItemDetail = z.object({
+	Quantity: z.coerce.bigint(),
+	User: zUserProfile,
 });
 
-export const zAddFoodRequestWritable = z.object({
-	description: z.optional(z.string()),
+export const zOrderItem = z.object({
+	Details: z.union([z.array(zOrderItemDetail), z.null()]),
+	FoodImageUrl: z.union([z.string(), z.null()]),
+	FoodName: z.string(),
+	PriceAtOrder: z.coerce.bigint(),
+});
+
+export const zGetTodayOrdersResponse = z.object({
+	Buyer: zUserProfile,
+	OrderItems: z.union([z.array(zOrderItem), z.null()]),
+	PollID: z.string(),
+	TotalPrice: z.coerce.bigint(),
+});
+
+export const zVote = z.object({
+	voter: zUserProfile,
+});
+
+export const zPollOption = z.object({
+	food: zFood,
+	id: z.string(),
+	price_at_creation: z.coerce.bigint(),
+	votes: z.union([z.array(zVote), z.null()]),
+});
+
+export const zGetTodayPollsQueryResponse = z.object({
+	closed_at: z.union([z.iso.datetime(), z.null()]),
+	creator: zUserProfile,
+	final_total_price: z.coerce.bigint(),
+	id: z.string(),
+	poll_options: z.union([z.array(zPollOption), z.null()]),
+	scheduled_closes_at: z.iso.datetime(),
+	strategy: z.string(),
+});
+
+export const zAddFoodCommandWritable = z.object({
+	description: z.string(),
 	image_file_id: z.optional(z.string()),
-	name: z.string().min(1),
-	price: z.coerce.bigint().gte(BigInt(0)),
+	name: z.string(),
+	price: z.coerce.bigint(),
 });
 
-export const zAddFoodResponseWritable = z.object({
+export const zAddFoodResultWritable = z.object({
 	food_id: z.string(),
+});
+
+export const zCreatePollCommandWritable = z.object({
+	food_ids: z.union([z.array(z.string()).min(1), z.null()]),
+	order_date: z.iso.datetime(),
+	scheduled_close_at: z.iso.datetime(),
+	strategy: z.enum(["ORDER_MULTIPLE_ITEMS", "ORDER_CONSENSUS_ITEM"]),
+});
+
+export const zCreatePollResponseWritable = z.object({
+	poll_id: z.string(),
 });
 
 export const zErrorModelWritable = z.object({
@@ -109,13 +179,13 @@ export const zErrorModelWritable = z.object({
 	type: z.optional(z.url()).default("about:blank"),
 });
 
-export const zGetFoodsResponseWritable = z.object({
-	result: z.union([z.array(zGetFoodsResponseItem), z.null()]),
+export const zPostByIdVoteRequestWritable = z.object({
+	poll_option_id: z.uuid(),
 });
 
-export const zUpdateFoodRequestWritable = z.object({
+export const zPutByIdRequestWritable = z.object({
 	description: z.string(),
-	image_file_id: z.string(),
+	image_file_id: z.optional(z.string()),
 	name: z.string(),
 	price: z.coerce.bigint(),
 });
@@ -131,19 +201,26 @@ export const zGetData = z.object({
  */
 export const zGetResponse = z.void();
 
-export const zGetFoodsData = z.object({
+export const zListFoodsData = z.object({
 	body: z.optional(z.never()),
 	path: z.optional(z.never()),
-	query: z.optional(z.never()),
+	query: z.optional(
+		z.object({
+			user_id: z.optional(z.uuid()),
+		}),
+	),
 });
 
 /**
  * OK
  */
-export const zGetFoodsResponse2 = zGetFoodsResponse;
+export const zListFoodsResponse = z.union([
+	z.array(zGetFoodsQueryResponse),
+	z.null(),
+]);
 
 export const zPostFoodsData = z.object({
-	body: zAddFoodRequestWritable,
+	body: zAddFoodCommandWritable,
 	path: z.optional(z.never()),
 	query: z.optional(z.never()),
 });
@@ -151,7 +228,7 @@ export const zPostFoodsData = z.object({
 /**
  * OK
  */
-export const zPostFoodsResponse = zAddFoodResponse;
+export const zPostFoodsResponse = zAddFoodResult;
 
 export const zDeleteFoodsByIdData = z.object({
 	body: z.optional(z.never()),
@@ -167,7 +244,7 @@ export const zDeleteFoodsByIdData = z.object({
 export const zDeleteFoodsByIdResponse = z.void();
 
 export const zPutFoodsByIdData = z.object({
-	body: zUpdateFoodRequestWritable,
+	body: zPutByIdRequestWritable,
 	path: z.object({
 		id: z.uuid(),
 	}),
@@ -178,3 +255,68 @@ export const zPutFoodsByIdData = z.object({
  * No Content
  */
 export const zPutFoodsByIdResponse = z.void();
+
+export const zListOrdersTodayData = z.object({
+	body: z.optional(z.never()),
+	path: z.optional(z.never()),
+	query: z.optional(z.never()),
+});
+
+/**
+ * OK
+ */
+export const zListOrdersTodayResponse = z.union([
+	z.array(zGetTodayOrdersResponse),
+	z.null(),
+]);
+
+export const zPostPollsData = z.object({
+	body: zCreatePollCommandWritable,
+	path: z.optional(z.never()),
+	query: z.optional(z.never()),
+});
+
+/**
+ * OK
+ */
+export const zPostPollsResponse = zCreatePollResponse;
+
+export const zListPollsTodayData = z.object({
+	body: z.optional(z.never()),
+	path: z.optional(z.never()),
+	query: z.optional(z.never()),
+});
+
+/**
+ * OK
+ */
+export const zListPollsTodayResponse = z.union([
+	z.array(zGetTodayPollsQueryResponse),
+	z.null(),
+]);
+
+export const zPostPollsByIdCloseData = z.object({
+	body: z.optional(z.never()),
+	path: z.object({
+		id: z.uuid(),
+	}),
+	query: z.optional(z.never()),
+});
+
+/**
+ * No Content
+ */
+export const zPostPollsByIdCloseResponse = z.void();
+
+export const zPostPollsByIdVoteData = z.object({
+	body: zPostByIdVoteRequestWritable,
+	path: z.object({
+		id: z.uuid(),
+	}),
+	query: z.optional(z.never()),
+});
+
+/**
+ * No Content
+ */
+export const zPostPollsByIdVoteResponse = z.void();

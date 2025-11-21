@@ -1,8 +1,10 @@
-FROM oven/bun AS builder
+FROM oven/bun:1 AS builder
 
 WORKDIR /app
 
 COPY .env .
+COPY .env.dev .
+COPY .env.local .
 
 WORKDIR /app/frontend
 
