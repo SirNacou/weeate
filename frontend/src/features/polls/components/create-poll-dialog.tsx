@@ -59,6 +59,14 @@ import { Spinner } from "@/components/ui/spinner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import {
+  Alert,
+  AlertContent,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+} from "@/components/ui/alert";
+import LucideAlertTriangle from "~icons/lucide/alert-triangle";
 
 const createPollServerFn = createServerFn({ method: "POST" })
   .inputValidator(zCreatePollCommandWritable)
@@ -78,9 +86,11 @@ const createPollServerFn = createServerFn({ method: "POST" })
     return result.data;
   });
 
-type Props = {};
+type Props = {
+  userPollExists?: boolean;
+};
 
-const CreatePollDialog = ({}: Props) => {
+const CreatePollDialog = ({ userPollExists }: Props) => {
   const { user } = ProtectedRoute.useRouteContext();
   const queryClient = useQueryClient();
 
@@ -334,6 +344,20 @@ const CreatePollDialog = ({}: Props) => {
               />
             </FieldGroup>
           </div>
+          {userPollExists && (
+            <Alert variant="warning" appearance="light" className="mt-4">
+              <AlertIcon>
+                <LucideAlertTriangle />
+              </AlertIcon>
+              <AlertContent>
+                <AlertTitle>Warning</AlertTitle>
+                <AlertDescription>
+                  A poll already exists for today, it will be replaced and
+                  all existing votes will be lost.
+                </AlertDescription>
+              </AlertContent>
+            </Alert>
+          )}
         </form>
         <DialogFooter>
           <DialogClose asChild>

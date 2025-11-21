@@ -45,7 +45,11 @@ function RouteComponent() {
             <p>Vote for your favorite meals and let your voice be heard!</p>
           </div>
 
-          <CreatePollDialog />
+          <CreatePollDialog
+            userPollExists={polls?.some(
+              (poll) => poll.creator?.id === user?.id
+            )}
+          />
         </div>
 
         <div className="flex gap-2 text-center">
@@ -84,16 +88,18 @@ function RouteComponent() {
           return (
             <PollCard
               key={poll.id}
+              pollId={poll.id}
               avatarUrl={poll.creator?.avatar_url}
               buyerName={poll.creator?.display_name || "Unknown"}
               scheduled_close_at={poll.scheduled_closes_at}
+              closed_at={poll.closed_at}
               strategy={poll.strategy as any}
               initialSelectedOption={myVote?.id}
               options={
                 poll.poll_options?.map((option) => ({
                   id: option.id || "",
                   foodName: option.food?.name || "Unknown Food",
-                  foodImageUrl: option.food?.image_url || "",
+                  foodImageUrl: "",
                   price: option.price_at_creation || 0,
                   votes:
                     option.votes?.map((vote) => ({

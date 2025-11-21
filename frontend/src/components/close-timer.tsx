@@ -107,7 +107,7 @@ const CloseTimer = ({ closesAt, className }: CloseTimerProps) => {
       <Tooltip>
         <TooltipTrigger asChild>
           <Badge
-            variant="outline"
+            variant="secondary"
             className={cn("gap-1.5 pl-1.5", className)} // Merge here
           >
             <Clock className="h-3.5 w-3.5" />

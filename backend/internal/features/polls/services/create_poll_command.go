@@ -83,9 +83,20 @@ func (h *CreatePollCommandHandler) Handle(ctx context.Context, req CreatePollCom
 	}
 
 	err = h.db.Transaction(func(tx *gorm.DB) error {
-		gorm.G[domain.Poll](tx).Create(ctx, poll)
+		var existingPoll domain.Poll
+		err := tx.Where("buyer_id = ? AND order_date = ?", user.ID, req.OrderDate).First(&existingPoll).Error
+		if err == nil {
+			if existingPoll.ClosedAt != nil {
+				return domain.ErrClosedPollAlreadyExistsForOrderDate(req.OrderDate)
+			}
+			if err := tx.Unscoped().Delete(&existingPoll).Error; err != nil {
+				return err
+			}
+		} else if err != gorm.ErrRecordNotFound {
+			return err
+		}
 
-		return nil
+		return tx.Create(poll).Error
 	})
 	if err != nil {
 		return nil, err

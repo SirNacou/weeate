@@ -440,6 +440,26 @@ export const PollOptionSchema = {
 	type: "object",
 } as const;
 
+export const Post_by_id_voteRequestSchema = {
+	additionalProperties: false,
+	properties: {
+		$schema: {
+			description: "A URL to the JSON Schema for this object.",
+			examples: ["https://example.com/schemas/Post-by-id-voteRequest.json"],
+			format: "uri",
+			readOnly: true,
+			type: "string",
+		},
+		poll_option_id: {
+			description: "The ID of the poll option to vote for",
+			format: "uuid",
+			type: "string",
+		},
+	},
+	required: ["poll_option_id"],
+	type: "object",
+} as const;
+
 export const Put_by_idRequestSchema = {
 	additionalProperties: false,
 	properties: {
@@ -639,6 +659,19 @@ export const ErrorModelWritableSchema = {
 			type: "string",
 		},
 	},
+	type: "object",
+} as const;
+
+export const Post_by_id_voteRequestWritableSchema = {
+	additionalProperties: false,
+	properties: {
+		poll_option_id: {
+			description: "The ID of the poll option to vote for",
+			format: "uuid",
+			type: "string",
+		},
+	},
+	required: ["poll_option_id"],
 	type: "object",
 } as const;
 

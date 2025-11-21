@@ -9,6 +9,9 @@ default:
 docker-dev-up *ARGS:
   docker compose -f docker-compose.dev.yml up --build -d {{ARGS}}
 
+docker-dev-up-force *ARGS:
+  docker compose -f docker-compose.dev.yml up --build -d --force-recreate {{ARGS}}
+
 docker-dev-restart *ARGS:
   docker compose -f docker-compose.dev.yml restart {{ARGS}}
 

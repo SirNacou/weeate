@@ -6,7 +6,6 @@ import (
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 	"github.com/gofrs/uuid/v5"
-	"github.com/samber/lo"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -33,6 +32,7 @@ func (h *CastVoteCommandHandler) Handle(ctx context.Context, req CastVoteCommand
 
 	poll, err := gorm.G[domain.Poll](h.db).
 		Where("id = ?", req.PollID).
+		Preload("PollOptions", nil).
 		First(ctx)
 	if err != nil {
 		return err
@@ -42,17 +42,15 @@ func (h *CastVoteCommandHandler) Handle(ctx context.Context, req CastVoteCommand
 		return domain.ErrPollAlreadyClosed
 	}
 
-	pollOption, err := gorm.G[domain.PollOption](h.db).
-		Where("id = ? AND poll_id = ?", req.PollOptionID, req.PollID).
-		First(ctx)
-	if err != nil {
+	// Check if user already voted for the selected option
+	var existingVote domain.Vote
+	err = h.db.Where("poll_id = ? AND user_id = ?", req.PollID, user.ID).First(&existingVote).Error
+	if err == nil {
+		if existingVote.PollOptionID == req.PollOptionID {
+			return domain.ErrUserAlreadyVoted
+		}
+	} else if err != gorm.ErrRecordNotFound {
 		return err
-	}
-
-	if lo.ContainsBy(pollOption.Votes, func(vote domain.Vote) bool {
-		return vote.UserID == user.ID
-	}) {
-		return domain.ErrUserAlreadyVoted
 	}
 
 	vote, err := poll.CastVote(req.PollOptionID, user.ID)
