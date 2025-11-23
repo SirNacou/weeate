@@ -24,7 +24,7 @@ export default defineConfig({
       name: "@hey-api/client-fetch",
       runtimeConfigPath: "../api/api-client-config.ts",
     },
-    { name: "zod", requests: true, responses: true },
+    { name: "zod", requests: true, responses: true, dates: { offset: true } },
     "@tanstack/react-query",
   ],
 });

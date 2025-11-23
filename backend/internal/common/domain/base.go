@@ -8,14 +8,32 @@ import (
 )
 
 type Base struct {
-	ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:uuidv7()"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	UUID
+	Audit
+	SoftDeleteableModel
 }
 
 func NewBase() Base {
 	return Base{
+		UUID: NewUUID(),
+	}
+}
+
+type UUID struct {
+	ID uuid.UUID `gorm:"type:uuid;primaryKey;default:uuidv7()"`
+}
+
+func NewUUID() UUID {
+	return UUID{
 		ID: uuid.Must(uuid.NewV7()),
 	}
+}
+
+type Audit struct {
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type SoftDeleteableModel struct {
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }

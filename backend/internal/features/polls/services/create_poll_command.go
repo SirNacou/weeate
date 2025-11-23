@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/centrifugo"
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
 	food_domain "github.com/SirNacou/weeate/backend/internal/features/foods/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/domain"
@@ -25,12 +26,14 @@ type CreatePollResponse struct {
 }
 
 type CreatePollCommandHandler struct {
-	db *gorm.DB
+	db         *gorm.DB
+	centrifugo *centrifugo.CentrifugoClient
 }
 
-func NewCreatePollCommandHandler(db *gorm.DB) *CreatePollCommandHandler {
+func NewCreatePollCommandHandler(db *gorm.DB, centrifugo *centrifugo.CentrifugoClient) *CreatePollCommandHandler {
 	return &CreatePollCommandHandler{
-		db: db,
+		db:         db,
+		centrifugo: centrifugo,
 	}
 }
 
@@ -57,9 +60,9 @@ func (h *CreatePollCommandHandler) Handle(ctx context.Context, req CreatePollCom
 		return nil, domain.ErrOrderDateInPast
 	}
 
-	minScheduledTime := serverTime.Add(time.Hour)
+	minScheduledTime := serverTime.Add(time.Minute * 15)
 	if req.ScheduledCloseAt.UTC().Before(minScheduledTime.UTC()) {
-		return nil, domain.ErrScheduledCloseAtTooSoon(minScheduledTime)
+		return nil, domain.ErrScheduledCloseAtTooSoon(minScheduledTime.Local())
 	}
 
 	var pollOptions []domain.PollOption
@@ -97,6 +100,18 @@ func (h *CreatePollCommandHandler) Handle(ctx context.Context, req CreatePollCom
 		}
 
 		return tx.Create(poll).Error
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = h.centrifugo.PublishPublicPolls(ctx, &centrifugo.PublicPollsData{
+		Type: centrifugo.PollCreated,
+		Data: &struct {
+			PollID uuid.UUID `json:"poll_id"`
+		}{
+			PollID: poll.ID,
+		},
 	})
 	if err != nil {
 		return nil, err

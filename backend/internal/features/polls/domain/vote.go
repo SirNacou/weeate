@@ -6,8 +6,20 @@ import (
 )
 
 type Vote struct {
-	domain.Base
-	PollID       uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_poll_user_vote"`
-	UserID       string    `gorm:"not null;uniqueIndex:idx_poll_user_vote"`
-	PollOptionID uuid.UUID `gorm:"type:uuid;not null;index"`
+	domain.Audit
+	PollID       uuid.UUID `gorm:"type:uuid;not null;primaryKey"`
+	UserID       string    `gorm:"not null;primaryKey"`
+	PollOptionID uuid.UUID `gorm:"type:uuid;not null"`
+}
+
+func NewVote(pollID uuid.UUID, userID string, pollOptionID uuid.UUID) Vote {
+	return Vote{
+		PollID:       pollID,
+		UserID:       userID,
+		PollOptionID: pollOptionID,
+	}
+}
+
+func (v *Vote) ChangeOption(newOptionID uuid.UUID) {
+	v.PollOptionID = newOptionID
 }

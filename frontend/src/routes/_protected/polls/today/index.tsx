@@ -1,24 +1,22 @@
+import { GetTodayPollsQueryResponse, Vote } from "@/client";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { getPageTitle } from "@/lib/head-utils";
-import { createFileRoute } from "@tanstack/react-router";
-import LucideCalendar from "~icons/lucide/calendar";
-import LucideUserRound from "~icons/lucide/user-round";
-import { Badge } from "@/components/ui/badge";
-import PollCard from "@/features/polls/components/poll-card";
+  listPollsTodayOptions,
+  listPollsTodayQueryKey,
+} from "@/client/@tanstack/react-query.gen";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listPollsTodayServerFn } from "@/features/polls/api/get-today-polls";
 import CreatePollDialog from "@/features/polls/components/create-poll-dialog";
+import PollCard from "@/features/polls/components/poll-card";
+import { useSubscription } from "@/lib/centrifugo/use-subscription";
+import { getPageTitle } from "@/lib/head-utils";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_protected/polls/today/")({
   component: RouteComponent,
   loader: async () => {
     const polls = await listPollsTodayServerFn();
-    console.log("Loaded today polls:", polls);
     return { polls };
   },
   head: () => {
@@ -36,6 +34,140 @@ function RouteComponent() {
   const { polls } = Route.useLoaderData();
   const { user } = Route.useRouteContext();
 
+  const { data, refetch } = useQuery({
+    ...listPollsTodayOptions(),
+    queryFn: listPollsTodayServerFn,
+    initialData: polls,
+  });
+
+  const queryClient = useQueryClient();
+
+  useSubscription("public:polls", async (data) => {
+    console.log("Vote moved event received", data);
+    if (data.type === "poll_created") {
+      toast("New poll created, refetching today's polls...");
+      await refetch();
+    }
+    if (data.type === "vote_added") {
+      queryClient.setQueryData(
+        listPollsTodayQueryKey(),
+        (oldData: GetTodayPollsQueryResponse[] | null) => {
+          if (!oldData) return oldData;
+
+          return oldData.map((poll) => {
+            if (poll.id !== data.data.poll_id) return poll;
+            return {
+              ...poll,
+              poll_options: poll.poll_options?.map((option) => {
+                if (option.id !== data.data.option_id) return option;
+
+                if (
+                  option.votes?.some((v) => v.voter?.id === data.data.user_id)
+                ) {
+                  return option;
+                }
+
+                return {
+                  ...option,
+                  votes: [
+                    ...(option.votes || []),
+                    {
+                      voter: {
+                        id: data.data.user_id,
+                        display_name: data.data.user_display_name,
+                        avatar_url: data.data.user_avatar_url,
+                        created_at: new Date().toISOString(),
+                      },
+                    },
+                  ] as Array<Vote>,
+                };
+              }),
+            };
+          });
+        }
+      );
+    }
+    if (data.type === "vote_removed") {
+      queryClient.setQueryData(
+        listPollsTodayQueryKey(),
+        (oldData: GetTodayPollsQueryResponse[] | null) => {
+          if (!oldData) return oldData;
+
+          return oldData.map((poll) => {
+            if (poll.id !== data.data.poll_id) return poll;
+            return {
+              ...poll,
+              poll_options: poll.poll_options?.map((option) => {
+                if (option.id !== data.data.option_id) return option;
+                return {
+                  ...option,
+                  votes: option.votes?.filter(
+                    (v) => v.voter?.id !== data.data.user_id
+                  ),
+                };
+              }),
+            };
+          });
+        }
+      );
+    }
+    if (data.type === "vote_moved") {
+      queryClient.setQueryData(
+        listPollsTodayQueryKey(),
+        (oldData: GetTodayPollsQueryResponse[] | null) => {
+          if (!oldData) return oldData;
+
+          return oldData.map((poll) => {
+            if (poll.id !== data.data.poll_id) return poll;
+            return {
+              ...poll,
+              poll_options: poll.poll_options?.map((option) => {
+                // Remove the user's vote from all options first to ensure no duplicates
+                const votesWithoutUser = option.votes?.filter(
+                  (v) => String(v.voter?.id) !== String(data.data.user_id)
+                );
+
+                if (option.id === data.data.new_option_id) {
+                  // Check if the user is already in the votes list (in case of race conditions or duplicate events)
+                  const isAlreadyAdded = votesWithoutUser?.some(
+                    (v) => v.voter?.id === data.data.user_id
+                  );
+
+                  if (isAlreadyAdded) {
+                    return {
+                      ...option,
+                      votes: votesWithoutUser,
+                    };
+                  }
+
+                  return {
+                    ...option,
+                    votes: [
+                      ...(votesWithoutUser || []),
+                      {
+                        voter: {
+                          id: data.data.user_id,
+                          display_name: data.data.user_display_name,
+                          avatar_url: data.data.user_avatar_url,
+                          created_at: new Date().toISOString(),
+                        },
+                      },
+                    ] as Array<Vote>,
+                  };
+                }
+
+                return {
+                  ...option,
+                  votes: votesWithoutUser,
+                };
+              }),
+            };
+          });
+        }
+      );
+    }
+  });
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-3">
@@ -46,9 +178,7 @@ function RouteComponent() {
           </div>
 
           <CreatePollDialog
-            userPollExists={polls?.some(
-              (poll) => poll.creator?.id === user?.id
-            )}
+            userPollExists={data?.some((poll) => poll.creator?.id === user?.id)}
           />
         </div>
 
@@ -67,7 +197,7 @@ function RouteComponent() {
             </CardHeader>
             <CardContent>
               <span className="font-bold">
-                {polls?.reduce((acc, poll) => {
+                {data?.reduce((acc, poll) => {
                   const hasVoted = poll.poll_options?.some((option) =>
                     option.votes?.some((vote) => vote.voter?.id === user?.id)
                   );
@@ -80,11 +210,7 @@ function RouteComponent() {
       </div>
 
       <div className="grid grid-cols-1 gap-6">
-        {polls?.map((poll) => {
-          const myVote = poll.poll_options?.find((option) =>
-            option.votes?.some((vote) => vote.voter?.id === user?.id)
-          );
-
+        {data?.map((poll) => {
           return (
             <PollCard
               key={poll.id}
@@ -94,7 +220,6 @@ function RouteComponent() {
               scheduled_close_at={poll.scheduled_closes_at}
               closed_at={poll.closed_at}
               strategy={poll.strategy as any}
-              initialSelectedOption={myVote?.id}
               options={
                 poll.poll_options?.map((option) => ({
                   id: option.id || "",
@@ -112,30 +237,6 @@ function RouteComponent() {
             />
           );
         })}
-
-        {(!polls || polls.length === 0) && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex gap-1 items-center text-lg">
-                <LucideCalendar />
-                <span>
-                  <b>Tomorrow's Breakfast</b> - Vote now!
-                </span>
-
-                <Badge className="text-sm">Eat what you pick</Badge>
-              </CardTitle>
-              <CardDescription className="flex gap-1 items-center text-base">
-                <LucideUserRound />
-                <span>
-                  <b>User</b> will buy the winning option for <b>everyone</b>
-                </span>
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>No active polls at the moment.</p>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </div>
   );

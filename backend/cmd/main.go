@@ -2,19 +2,17 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/bus"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/centrifugo"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/configs"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/data"
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
 	"github.com/supabase-community/supabase-go"
-	"golang.org/x/sync/errgroup"
 )
 
 func main() {
@@ -23,7 +21,7 @@ func main() {
 	slog.SetDefault(logger)
 
 	// Setup configuration
-	env, err := configs.LoadEnv()
+	config, err := configs.LoadEnv()
 	if err != nil {
 		logger.Error("Failed to load environment variables", slog.String("error", err.Error()))
 		os.Exit(1)
@@ -34,13 +32,13 @@ func main() {
 	defer cancel()
 
 	// Database connection
-	db, err := data.ConnectToPostgres(ctx, env.GetDBDsn())
+	db, err := data.ConnectToPostgres(ctx, config.GetDBDsn())
 	if err != nil {
 		slog.Error("Failed to connect to database", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
 
-	if err := data.MigratePostgresDB(db, ); err != nil {
+	if err := data.MigratePostgresDB(db); err != nil {
 		slog.Error("Failed to migrate database", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
@@ -51,15 +49,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	// conn, err := sqlDB.Conn(ctx)
-	// if err != nil {
-	// 	slog.Error("Failed to connect to pgx", slog.String("error", err.Error()))
-	// 	os.Exit(1)
-	// }
-	// defer conn.Close()
-
 	// Setup Supabase auth
-	supabaseClient, err := supabase.NewClient(env.SUPABASE_URL, env.SUPABASE_API_KEY, &supabase.ClientOptions{})
+	supabaseClient, err := supabase.NewClient(config.SUPABASE_URL, config.SUPABASE_API_KEY, &supabase.ClientOptions{})
 	if err != nil {
 		slog.Error("Failed to initalize the client: ", slog.String("error", err.Error()))
 	}
@@ -72,25 +63,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	server, err := newServer(ctx, env, logger, db, supabaseService, bus)
+	// Setup Centrifugo gRPC client
+	centrifugoClient, err := centrifugo.NewCentrifugoClient(config)
 	if err != nil {
-		slog.Error("Failed to create server", slog.String("error", err.Error()))
+		slog.Error("Failed to create Centrifugo gRPC client", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
-	g, gCtx := errgroup.WithContext(ctx)
+	defer centrifugoClient.Close()
 
-	// Start Bus
-	g.Go(func() error {
-		return bus.Start(gCtx)
-	})
-
-	// Start HTTP server
-	g.Go(func() error {
-		return http.ListenAndServe(fmt.Sprintf(":%v", env.PORT), server)
-	})
-
-	// Start server
-	if err := g.Wait(); err != nil {
+	// Run server
+	srv := NewServer(config, db, supabaseService, bus, centrifugoClient)
+	if err := srv.Run(ctx); err != nil {
 		logger.Error("Failed to run server", slog.String("error", err.Error()))
 		os.Exit(1)
 	}

@@ -20,11 +20,6 @@ type Food struct {
 }
 
 func NewFood(name, image_file_id string, imageUrl *string, description string, price int64, userID uuid.UUID) (*Food, error) {
-	foodID, err := uuid.NewV7()
-	if err != nil {
-		return nil, err
-	}
-
 	if name == "" {
 		return nil, ErrInvalidName
 	}
@@ -34,7 +29,7 @@ func NewFood(name, image_file_id string, imageUrl *string, description string, p
 	}
 
 	return &Food{
-		Base:        domain.Base{ID: foodID},
+		Base:        domain.NewBase(),
 		Name:        name,
 		ImageURL:    imageUrl,
 		Description: description,

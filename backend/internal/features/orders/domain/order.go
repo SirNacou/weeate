@@ -31,11 +31,6 @@ type OrderItemDetail struct {
 }
 
 func NewOrder(pollID uuid.UUID, buyerUserID string, orderDate time.Time, strategy polls_domain.PollStrategy, orderItems []OrderItem) (*Order, error) {
-	id, err := uuid.NewV7()
-	if err != nil {
-		return nil, err
-	}
-
 	totalPrice := lo.SumBy(orderItems, func(item OrderItem) int64 {
 		return item.PriceAtOrder * lo.SumBy(item.Details, func(detail OrderItemDetail) int64 {
 			return detail.Quantity
@@ -43,9 +38,7 @@ func NewOrder(pollID uuid.UUID, buyerUserID string, orderDate time.Time, strateg
 	})
 
 	order := &Order{
-		Base: domain.Base{
-			ID: id,
-		},
+		Base:        domain.NewBase(),
 		PollID:      pollID,
 		BuyerUserID: buyerUserID,
 		OrderDate:   orderDate,

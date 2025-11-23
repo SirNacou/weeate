@@ -73,36 +73,42 @@ func (p *Poll) PullEvents() []domain.Event {
 	return events
 }
 
-func (p *Poll) CastVote(optionID uuid.UUID, userID string) (*Vote, error) {
+type CastVoteResult struct {
+	VoteToSave   *Vote
+	VoteToDelete *Vote
+	OldOptionID  uuid.UUID
+}
+
+func (p *Poll) CastVote(userID string, optionID uuid.UUID, existingVote *Vote) (result CastVoteResult, err error) {
 	// Find the poll option the user is voting for.
-	newVoteOption, ok := lo.Find(p.PollOptions, func(option PollOption) bool {
+	_, ok := lo.Find(p.PollOptions, func(option PollOption) bool {
 		return option.ID == optionID
 	})
 	if !ok {
 		// If the option ID is invalid, do nothing.
-		return nil, ErrInvalidPollOption
+		return CastVoteResult{}, ErrInvalidPollOption
 	}
 
-	// Remove any existing vote from the user across all options.
-	for i := range p.PollOptions {
-		// Filter out the user's previous vote, if any.
-		p.PollOptions[i].Votes = lo.Filter(p.PollOptions[i].Votes, func(vote Vote, _ int) bool {
-			return vote.UserID != userID
-		})
-	}
-
-	// Add the new vote to the correct option.
-	newVote := Vote{
-		PollID:       p.ID,
-		UserID:       userID,
-		PollOptionID: newVoteOption.ID,
-	}
-	for i := range p.PollOptions {
-		if p.PollOptions[i].ID == newVoteOption.ID {
-			p.PollOptions[i].Votes = append(p.PollOptions[i].Votes, newVote)
-			break
+	if existingVote != nil {
+		if existingVote.PollOptionID == optionID {
+			// User is voting for the same option -> Toggle off (remove vote)
+			return CastVoteResult{
+				VoteToDelete: existingVote,
+				OldOptionID:  existingVote.PollOptionID,
+			}, nil
 		}
+		// User is changing vote -> Update vote
+		oldID := existingVote.PollOptionID
+		existingVote.ChangeOption(optionID)
+		return CastVoteResult{
+			VoteToSave:  existingVote,
+			OldOptionID: oldID,
+		}, nil
 	}
 
-	return &newVote, nil
+	// User is voting for the first time -> Create vote
+	newVote := NewVote(p.ID, userID, optionID)
+	return CastVoteResult{
+		VoteToSave: &newVote,
+	}, nil
 }

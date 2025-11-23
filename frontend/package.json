@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "dotenvx run -f ../.env -- vite dev --port 3000 --host",
+    "dev": "dotenvx run -f ../.env -f ../.env.local -- vite dev --port 3000 --host",
     "build": "vite build",
     "serve": "vite preview",
     "test": "vitest run",
@@ -61,6 +61,7 @@
     "@tanstack/react-virtual": "^3.13.12",
     "@tanstack/router-plugin": "^1.132.0",
     "axios": "^1.13.2",
+    "centrifuge": "^5.5.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
