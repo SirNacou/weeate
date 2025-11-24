@@ -1,0 +1,30 @@
+{
+  "client": {
+    "token": {
+      "hmac_secret_key": ""
+    },
+    "allowed_origins": ["*"]
+  },
+  "channel": {
+    "without_namespace": {
+      "presence": false,
+      "history_size": 10,
+      "history_ttl": "30s"
+    },
+    "namespaces": [
+      {
+        "name": "public",
+        "allow_subscribe_for_client": true
+      }
+    ]
+  },
+  "grpc_api": {
+    "enabled": true,
+    "port": 10000
+  },
+  "admin": {
+    "enabled": true,
+    "password": "",
+    "secret": ""
+  }
+}

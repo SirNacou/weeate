@@ -130,6 +130,17 @@ export type Food = {
 	name: string;
 };
 
+export type GetCentrifugoJwtResponse = {
+	/**
+	 * A URL to the JSON Schema for this object.
+	 */
+	readonly $schema?: string;
+	/**
+	 * The generated JWT token for Centrifugo authentication
+	 */
+	token: string;
+};
+
 export type GetFoodsQueryResponse = {
 	description: string;
 	id: string;
@@ -322,6 +333,13 @@ export type ErrorModelWritable = {
 	type?: string;
 };
 
+export type GetCentrifugoJwtResponseWritable = {
+	/**
+	 * The generated JWT token for Centrifugo authentication
+	 */
+	token: string;
+};
+
 export type PostByIdVoteRequestWritable = {
 	/**
 	 * The ID of the poll option to vote for
@@ -372,6 +390,33 @@ export type GetResponses = {
 };
 
 export type GetResponse = GetResponses[keyof GetResponses];
+
+export type GetAuthCentrifugoTokenData = {
+	body?: never;
+	path?: never;
+	query?: never;
+	url: "/auth/centrifugo/token";
+};
+
+export type GetAuthCentrifugoTokenErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type GetAuthCentrifugoTokenError =
+	GetAuthCentrifugoTokenErrors[keyof GetAuthCentrifugoTokenErrors];
+
+export type GetAuthCentrifugoTokenResponses = {
+	/**
+	 * OK
+	 */
+	200: GetCentrifugoJwtResponse;
+};
+
+export type GetAuthCentrifugoTokenResponse =
+	GetAuthCentrifugoTokenResponses[keyof GetAuthCentrifugoTokenResponses];
 
 export type ListFoodsData = {
 	body?: never;

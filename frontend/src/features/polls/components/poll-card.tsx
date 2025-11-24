@@ -1,30 +1,26 @@
+import { serverClient } from "@/api";
+import { postPollsByIdVote } from "@/client";
+import { listPollsTodayQueryKey } from "@/client/@tanstack/react-query.gen";
+import { zPostPollsByIdVoteData } from "@/client/zod.gen";
+import CloseTimer from "@/components/close-timer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
+  CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
 } from "@/components/ui/card";
-import PollStrategyBadge from "./poll-strategy-badge";
-import CloseTimer from "@/components/close-timer";
-import { RadioGroup } from "@/components/ui/radio-group";
-import { useForm } from "@tanstack/react-form";
-import { z } from "zod";
-import { useMemo } from "react";
 import { FieldGroup } from "@/components/ui/field";
-import { Button } from "@/components/ui/button";
-import PollOption, { Option } from "./poll-option";
-import { Spinner } from "@/components/ui/spinner";
-import { toast } from "sonner";
+import { Route } from "@/routes/_protected/route";
+import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
-import { zPostPollsByIdVoteData } from "@/client/zod.gen";
-import { serverClient } from "@/api";
-import { postPollsByIdVote } from "@/client";
-import { getFormSubmissionStatus } from "../../../lib/form-utils";
-import { listPollsTodayQueryKey } from "@/client/@tanstack/react-query.gen";
+import { useEffect, useMemo } from "react";
+import { toast } from "sonner";
+import { z } from "zod";
+import PollOption, { Option } from "./poll-option";
+import PollStrategyBadge from "./poll-strategy-badge";
 
 const castVoteServerFn = createServerFn({ method: "POST" })
   .inputValidator(zPostPollsByIdVoteData)
@@ -50,7 +46,6 @@ type Props = {
   closed_at: Date | null;
   strategy: "ORDER_CONSENSUS_ITEM" | "ORDER_PERSONAL_CHOICE";
   options: Option[];
-  initialSelectedOption?: string;
 };
 
 const PollCard = ({
@@ -61,61 +56,78 @@ const PollCard = ({
   closed_at,
   strategy,
   options,
-  initialSelectedOption,
 }: Props) => {
+  const { user } = Route.useRouteContext();
+
+  const initialSelectedOption = options?.find((option) =>
+    option.votes?.some((vote) => vote.userId === user.id)
+  );
+
+  const queryClient = useQueryClient();
+
   const validator = useMemo(() => {
     return z.object({
-      selectedOption: z
-        .string()
-        .nonempty({ message: "Please select an option" })
-        .refine((val) => options.some((option) => option.id === val), {
-          message: "Invalid option selected",
-        }),
+      selectedOption: z.object({
+        id: z
+          .string()
+          .nonempty({ message: "Please select an option" })
+          .refine((val) => options.some((option) => option.id === val), {
+            message: "Invalid option selected",
+          }),
+        isSelected: z.boolean(),
+      }),
     });
   }, [options]);
-  const queryClient = useQueryClient();
 
   const castVoteMutation = useMutation({
     mutationFn: castVoteServerFn,
     onSuccess: () => {
+      toast.success("Your vote has been submitted!");
       queryClient.invalidateQueries({
         queryKey: listPollsTodayQueryKey(),
       });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to cast vote. Please try again.");
     },
   });
 
   const form = useForm({
     defaultValues: {
-      selectedOption: initialSelectedOption || "",
+      selectedOption: {
+        id: initialSelectedOption?.id || "",
+        isSelected: !!initialSelectedOption ? true : false,
+      },
     },
     validators: {
       onChange: validator,
       onMount: validator,
     },
     listeners: {
+      onChangeDebounceMs: 500,
       onChange(props) {
+        props.formApi.handleSubmit();
         console.log("Form changed:", props.fieldApi.state.value);
       },
     },
     onSubmit: async ({ value }) => {
-      try {
-        await castVoteMutation.mutateAsync({
+      await castVoteMutation
+        .mutateAsync({
           data: {
             path: {
               id: pollId,
             },
             body: {
-              poll_option_id: value.selectedOption,
+              poll_option_id: value.selectedOption.id,
             },
           },
-        });
-        toast.success("Your vote has been submitted!");
-      } catch (error) {
-        console.error("Error submitting vote:", error);
-        toast.error("There was an error submitting your vote.");
-      }
+        })
+        .catch(() => {});
     },
   });
+  useEffect(() => {
+    console.log("Form state updated:", form.state.values.selectedOption);
+  }, [form.state.values.selectedOption]);
 
   return (
     <form
@@ -150,51 +162,43 @@ const PollCard = ({
             <PollStrategyBadge strategy={strategy} />
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+        <CardContent>
           <FieldGroup>
             <form.Field
               name="selectedOption"
               children={(field) => {
                 return (
-                  <RadioGroup
-                    className={"grid grid-cols-1 lg:grid-cols-2 gap-3"}
-                    value={field.state.value}
-                    onValueChange={field.handleChange}
-                  >
+                  <div className={"grid grid-cols-1 lg:grid-cols-2 gap-3"}>
                     {options.map((option) => (
                       <PollOption
                         key={option.id}
                         option={option}
                         disabled={!!closed_at}
-                        isSelected={option.id === field.state.value}
-                        onSelect={(id) => field.handleChange(id)}
+                        isSelected={
+                          option.id === field.state.value.id &&
+                          field.state.value.isSelected
+                        }
+                        onSelect={(id) => {
+                          console.log("Option selected:", id);
+                          if (field.state.value.id === id) {
+                            // Deselecting the currently selected option
+                            field.handleChange({
+                              id,
+                              isSelected: !field.state.value.isSelected,
+                            });
+                          } else {
+                            // Selecting a new option
+                            field.handleChange({ id, isSelected: true });
+                          }
+                        }}
                       />
                     ))}
-                  </RadioGroup>
+                  </div>
                 );
               }}
             />
           </FieldGroup>
         </CardContent>
-        <CardFooter>
-          <form.Subscribe
-            selector={getFormSubmissionStatus}
-            children={({ canSubmit, isSubmitting }) => (
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={!canSubmit || !!closed_at}
-              >
-                {isSubmitting ?
-                  <>
-                    <Spinner />
-                    Submitting...
-                  </>
-                : "Submit"}
-              </Button>
-            )}
-          />
-        </CardFooter>
       </Card>
     </form>
   );

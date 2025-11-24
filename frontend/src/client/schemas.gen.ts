@@ -218,6 +218,25 @@ export const FoodSchema = {
 	type: "object",
 } as const;
 
+export const GetCentrifugoJWTResponseSchema = {
+	additionalProperties: false,
+	properties: {
+		$schema: {
+			description: "A URL to the JSON Schema for this object.",
+			examples: ["https://example.com/schemas/GetCentrifugoJWTResponse.json"],
+			format: "uri",
+			readOnly: true,
+			type: "string",
+		},
+		token: {
+			description: "The generated JWT token for Centrifugo authentication",
+			type: "string",
+		},
+	},
+	required: ["token"],
+	type: "object",
+} as const;
+
 export const GetFoodsQueryResponseSchema = {
 	additionalProperties: false,
 	properties: {
@@ -659,6 +678,18 @@ export const ErrorModelWritableSchema = {
 			type: "string",
 		},
 	},
+	type: "object",
+} as const;
+
+export const GetCentrifugoJWTResponseWritableSchema = {
+	additionalProperties: false,
+	properties: {
+		token: {
+			description: "The generated JWT token for Centrifugo authentication",
+			type: "string",
+		},
+	},
+	required: ["token"],
 	type: "object",
 } as const;
 

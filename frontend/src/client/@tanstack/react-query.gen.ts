@@ -6,6 +6,7 @@ import { client } from "../client.gen";
 import {
 	deleteFoodsById,
 	get,
+	getAuthCentrifugoToken,
 	listFoods,
 	listOrdersToday,
 	listPollsToday,
@@ -20,6 +21,7 @@ import type {
 	DeleteFoodsByIdData,
 	DeleteFoodsByIdError,
 	DeleteFoodsByIdResponse,
+	GetAuthCentrifugoTokenData,
 	GetData,
 	ListFoodsData,
 	ListOrdersTodayData,
@@ -99,6 +101,30 @@ export const getOptions = (options?: Options<GetData>) => {
 			return data;
 		},
 		queryKey: getQueryKey(options),
+	});
+};
+
+export const getAuthCentrifugoTokenQueryKey = (
+	options?: Options<GetAuthCentrifugoTokenData>,
+) => createQueryKey("getAuthCentrifugoToken", options);
+
+/**
+ * Get auth centrifugo token
+ */
+export const getAuthCentrifugoTokenOptions = (
+	options?: Options<GetAuthCentrifugoTokenData>,
+) => {
+	return queryOptions({
+		queryFn: async ({ queryKey, signal }) => {
+			const { data } = await getAuthCentrifugoToken({
+				...options,
+				...queryKey[0],
+				signal,
+				throwOnError: true,
+			});
+			return data;
+		},
+		queryKey: getAuthCentrifugoTokenQueryKey(options),
 	});
 };
 

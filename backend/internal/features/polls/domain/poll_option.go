@@ -8,7 +8,8 @@ import (
 )
 
 type PollOption struct {
-	domain.Base
+	domain.UUID
+	domain.Audit
 	PollID          uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_poll_option_poll_food"`
 	FoodID          uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_poll_option_poll_food"`
 	PriceAtCreation int64     `gorm:"not null"`
@@ -17,7 +18,7 @@ type PollOption struct {
 
 func NewPollOption(pollID, foodID uuid.UUID, priceAtCreation int64) *PollOption {
 	return &PollOption{
-		Base:            domain.NewBase(),
+		UUID:            domain.NewUUID(),
 		PollID:          pollID,
 		FoodID:          foodID,
 		PriceAtCreation: priceAtCreation,

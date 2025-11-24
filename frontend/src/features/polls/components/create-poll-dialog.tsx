@@ -33,7 +33,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { MultiSelect, MultiSelectOption } from "@/components/multi-select";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   add,
   addDays,
@@ -67,6 +67,8 @@ import {
   AlertTitle,
 } from "@/components/ui/alert";
 import LucideAlertTriangle from "~icons/lucide/alert-triangle";
+import { getFormSubmissionStatus } from "@/lib/form-utils";
+import { useCentrifugo } from "@/lib/centrifugo/centrifugo-context"
 
 const createPollServerFn = createServerFn({ method: "POST" })
   .inputValidator(zCreatePollCommandWritable)
@@ -81,7 +83,7 @@ const createPollServerFn = createServerFn({ method: "POST" })
       },
     });
     if (result.error) {
-      throw new Error(result.error.detail || "Failed to create poll");
+      throw result.error.errors?.at(0) || new Error("Failed to create poll");
     }
     return result.data;
   });
@@ -91,15 +93,22 @@ type Props = {
 };
 
 const CreatePollDialog = ({ userPollExists }: Props) => {
+  const [open, setOpen] = useState(false);
   const { user } = ProtectedRoute.useRouteContext();
   const queryClient = useQueryClient();
 
   const createPoll = useMutation({
     mutationFn: createPollServerFn,
-    onSuccess: () =>
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: listPollsTodayQueryKey(),
-      }),
+      });
+      toast.success("Poll created successfully");
+      setOpen(false);
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
   });
   const { data: foods } = useQuery({
     queryKey: listFoodsQueryKey({ query: { user_id: user.id } }),
@@ -128,19 +137,16 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
     },
     validators: {
       onChange: zCreatePollCommandWritable,
+      onMount: zCreatePollCommandWritable,
     },
     onSubmit: async ({ value }) => {
-      console.log("Submitted poll data:", value);
-      try {
-        await createPoll.mutateAsync({
+      await createPoll
+        .mutateAsync({
           data: value,
+        })
+        .catch(() => {
+          // Error is handled in useMutation onError
         });
-        toast.success("Poll created successfully");
-      } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : "Failed to create poll"
-        );
-      }
     },
   });
 
@@ -187,7 +193,7 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
   );
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="w-full sm:w-auto">
           <LucidePlus />
@@ -225,6 +231,7 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
                         variant={"default"}
                         onBlur={field.handleBlur}
                         options={foodOptions}
+                        defaultValue={field.state.value || []}
                         value={field.state.value || []}
                         onValueChange={field.handleChange}
                       />
@@ -352,8 +359,8 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
               <AlertContent>
                 <AlertTitle>Warning</AlertTitle>
                 <AlertDescription>
-                  A poll already exists for today, it will be replaced and
-                  all existing votes will be lost.
+                  A poll already exists for today, it will be replaced and all
+                  existing votes will be lost.
                 </AlertDescription>
               </AlertContent>
             </Alert>
@@ -364,16 +371,12 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
             <Button variant={"outline"}>Cancel</Button>
           </DialogClose>
           <form.Subscribe
-            selector={(state) => [
-              state.isSubmitting,
-              state.canSubmit,
-              state.isPristine,
-            ]}
-            children={([isSubmitting, canSubmit, isPristine]) => (
+            selector={getFormSubmissionStatus}
+            children={({ canSubmit, isSubmitting }) => (
               <Button
                 form="create-poll-form"
                 type="submit"
-                disabled={isSubmitting || !canSubmit || isPristine}
+                disabled={!canSubmit}
               >
                 {isSubmitting ?
                   <>

@@ -7,9 +7,6 @@ export function createClient() {
     clientEnv.VITE_SUPABASE_URL,
     clientEnv.VITE_SUPABASE_PUBLISHABLE_OR_ANON_KEY,
     {
-      auth: {
-        autoRefreshToken: true,
-      },
       cookies: {
         getAll() {
           return Object.entries(getCookies()).map(

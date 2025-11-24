@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/bus"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/centrifugo"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 	"github.com/gofrs/uuid/v5"
 	"gorm.io/gorm"
@@ -18,12 +19,14 @@ type ClosePollCommand struct {
 type ClosePollCommandHandler struct {
 	db  *gorm.DB
 	bus *bus.Bus
+	centrifugo *centrifugo.CentrifugoClient
 }
 
-func NewClosePollCommandHandler(db *gorm.DB, bus *bus.Bus) *ClosePollCommandHandler {
+func NewClosePollCommandHandler(db *gorm.DB, bus *bus.Bus, centrifugo *centrifugo.CentrifugoClient) *ClosePollCommandHandler {
 	return &ClosePollCommandHandler{
-		db:  db,
-		bus: bus,
+		db:         db,
+		bus:        bus,
+		centrifugo: centrifugo,
 	}
 }
 

@@ -1,5 +1,4 @@
 import { Label } from "@/components/ui/label";
-import { RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Image } from "@imagekit/react";
 import TablerCurrencyDong from "~icons/tabler/currency-dong?width=2em&height=2em";
@@ -11,6 +10,7 @@ import {
   AvatarGroup,
   AvatarGroupTooltip,
 } from "@/components/animate-ui/components/animate/avatar-group";
+import { Circle } from "lucide-react";
 
 export type Vote = {
   userId: string;
@@ -88,16 +88,17 @@ function PollOption({
         </div>
       </div>
       <div className="p-3 sm:p-4 bg-white flex justify-between items-start gap-2 relative">
-        <div
-          className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <RadioGroupItem
-            className="size-6 [&_svg]:size-4"
-            value={option.id}
-            id={option.id}
-            disabled={disabled}
-          />
+        <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+          <div
+            className={cn(
+              "aspect-square h-6 w-6 rounded-full border border-primary text-primary ring-offset-background flex items-center justify-center",
+              disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+            )}
+          >
+            {isSelected && (
+              <Circle className="h-3.5 w-3.5 fill-current text-current" />
+            )}
+          </div>
           <Label
             htmlFor={`option-${option.id}`}
             className={`flex-1 cursor-pointer text-base sm:text-lg ${false ? "text-slate-900" : "text-slate-700"}`}

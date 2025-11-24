@@ -1,6 +1,27 @@
 name: weeate
 
 services:
+  frontend:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile.dev
+    container_name: frontend
+    env_file:
+      - .env
+      - .env.local
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - backend
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/:/app/frontend/
+      - frontend_node_modules:/app/frontend/node_modules
+      - ./.env:/app/.env
+      - ./.env.local:/app/.env.local
+    restart: on-failure
+
   backend:
     image: cosmtrek/air
     working_dir: /app
@@ -12,12 +33,28 @@ services:
       - .env.local
     depends_on:
       - postgres
+      - centrifugo
     volumes:
       - ./backend/:/app/backend/:ro
       - ./go.mod:/app/go.mod
       - ./go.sum:/app/go.sum
       - ./.air.toml:/app/.air.toml
     restart: on-failure
+
+  centrifugo:
+    container_name: centrifugo
+    image: centrifugo/centrifugo:v6
+    env_file:
+      - .env.local
+    volumes:
+      - ./centrifugo/config.json:/centrifugo/config.json
+    command: centrifugo -c config.json
+    ports:
+      - 8000:8000
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
 
   postgres:
     image: postgres:18-alpine
@@ -31,29 +68,6 @@ services:
       - db_data:/var/lib/postgresql/data
     restart: on-failure
     shm_size: 128mb
-
-  frontend:
-    build:
-      context: .
-      dockerfile: ./frontend/Dockerfile.dev
-    container_name: frontend
-    env_file:
-      - .env
-      - .env.local
-      - .env.dev
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-    depends_on:
-      - backend
-    ports:
-      - 3000:3000
-    volumes:
-      - ./frontend/:/app/frontend/
-      - frontend_node_modules:/app/frontend/node_modules
-      - ./.env:/app/.env
-      - ./.env.dev:/app/.env.dev
-      - ./.env.local:/app/.env.local
-    restart: on-failure
 
 volumes:
   db_data:

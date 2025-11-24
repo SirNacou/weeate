@@ -25,8 +25,12 @@ export const zAppMetadata = z.object({
 export const zCreatePollCommand = z.object({
 	$schema: z.optional(z.url().readonly()),
 	food_ids: z.union([z.array(z.string()).min(1), z.null()]),
-	order_date: z.iso.datetime(),
-	scheduled_close_at: z.iso.datetime(),
+	order_date: z.iso.datetime({
+		offset: true,
+	}),
+	scheduled_close_at: z.iso.datetime({
+		offset: true,
+	}),
 	strategy: z.enum(["ORDER_MULTIPLE_ITEMS", "ORDER_CONSENSUS_ITEM"]),
 });
 
@@ -54,6 +58,11 @@ export const zErrorModel = z.object({
 export const zFood = z.object({
 	id: z.string(),
 	name: z.string(),
+});
+
+export const zGetCentrifugoJwtResponse = z.object({
+	$schema: z.optional(z.url().readonly()),
+	token: z.string(),
 });
 
 export const zIdentityData = z.object({
@@ -94,7 +103,9 @@ export const zUserMetadata = z.object({
 
 export const zUserProfile = z.object({
 	avatar_url: z.string(),
-	created_at: z.iso.datetime(),
+	created_at: z.iso.datetime({
+		offset: true,
+	}),
 	display_name: z.string(),
 	id: z.string(),
 });
@@ -139,12 +150,19 @@ export const zPollOption = z.object({
 });
 
 export const zGetTodayPollsQueryResponse = z.object({
-	closed_at: z.union([z.iso.datetime(), z.null()]),
+	closed_at: z.union([
+		z.iso.datetime({
+			offset: true,
+		}),
+		z.null(),
+	]),
 	creator: zUserProfile,
 	final_total_price: z.coerce.bigint(),
 	id: z.string(),
 	poll_options: z.union([z.array(zPollOption), z.null()]),
-	scheduled_closes_at: z.iso.datetime(),
+	scheduled_closes_at: z.iso.datetime({
+		offset: true,
+	}),
 	strategy: z.string(),
 });
 
@@ -161,8 +179,12 @@ export const zAddFoodResultWritable = z.object({
 
 export const zCreatePollCommandWritable = z.object({
 	food_ids: z.union([z.array(z.string()).min(1), z.null()]),
-	order_date: z.iso.datetime(),
-	scheduled_close_at: z.iso.datetime(),
+	order_date: z.iso.datetime({
+		offset: true,
+	}),
+	scheduled_close_at: z.iso.datetime({
+		offset: true,
+	}),
 	strategy: z.enum(["ORDER_MULTIPLE_ITEMS", "ORDER_CONSENSUS_ITEM"]),
 });
 
@@ -177,6 +199,10 @@ export const zErrorModelWritable = z.object({
 	status: z.optional(z.coerce.bigint()),
 	title: z.optional(z.string()),
 	type: z.optional(z.url()).default("about:blank"),
+});
+
+export const zGetCentrifugoJwtResponseWritable = z.object({
+	token: z.string(),
 });
 
 export const zPostByIdVoteRequestWritable = z.object({
@@ -200,6 +226,17 @@ export const zGetData = z.object({
  * No Content
  */
 export const zGetResponse = z.void();
+
+export const zGetAuthCentrifugoTokenData = z.object({
+	body: z.optional(z.never()),
+	path: z.optional(z.never()),
+	query: z.optional(z.never()),
+});
+
+/**
+ * OK
+ */
+export const zGetAuthCentrifugoTokenResponse = zGetCentrifugoJwtResponse;
 
 export const zListFoodsData = z.object({
 	body: z.optional(z.never()),

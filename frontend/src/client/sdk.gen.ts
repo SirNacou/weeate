@@ -6,6 +6,9 @@ import type {
 	DeleteFoodsByIdData,
 	DeleteFoodsByIdErrors,
 	DeleteFoodsByIdResponses,
+	GetAuthCentrifugoTokenData,
+	GetAuthCentrifugoTokenErrors,
+	GetAuthCentrifugoTokenResponses,
 	GetData,
 	GetErrors,
 	GetResponses,
@@ -37,6 +40,8 @@ import type {
 import {
 	zDeleteFoodsByIdData,
 	zDeleteFoodsByIdResponse,
+	zGetAuthCentrifugoTokenData,
+	zGetAuthCentrifugoTokenResponse,
 	zGetData,
 	zGetResponse,
 	zListFoodsData,
@@ -92,6 +97,28 @@ export const get = <ThrowOnError extends boolean = false>(
 			...options,
 		},
 	);
+};
+
+/**
+ * Get auth centrifugo token
+ */
+export const getAuthCentrifugoToken = <ThrowOnError extends boolean = false>(
+	options?: Options<GetAuthCentrifugoTokenData, ThrowOnError>,
+) => {
+	return (options?.client ?? client).get<
+		GetAuthCentrifugoTokenResponses,
+		GetAuthCentrifugoTokenErrors,
+		ThrowOnError
+	>({
+		requestValidator: async (data) => {
+			return await zGetAuthCentrifugoTokenData.parseAsync(data);
+		},
+		responseValidator: async (data) => {
+			return await zGetAuthCentrifugoTokenResponse.parseAsync(data);
+		},
+		url: "/auth/centrifugo/token",
+		...options,
+	});
 };
 
 /**

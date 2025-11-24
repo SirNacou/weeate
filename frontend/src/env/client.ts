@@ -16,6 +16,7 @@ export const env = createEnv({
     VITE_AUTH_COOKIE_NAME: z.string(),
     VITE_IMAGEKIT_URL: z.url(),
     VITE_IMAGEKIT_PUBLIC_KEY: z.string(),
+    VITE_WEBSOCKET_URL: z.url(),
   },
 
   /**
