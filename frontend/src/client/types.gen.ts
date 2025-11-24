@@ -4,22 +4,37 @@ export type ClientOptions = {
 	baseUrl: "http://localhost:8080" | (string & {});
 };
 
-export type AddFoodRequest = {
+export type AddFoodCommand = {
 	/**
 	 * A URL to the JSON Schema for this object.
 	 */
 	readonly $schema?: string;
-	description?: string;
+	/**
+	 * A description of the food item
+	 */
+	description: string;
+	/**
+	 * The ID of the image file for the food item
+	 */
 	image_file_id?: string;
+	/**
+	 * The name of the food item
+	 */
 	name: string;
+	/**
+	 * The price of the food item in cents
+	 */
 	price: number;
 };
 
-export type AddFoodResponse = {
+export type AddFoodResult = {
 	/**
 	 * A URL to the JSON Schema for this object.
 	 */
 	readonly $schema?: string;
+	/**
+	 * The ID of the newly created food item
+	 */
 	food_id: string;
 };
 
@@ -28,6 +43,40 @@ export type AppMetadata = {
 	display_name: string;
 	provider: string;
 	providers: Array<string> | null;
+};
+
+export type CreatePollCommand = {
+	/**
+	 * A URL to the JSON Schema for this object.
+	 */
+	readonly $schema?: string;
+	/**
+	 * List of food IDs to include in the poll
+	 */
+	food_ids: Array<string> | null;
+	/**
+	 * Date for which the poll is being created in RFC3339 format
+	 */
+	order_date: Date;
+	/**
+	 * Scheduled closing time for the poll in RFC3339 format
+	 */
+	scheduled_close_at: Date;
+	/**
+	 * Polling strategy to be used
+	 */
+	strategy: "ORDER_MULTIPLE_ITEMS" | "ORDER_CONSENSUS_ITEM";
+};
+
+export type CreatePollResponse = {
+	/**
+	 * A URL to the JSON Schema for this object.
+	 */
+	readonly $schema?: string;
+	/**
+	 * The ID of the created poll
+	 */
+	poll_id: string;
 };
 
 export type ErrorDetail = {
@@ -76,21 +125,46 @@ export type ErrorModel = {
 	type?: string;
 };
 
-export type GetFoodsResponse = {
+export type Food = {
+	id: string;
+	name: string;
+};
+
+export type GetCentrifugoJwtResponse = {
 	/**
 	 * A URL to the JSON Schema for this object.
 	 */
 	readonly $schema?: string;
-	result: Array<GetFoodsResponseItem> | null;
+	/**
+	 * The generated JWT token for Centrifugo authentication
+	 */
+	token: string;
 };
 
-export type GetFoodsResponseItem = {
+export type GetFoodsQueryResponse = {
 	description: string;
 	id: string;
-	image_url: string;
+	image_url?: string;
 	name: string;
 	price: number;
 	user: UserProfile;
+};
+
+export type GetTodayOrdersResponse = {
+	Buyer: UserProfile;
+	OrderItems: Array<OrderItem> | null;
+	PollID: string;
+	TotalPrice: number;
+};
+
+export type GetTodayPollsQueryResponse = {
+	closed_at: Date | null;
+	creator: UserProfile;
+	final_total_price: number;
+	id: string;
+	poll_options: Array<PollOption> | null;
+	scheduled_closes_at: Date;
+	strategy: string;
 };
 
 export type Identity = {
@@ -112,14 +186,56 @@ export type IdentityData = {
 	sub: string;
 };
 
-export type UpdateFoodRequest = {
+export type OrderItem = {
+	Details: Array<OrderItemDetail> | null;
+	FoodImageUrl: string | null;
+	FoodName: string;
+	PriceAtOrder: number;
+};
+
+export type OrderItemDetail = {
+	Quantity: number;
+	User: UserProfile;
+};
+
+export type PollOption = {
+	food: Food;
+	id: string;
+	price_at_creation: number;
+	votes: Array<Vote> | null;
+};
+
+export type PostByIdVoteRequest = {
 	/**
 	 * A URL to the JSON Schema for this object.
 	 */
 	readonly $schema?: string;
+	/**
+	 * The ID of the poll option to vote for
+	 */
+	poll_option_id: string;
+};
+
+export type PutByIdRequest = {
+	/**
+	 * A URL to the JSON Schema for this object.
+	 */
+	readonly $schema?: string;
+	/**
+	 * A description of the food item
+	 */
 	description: string;
-	image_file_id: string;
+	/**
+	 * The ID of the image file for the food item
+	 */
+	image_file_id?: string;
+	/**
+	 * The name of the food item
+	 */
 	name: string;
+	/**
+	 * The price of the food item in cents
+	 */
 	price: number;
 };
 
@@ -129,19 +245,65 @@ export type UserMetadata = {
 
 export type UserProfile = {
 	avatar_url: string;
+	created_at: Date;
 	display_name: string;
 	id: string;
 };
 
-export type AddFoodRequestWritable = {
-	description?: string;
+export type Vote = {
+	voter: UserProfile;
+};
+
+export type AddFoodCommandWritable = {
+	/**
+	 * A description of the food item
+	 */
+	description: string;
+	/**
+	 * The ID of the image file for the food item
+	 */
 	image_file_id?: string;
+	/**
+	 * The name of the food item
+	 */
 	name: string;
+	/**
+	 * The price of the food item in cents
+	 */
 	price: number;
 };
 
-export type AddFoodResponseWritable = {
+export type AddFoodResultWritable = {
+	/**
+	 * The ID of the newly created food item
+	 */
 	food_id: string;
+};
+
+export type CreatePollCommandWritable = {
+	/**
+	 * List of food IDs to include in the poll
+	 */
+	food_ids: Array<string> | null;
+	/**
+	 * Date for which the poll is being created in RFC3339 format
+	 */
+	order_date: Date;
+	/**
+	 * Scheduled closing time for the poll in RFC3339 format
+	 */
+	scheduled_close_at: Date;
+	/**
+	 * Polling strategy to be used
+	 */
+	strategy: "ORDER_MULTIPLE_ITEMS" | "ORDER_CONSENSUS_ITEM";
+};
+
+export type CreatePollResponseWritable = {
+	/**
+	 * The ID of the created poll
+	 */
+	poll_id: string;
 };
 
 export type ErrorModelWritable = {
@@ -171,14 +333,36 @@ export type ErrorModelWritable = {
 	type?: string;
 };
 
-export type GetFoodsResponseWritable = {
-	result: Array<GetFoodsResponseItem> | null;
+export type GetCentrifugoJwtResponseWritable = {
+	/**
+	 * The generated JWT token for Centrifugo authentication
+	 */
+	token: string;
 };
 
-export type UpdateFoodRequestWritable = {
+export type PostByIdVoteRequestWritable = {
+	/**
+	 * The ID of the poll option to vote for
+	 */
+	poll_option_id: string;
+};
+
+export type PutByIdRequestWritable = {
+	/**
+	 * A description of the food item
+	 */
 	description: string;
-	image_file_id: string;
+	/**
+	 * The ID of the image file for the food item
+	 */
+	image_file_id?: string;
+	/**
+	 * The name of the food item
+	 */
 	name: string;
+	/**
+	 * The price of the food item in cents
+	 */
 	price: number;
 };
 
@@ -207,33 +391,65 @@ export type GetResponses = {
 
 export type GetResponse = GetResponses[keyof GetResponses];
 
-export type GetFoodsData = {
+export type GetAuthCentrifugoTokenData = {
 	body?: never;
 	path?: never;
 	query?: never;
-	url: "/foods/";
+	url: "/auth/centrifugo/token";
 };
 
-export type GetFoodsErrors = {
+export type GetAuthCentrifugoTokenErrors = {
 	/**
 	 * Error
 	 */
 	default: ErrorModel;
 };
 
-export type GetFoodsError = GetFoodsErrors[keyof GetFoodsErrors];
+export type GetAuthCentrifugoTokenError =
+	GetAuthCentrifugoTokenErrors[keyof GetAuthCentrifugoTokenErrors];
 
-export type GetFoodsResponses = {
+export type GetAuthCentrifugoTokenResponses = {
 	/**
 	 * OK
 	 */
-	200: GetFoodsResponse;
+	200: GetCentrifugoJwtResponse;
 };
 
-export type GetFoodsResponse2 = GetFoodsResponses[keyof GetFoodsResponses];
+export type GetAuthCentrifugoTokenResponse =
+	GetAuthCentrifugoTokenResponses[keyof GetAuthCentrifugoTokenResponses];
+
+export type ListFoodsData = {
+	body?: never;
+	path?: never;
+	query?: {
+		/**
+		 * The ID of the user whose foods to retrieve (optional)
+		 */
+		user_id?: string;
+	};
+	url: "/foods/";
+};
+
+export type ListFoodsErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type ListFoodsError = ListFoodsErrors[keyof ListFoodsErrors];
+
+export type ListFoodsResponses = {
+	/**
+	 * OK
+	 */
+	200: Array<GetFoodsQueryResponse> | null;
+};
+
+export type ListFoodsResponse = ListFoodsResponses[keyof ListFoodsResponses];
 
 export type PostFoodsData = {
-	body: AddFoodRequestWritable;
+	body: AddFoodCommandWritable;
 	path?: never;
 	query?: never;
 	url: "/foods/";
@@ -252,7 +468,7 @@ export type PostFoodsResponses = {
 	/**
 	 * OK
 	 */
-	200: AddFoodResponse;
+	200: AddFoodResult;
 };
 
 export type PostFoodsResponse = PostFoodsResponses[keyof PostFoodsResponses];
@@ -260,6 +476,9 @@ export type PostFoodsResponse = PostFoodsResponses[keyof PostFoodsResponses];
 export type DeleteFoodsByIdData = {
 	body?: never;
 	path: {
+		/**
+		 * The ID of the food item to be deleted
+		 */
 		id: string;
 	};
 	query?: never;
@@ -287,8 +506,11 @@ export type DeleteFoodsByIdResponse =
 	DeleteFoodsByIdResponses[keyof DeleteFoodsByIdResponses];
 
 export type PutFoodsByIdData = {
-	body: UpdateFoodRequestWritable;
+	body: PutByIdRequestWritable;
 	path: {
+		/**
+		 * The ID of the food item to be updated
+		 */
 		id: string;
 	};
 	query?: never;
@@ -313,3 +535,146 @@ export type PutFoodsByIdResponses = {
 
 export type PutFoodsByIdResponse =
 	PutFoodsByIdResponses[keyof PutFoodsByIdResponses];
+
+export type ListOrdersTodayData = {
+	body?: never;
+	path?: never;
+	query?: never;
+	url: "/orders/today";
+};
+
+export type ListOrdersTodayErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type ListOrdersTodayError =
+	ListOrdersTodayErrors[keyof ListOrdersTodayErrors];
+
+export type ListOrdersTodayResponses = {
+	/**
+	 * OK
+	 */
+	200: Array<GetTodayOrdersResponse> | null;
+};
+
+export type ListOrdersTodayResponse =
+	ListOrdersTodayResponses[keyof ListOrdersTodayResponses];
+
+export type PostPollsData = {
+	body: CreatePollCommandWritable;
+	path?: never;
+	query?: never;
+	url: "/polls/";
+};
+
+export type PostPollsErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type PostPollsError = PostPollsErrors[keyof PostPollsErrors];
+
+export type PostPollsResponses = {
+	/**
+	 * OK
+	 */
+	200: CreatePollResponse;
+};
+
+export type PostPollsResponse = PostPollsResponses[keyof PostPollsResponses];
+
+export type ListPollsTodayData = {
+	body?: never;
+	path?: never;
+	query?: never;
+	url: "/polls/today";
+};
+
+export type ListPollsTodayErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type ListPollsTodayError =
+	ListPollsTodayErrors[keyof ListPollsTodayErrors];
+
+export type ListPollsTodayResponses = {
+	/**
+	 * OK
+	 */
+	200: Array<GetTodayPollsQueryResponse> | null;
+};
+
+export type ListPollsTodayResponse =
+	ListPollsTodayResponses[keyof ListPollsTodayResponses];
+
+export type PostPollsByIdCloseData = {
+	body?: never;
+	path: {
+		/**
+		 * The ID of the poll to be closed
+		 */
+		id: string;
+	};
+	query?: never;
+	url: "/polls/{id}/close";
+};
+
+export type PostPollsByIdCloseErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type PostPollsByIdCloseError =
+	PostPollsByIdCloseErrors[keyof PostPollsByIdCloseErrors];
+
+export type PostPollsByIdCloseResponses = {
+	/**
+	 * No Content
+	 */
+	204: void;
+};
+
+export type PostPollsByIdCloseResponse =
+	PostPollsByIdCloseResponses[keyof PostPollsByIdCloseResponses];
+
+export type PostPollsByIdVoteData = {
+	body: PostByIdVoteRequestWritable;
+	path: {
+		/**
+		 * The ID of the poll to cast a vote on
+		 */
+		id: string;
+	};
+	query?: never;
+	url: "/polls/{id}/vote";
+};
+
+export type PostPollsByIdVoteErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type PostPollsByIdVoteError =
+	PostPollsByIdVoteErrors[keyof PostPollsByIdVoteErrors];
+
+export type PostPollsByIdVoteResponses = {
+	/**
+	 * No Content
+	 */
+	204: void;
+};
+
+export type PostPollsByIdVoteResponse =
+	PostPollsByIdVoteResponses[keyof PostPollsByIdVoteResponses];

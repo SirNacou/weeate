@@ -1,8 +1,8 @@
 import {
-  getFoodsQueryKey,
+  listFoodsQueryKey,
   putFoodsByIdMutation,
 } from "@/client/@tanstack/react-query.gen";
-import ImageUpload from "@/components/comp-545";
+import ImageUpload from "@/components/image-upload";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,8 +30,8 @@ import * as z from "zod";
 const foodSchema = z.object({
   name: z.string().min(1, "Name is required"),
   price: z.number().min(0, "Price must be non-negative").multipleOf(1000),
-  description: z.string().default(""),
-  imageFileId: z.string().optional(),
+  description: z.string(),
+  imageFileId: z.string(),
 });
 
 type EditFoodDialogProps = React.ComponentProps<typeof DialogPrimitive.Root> & {
@@ -56,7 +56,7 @@ const AddFoodDialog = ({
     ...putFoodsByIdMutation(),
     onSuccess: () => {
       // Invalidate and refetch foods query
-      queryClient.invalidateQueries({ queryKey: getFoodsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: listFoodsQueryKey() });
       // Close the dialog
       onOpenChange?.(false);
     },
@@ -69,7 +69,6 @@ const AddFoodDialog = ({
       imageFileId: data.imageFileId || "",
     },
     validators: {
-      // @ts-ignore
       onChange: foodSchema,
     },
     onSubmit: async ({ value }) => {

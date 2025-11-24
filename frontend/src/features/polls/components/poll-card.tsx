@@ -1,0 +1,207 @@
+import { serverClient } from "@/api";
+import { postPollsByIdVote } from "@/client";
+import { listPollsTodayQueryKey } from "@/client/@tanstack/react-query.gen";
+import { zPostPollsByIdVoteData } from "@/client/zod.gen";
+import CloseTimer from "@/components/close-timer";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { FieldGroup } from "@/components/ui/field";
+import { Route } from "@/routes/_protected/route";
+import { useForm } from "@tanstack/react-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createServerFn } from "@tanstack/react-start";
+import { useEffect, useMemo } from "react";
+import { toast } from "sonner";
+import { z } from "zod";
+import PollOption, { Option } from "./poll-option";
+import PollStrategyBadge from "./poll-strategy-badge";
+
+const castVoteServerFn = createServerFn({ method: "POST" })
+  .inputValidator(zPostPollsByIdVoteData)
+  .handler(async ({ data }) => {
+    const res = await postPollsByIdVote({
+      client: serverClient,
+      path: data.path,
+      body: data.body,
+    });
+    if (res.error) {
+      console.error(`Failed to cast vote:`, res.error);
+      throw new Error("Failed to cast vote");
+    }
+
+    return res.data;
+  });
+
+type Props = {
+  pollId: string;
+  buyerName: string;
+  avatarUrl: string;
+  scheduled_close_at: Date;
+  closed_at: Date | null;
+  strategy: "ORDER_CONSENSUS_ITEM" | "ORDER_PERSONAL_CHOICE";
+  options: Option[];
+};
+
+const PollCard = ({
+  pollId,
+  buyerName,
+  avatarUrl,
+  scheduled_close_at,
+  closed_at,
+  strategy,
+  options,
+}: Props) => {
+  const { user } = Route.useRouteContext();
+
+  const initialSelectedOption = options?.find((option) =>
+    option.votes?.some((vote) => vote.userId === user.id)
+  );
+
+  const queryClient = useQueryClient();
+
+  const validator = useMemo(() => {
+    return z.object({
+      selectedOption: z.object({
+        id: z
+          .string()
+          .nonempty({ message: "Please select an option" })
+          .refine((val) => options.some((option) => option.id === val), {
+            message: "Invalid option selected",
+          }),
+        isSelected: z.boolean(),
+      }),
+    });
+  }, [options]);
+
+  const castVoteMutation = useMutation({
+    mutationFn: castVoteServerFn,
+    onSuccess: () => {
+      toast.success("Your vote has been submitted!");
+      queryClient.invalidateQueries({
+        queryKey: listPollsTodayQueryKey(),
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to cast vote. Please try again.");
+    },
+  });
+
+  const form = useForm({
+    defaultValues: {
+      selectedOption: {
+        id: initialSelectedOption?.id || "",
+        isSelected: !!initialSelectedOption ? true : false,
+      },
+    },
+    validators: {
+      onChange: validator,
+      onMount: validator,
+    },
+    listeners: {
+      onChangeDebounceMs: 500,
+      onChange(props) {
+        props.formApi.handleSubmit();
+        console.log("Form changed:", props.fieldApi.state.value);
+      },
+    },
+    onSubmit: async ({ value }) => {
+      await castVoteMutation
+        .mutateAsync({
+          data: {
+            path: {
+              id: pollId,
+            },
+            body: {
+              poll_option_id: value.selectedOption.id,
+            },
+          },
+        })
+        .catch(() => {});
+    },
+  });
+  useEffect(() => {
+    console.log("Form state updated:", form.state.values.selectedOption);
+  }, [form.state.values.selectedOption]);
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        form.handleSubmit();
+      }}
+    >
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex flex-col sm:flex-row text-lg">
+            <div className="flex items-center gap-2">
+              <Avatar className="size-8 sm:size-10">
+                <AvatarImage src={avatarUrl} />
+                <AvatarFallback>
+                  {buyerName.substring(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <h3 className="text-base sm:text-lg leading-tight">
+                <span className="text-primary font-semibold">{buyerName}</span>{" "}
+                is buying breakfast
+              </h3>
+            </div>
+          </CardTitle>
+          <CardDescription className="mt-1 flex items-center justify-between text-sm sm:text-base">
+            <CloseTimer
+              className="text-sm sm:text-base shrink-0"
+              closesAt={closed_at || scheduled_close_at}
+            />
+
+            <PollStrategyBadge strategy={strategy} />
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FieldGroup>
+            <form.Field
+              name="selectedOption"
+              children={(field) => {
+                return (
+                  <div className={"grid grid-cols-1 lg:grid-cols-2 gap-3"}>
+                    {options.map((option) => (
+                      <PollOption
+                        key={option.id}
+                        option={option}
+                        disabled={!!closed_at}
+                        isSelected={
+                          option.id === field.state.value.id &&
+                          field.state.value.isSelected
+                        }
+                        onSelect={(id) => {
+                          console.log("Option selected:", id);
+                          if (field.state.value.id === id) {
+                            // Deselecting the currently selected option
+                            field.handleChange({
+                              id,
+                              isSelected: !field.state.value.isSelected,
+                            });
+                          } else {
+                            // Selecting a new option
+                            field.handleChange({ id, isSelected: true });
+                          }
+                        }}
+                      />
+                    ))}
+                  </div>
+                );
+              }}
+            />
+          </FieldGroup>
+        </CardContent>
+      </Card>
+    </form>
+  );
+};
+
+export default PollCard;
