@@ -9,10 +9,10 @@ import (
 )
 
 type AuthEndpoint struct {
-	env configs.Env
+	env configs.Config
 }
 
-func NewAuthEndpoint(env configs.Env) *AuthEndpoint {
+func NewAuthEndpoint(env configs.Config) *AuthEndpoint {
 	return &AuthEndpoint{
 		env: env,
 	}

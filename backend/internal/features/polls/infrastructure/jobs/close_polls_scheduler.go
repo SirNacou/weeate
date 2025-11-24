@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/clock"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/services"
 	"gorm.io/gorm"
@@ -14,6 +15,7 @@ type ClosePollScheduler struct {
 	db        *gorm.DB
 	trigger   chan bool // A channel to "wake up" the sleeper
 	closePoll *services.ClosePollCommandHandler
+	clock     clock.Clock
 }
 
 func NewClosePollScheduler(closePollHandler *services.ClosePollCommandHandler, db *gorm.DB) *ClosePollScheduler {
@@ -21,6 +23,7 @@ func NewClosePollScheduler(closePollHandler *services.ClosePollCommandHandler, d
 		closePoll: closePollHandler,
 		trigger:   make(chan bool, 1),
 		db:        db,
+		clock:     clock.NewRealClock(),
 	}
 }
 
@@ -53,7 +56,7 @@ func (s *ClosePollScheduler) Start(ctx context.Context) {
 		slog.InfoContext(ctx, "Sleeping for %v...\n", "duration", duration)
 
 		select {
-		case <-time.After(duration):
+		case <-s.clock.After(duration):
 			workerCtx, cancel := context.WithTimeout(ctx, time.Second*30)
 			s.closeDuePolls(workerCtx)
 			cancel()

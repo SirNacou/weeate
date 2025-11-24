@@ -11,7 +11,7 @@ type AuthModule struct {
 	endpoint *AuthEndpoint
 }
 
-func NewAuthModule(env configs.Env) *AuthModule {
+func NewAuthModule(env configs.Config) *AuthModule {
 	authEndpoint := NewAuthEndpoint(env)
 	return &AuthModule{
 		endpoint: authEndpoint,
