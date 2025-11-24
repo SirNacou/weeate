@@ -21,7 +21,7 @@ type CentrifugoClient struct {
 	conn *grpc.ClientConn
 }
 
-func NewCentrifugoClient(env configs.Env) (*CentrifugoClient, error) {
+func NewCentrifugoClient(env configs.Config) (*CentrifugoClient, error) {
 	conn, err := grpc.NewClient(fmt.Sprintf("%s:%v", env.CENTRIFUGO_GRPC_HOST, env.CENTRIFUGO_GRPC_PORT),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
@@ -44,7 +44,6 @@ func (c *CentrifugoClient) Publish(ctx context.Context, channel channel, data []
 	resp, err := (*c.api).Publish(ctx, &apiproto.PublishRequest{
 		Channel: string(channel),
 		Data:    data,
-		
 	})
 	return resp, err
 }

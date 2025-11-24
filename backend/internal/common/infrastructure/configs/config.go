@@ -12,7 +12,7 @@ const (
 	EnvProduction  = "production"
 )
 
-type Env struct {
+type Config struct {
 	PORT                      int    `env:"PORT" envDefault:"8080"`
 	Timezone                  string `env:"TZ" envDefault:"UTC"`
 	DB                        db
@@ -36,7 +36,7 @@ type db struct {
 	Name     string `env:"DB_NAME" envDefault:"weeate_db"`
 }
 
-func (e *Env) GetDBDsn() string {
+func (e *Config) GetDBDsn() string {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=%s",
 		e.DB.Host,
 		e.DB.User,
@@ -48,8 +48,8 @@ func (e *Env) GetDBDsn() string {
 	return dsn
 }
 
-func LoadEnv() (Env, error) {
-	e := Env{}
+func LoadEnv() (Config, error) {
+	e := Config{}
 	err := env.Parse(&e)
 	return e, err
 }

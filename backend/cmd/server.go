@@ -26,7 +26,7 @@ import (
 )
 
 type Server struct {
-	config           configs.Env
+	config           configs.Config
 	db               *gorm.DB
 	supabaseService  *auth.SupabaseService
 	bus              *bus.Bus
@@ -34,7 +34,7 @@ type Server struct {
 }
 
 func NewServer(
-	config configs.Env,
+	config configs.Config,
 	db *gorm.DB,
 	supabaseService *auth.SupabaseService,
 	bus *bus.Bus,
