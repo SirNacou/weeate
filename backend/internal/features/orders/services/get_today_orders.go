@@ -13,21 +13,21 @@ import (
 
 type (
 	GetTodayOrdersResponse struct {
-		PollID     uuid.UUID
-		Buyer      auth.UserProfile
-		TotalPrice int64
-		OrderItems []OrderItem
+		PollID     uuid.UUID        `json:"poll_id"`
+		Buyer      auth.UserProfile `json:"buyer"`
+		TotalPrice int64            `json:"total_price"`
+		OrderItems []OrderItem      `json:"order_items"`
 	}
 	OrderItem struct {
-		FoodName     string
-		FoodImageUrl *string
-		PriceAtOrder int64
-		Details      []OrderItemDetail
+		FoodName     string            `json:"food_name"`
+		FoodImageUrl *string           `json:"food_image_url"`
+		PriceAtOrder int64             `json:"price_at_order"`
+		Details      []OrderItemDetail `json:"details"`
 	}
 
 	OrderItemDetail struct {
-		User     auth.UserProfile
-		Quantity int64
+		User     auth.UserProfile `json:"user"`
+		Quantity int64            `json:"quantity"`
 	}
 
 	GetTodayOrdersQueryHandler struct {
@@ -44,11 +44,10 @@ func NewGetTodayOrdersQueryHandler(db *gorm.DB, supabaseService *auth.SupabaseSe
 }
 
 func (h *GetTodayOrdersQueryHandler) Handle(ctx context.Context, query *struct{}) ([]GetTodayOrdersResponse, error) {
-	var orders []domain.Order
-	err := h.db.WithContext(ctx).
-		Preload("OrderItems.Details").
+	orders, err := gorm.G[domain.Order](h.db).
+		Preload("OrderItems.Details", nil).
 		Where("order_date = CURRENT_DATE").
-		Find(&orders).Error
+		Find(ctx)
 	if err != nil {
 		return nil, err
 	}
