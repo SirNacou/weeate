@@ -120,22 +120,22 @@ export const zGetFoodsQueryResponse = z.object({
 });
 
 export const zOrderItemDetail = z.object({
-	Quantity: z.coerce.bigint(),
-	User: zUserProfile,
+	quantity: z.coerce.bigint(),
+	user: zUserProfile,
 });
 
 export const zOrderItem = z.object({
-	Details: z.union([z.array(zOrderItemDetail), z.null()]),
-	FoodImageUrl: z.union([z.string(), z.null()]),
-	FoodName: z.string(),
-	PriceAtOrder: z.coerce.bigint(),
+	details: z.union([z.array(zOrderItemDetail), z.null()]),
+	food_image_url: z.union([z.string(), z.null()]),
+	food_name: z.string(),
+	price_at_order: z.coerce.bigint(),
 });
 
 export const zGetTodayOrdersResponse = z.object({
-	Buyer: zUserProfile,
-	OrderItems: z.union([z.array(zOrderItem), z.null()]),
-	PollID: z.string(),
-	TotalPrice: z.coerce.bigint(),
+	buyer: zUserProfile,
+	order_items: z.union([z.array(zOrderItem), z.null()]),
+	poll_id: z.string(),
+	total_price: z.coerce.bigint(),
 });
 
 export const zVote = z.object({

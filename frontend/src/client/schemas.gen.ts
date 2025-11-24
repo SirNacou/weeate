@@ -267,24 +267,24 @@ export const GetFoodsQueryResponseSchema = {
 export const GetTodayOrdersResponseSchema = {
 	additionalProperties: false,
 	properties: {
-		Buyer: {
+		buyer: {
 			$ref: "#/components/schemas/UserProfile",
 		},
-		OrderItems: {
+		order_items: {
 			items: {
 				$ref: "#/components/schemas/OrderItem",
 			},
 			type: ["array", "null"],
 		},
-		PollID: {
+		poll_id: {
 			type: "string",
 		},
-		TotalPrice: {
+		total_price: {
 			format: "int64",
 			type: "integer",
 		},
 	},
-	required: ["PollID", "Buyer", "TotalPrice", "OrderItems"],
+	required: ["poll_id", "buyer", "total_price", "order_items"],
 	type: "object",
 } as const;
 
@@ -399,39 +399,39 @@ export const IdentityDataSchema = {
 export const OrderItemSchema = {
 	additionalProperties: false,
 	properties: {
-		Details: {
+		details: {
 			items: {
 				$ref: "#/components/schemas/OrderItemDetail",
 			},
 			type: ["array", "null"],
 		},
-		FoodImageUrl: {
+		food_image_url: {
 			type: ["string", "null"],
 		},
-		FoodName: {
+		food_name: {
 			type: "string",
 		},
-		PriceAtOrder: {
+		price_at_order: {
 			format: "int64",
 			type: "integer",
 		},
 	},
-	required: ["FoodName", "FoodImageUrl", "PriceAtOrder", "Details"],
+	required: ["food_name", "food_image_url", "price_at_order", "details"],
 	type: "object",
 } as const;
 
 export const OrderItemDetailSchema = {
 	additionalProperties: false,
 	properties: {
-		Quantity: {
+		quantity: {
 			format: "int64",
 			type: "integer",
 		},
-		User: {
+		user: {
 			$ref: "#/components/schemas/UserProfile",
 		},
 	},
-	required: ["User", "Quantity"],
+	required: ["user", "quantity"],
 	type: "object",
 } as const;
 

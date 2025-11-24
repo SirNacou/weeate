@@ -151,10 +151,10 @@ export type GetFoodsQueryResponse = {
 };
 
 export type GetTodayOrdersResponse = {
-	Buyer: UserProfile;
-	OrderItems: Array<OrderItem> | null;
-	PollID: string;
-	TotalPrice: number;
+	buyer: UserProfile;
+	order_items: Array<OrderItem> | null;
+	poll_id: string;
+	total_price: number;
 };
 
 export type GetTodayPollsQueryResponse = {
@@ -187,15 +187,15 @@ export type IdentityData = {
 };
 
 export type OrderItem = {
-	Details: Array<OrderItemDetail> | null;
-	FoodImageUrl: string | null;
-	FoodName: string;
-	PriceAtOrder: number;
+	details: Array<OrderItemDetail> | null;
+	food_image_url: string | null;
+	food_name: string;
+	price_at_order: number;
 };
 
 export type OrderItemDetail = {
-	Quantity: number;
-	User: UserProfile;
+	quantity: number;
+	user: UserProfile;
 };
 
 export type PollOption = {

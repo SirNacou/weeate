@@ -5,6 +5,7 @@ import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
+  useRouterState,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
@@ -19,40 +20,48 @@ import { ImageKitProvider } from "@imagekit/react";
 import type { QueryClient } from "@tanstack/react-query";
 import { MotionConfig } from "motion/react";
 
-interface MyRouterContext {
+export interface MyRouterContext {
   queryClient: QueryClient;
+  pageTitle: string;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-  head: () => ({
-    meta: [
-      {
-        charSet: "utf-8",
-      },
-      {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
-      },
-      {
-        title: "TanStack Start Starter",
-      },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-    ],
-  }),
+  head: () => {
+    return {
+      meta: [
+        {
+          charSet: "utf-8",
+        },
+        {
+          name: "viewport",
+          content: "width=device-width, initial-scale=1",
+        },
+        {
+          title: "Weeate",
+        },
+      ],
+      links: [
+        {
+          rel: "stylesheet",
+          href: appCss,
+        },
+      ],
+    };
+  },
   shellComponent: RootDocument,
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { matches } = useRouterState();
+  const currentRoute = matches[matches.length - 1];
+  const pageTitle = currentRoute?.context.pageTitle;
+
   const { isMobile } = useIsMobile();
   return (
     <html lang="en">
       <head>
         <HeadContent />
+        <title>{`${pageTitle} | Weeate`}</title>
       </head>
       <body>
         <ImageKitProvider

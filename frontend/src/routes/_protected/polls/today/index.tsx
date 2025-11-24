@@ -1,32 +1,27 @@
 import { GetTodayPollsQueryResponse, Vote } from "@/client";
-import {
-  listPollsTodayOptions,
-  listPollsTodayQueryKey,
-} from "@/client/@tanstack/react-query.gen";
+import { listPollsTodayQueryKey } from "@/client/@tanstack/react-query.gen";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listPollsTodayServerFn } from "@/features/polls/api/get-today-polls";
 import CreatePollDialog from "@/features/polls/components/create-poll-dialog";
 import PollCard from "@/features/polls/components/poll-card";
 import { useSubscription } from "@/lib/centrifugo/use-subscription";
-import { getPageTitle } from "@/lib/head-utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_protected/polls/today/")({
   component: RouteComponent,
-  loader: async () => {
-    const polls = await listPollsTodayServerFn();
-    return { polls };
-  },
-  head: () => {
+  beforeLoad: () => {
     return {
-      meta: [
-        {
-          title: getPageTitle("Today Polls"),
-        },
-      ],
+      pageTitle: "Today's Polls",
     };
+  },
+  loader: async ({ abortController }) => {
+    const polls = await listPollsTodayServerFn({
+      signal: abortController.signal,
+    });
+    return { polls };
   },
 });
 
@@ -34,19 +29,22 @@ function RouteComponent() {
   const { polls } = Route.useLoaderData();
   const { user } = Route.useRouteContext();
 
-  const { data, refetch } = useQuery({
-    ...listPollsTodayOptions(),
-    queryFn: listPollsTodayServerFn,
+  const queryClient = useQueryClient();
+
+  // Wrap server function for client-side use
+  const fetchPolls = useServerFn(listPollsTodayServerFn);
+
+  const { data } = useQuery({
+    queryKey: listPollsTodayQueryKey(),
+    queryFn: () => fetchPolls(),
     initialData: polls,
   });
 
-  const queryClient = useQueryClient();
-
-  useSubscription("public:polls", async (data) => {
+  useSubscription("public:polls", (data) => {
     console.log("Vote moved event received", data);
     if (data.type === "poll_created") {
       toast("New poll created, refetching today's polls...");
-      await refetch();
+      queryClient.invalidateQueries({ queryKey: listPollsTodayQueryKey() });
     }
     if (data.type === "vote_added") {
       queryClient.setQueryData(
@@ -171,12 +169,7 @@ function RouteComponent() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-3">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
-          <div className="flex flex-col self-start">
-            <h1 className="text-2xl font-bold">Today Food Polls</h1>
-            <p>Vote for your favorite meals and let your voice be heard!</p>
-          </div>
-
+        <div className="flex w-full flex-col items-center justify-end gap-3 sm:flex-row">
           <CreatePollDialog
             userPollExists={data?.some((poll) => poll.creator?.id === user?.id)}
           />
@@ -185,10 +178,10 @@ function RouteComponent() {
         <div className="flex gap-2 text-center">
           <Card className="basis-1/2 md:basis-[200px] gap-2 py-4">
             <CardHeader>
-              <CardTitle>Today Polls</CardTitle>
+              <CardTitle>Polls</CardTitle>
             </CardHeader>
             <CardContent>
-              <span className="font-bold">{polls?.length || 0}</span>
+              <span className="font-bold">{data?.length || 0}</span>
             </CardContent>
           </Card>
           <Card className="basis-1/2 md:basis-[200px] gap-2 py-4">
