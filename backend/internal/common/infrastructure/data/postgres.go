@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	foods_domain "github.com/SirNacou/weeate/backend/internal/features/foods/domain"
-	polls_domain "github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 	orders_domain "github.com/SirNacou/weeate/backend/internal/features/orders/domain"
+	polls_domain "github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -26,7 +26,9 @@ func MigratePostgresDB(db *gorm.DB) error {
 		&polls_domain.Poll{},
 		&polls_domain.PollOption{},
 		&polls_domain.Vote{},
-		&orders_domain.Order{}); err != nil {
+		&orders_domain.Order{},
+		&orders_domain.OrderItem{},
+		&orders_domain.OrderItemDetail{}); err != nil {
 		return fmt.Errorf("failed to migrate database: %w", err)
 	}
 	return nil

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	food_domain "github.com/SirNacou/weeate/backend/internal/features/foods/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/orders/domain"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
@@ -57,15 +58,49 @@ func (h *GetShoppingOrderQueryHandler) Handle(ctx context.Context, query GetShop
 		return nil, err
 	}
 
+	foodIDs := lo.Map(order.OrderItems, func(item domain.OrderItem, _ int) string {
+		return item.FoodID.String()
+	})
+
+	foods, err := gorm.G[food_domain.Food](h.db).
+		Where("id IN ?", foodIDs).
+		Find(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	foodMap := lo.KeyBy(foods, func(food food_domain.Food) string {
+		return food.ID.String()
+	})
+
+	userIDs := lo.FlatMap(order.OrderItems, func(item domain.OrderItem, _ int) []string {
+		return lo.Map(item.Details, func(detail domain.OrderItemDetail, _ int) string {
+			return detail.UserID
+		})
+	})
+
+	userProfiles, err := h.supabaseService.GetUserProfilesByIDs(userIDs...)
+	if err != nil {
+		return nil, err
+	}
+	userProfileMap := lo.KeyBy(userProfiles, func(profile auth.UserProfile) string {
+		return profile.ID.String()
+	})
+
 	return &GetShoppingOrderResponse{
 		Items: lo.Map(order.OrderItems, func(item domain.OrderItem, _ int) ShoppingItem {
+			quantity := lo.SumBy(item.Details, func(detail domain.OrderItemDetail) int64 {
+				return detail.Quantity
+			})
 			return ShoppingItem{
 				FoodID:     item.FoodID.String(),
-				FoodName:   item.FoodName,
-				Quantity:   item.Quantity,
-				UnitPrice:  item.UnitPrice,
-				TotalPrice: item.TotalPrice,
-				Users:      item.Users, // Adjust if item.Users is not []auth.UserProfile
+				FoodName:   foodMap[item.FoodID.String()].Name,
+				Quantity:   quantity,
+				UnitPrice:  item.PriceAtOrder,
+				TotalPrice: item.PriceAtOrder * quantity,
+				Users: lo.Map(item.Details, func(detail domain.OrderItemDetail, _ int) auth.UserProfile {
+					return userProfileMap[detail.UserID]
+				}),
 			}
 		}),
 		TotalPrice: order.TotalPrice,

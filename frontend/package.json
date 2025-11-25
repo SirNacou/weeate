@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "dotenvx run -f ../.env -f ../.env.local -- vite dev --port 3000 --host",
+    "dev": "dotenvx run -f ../.env -- vite dev --port 3000 --host",
     "build": "vite build",
     "serve": "vite preview",
     "test": "vitest run",

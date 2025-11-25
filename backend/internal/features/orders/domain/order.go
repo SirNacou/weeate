@@ -20,15 +20,17 @@ type Order struct {
 }
 
 type OrderItem struct {
-	OrderID      uuid.UUID         `gorm:"type:uuid;not null;primaryKey"`
-	FoodID       uuid.UUID         `gorm:"type:uuid;not null;primaryKey"`
+	domain.UUID
+	OrderID      uuid.UUID         `gorm:"type:uuid;not null;uniqueIndex:idx_order_item_order_food"`
+	FoodID       uuid.UUID         `gorm:"type:uuid;not null;uniqueIndex:idx_order_item_order_food"`
 	PriceAtOrder int64             `gorm:"not null"`
 	Details      []OrderItemDetail `gorm:"foreignKey:OrderItemID;constraint:OnDelete:CASCADE"`
 }
 
 type OrderItemDetail struct {
-	OrderItemID uuid.UUID `gorm:"type:uuid;not null;primaryKey"`
-	UserID      string    `gorm:"not null;primaryKey"`
+	domain.UUID
+	OrderItemID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_order_item_detail_user"`
+	UserID      string    `gorm:"not null;uniqueIndex:idx_order_item_detail_user"`
 	Quantity    int64     `gorm:"not null"`
 }
 
