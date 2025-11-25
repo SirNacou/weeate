@@ -12,7 +12,6 @@ export const Route = createFileRoute("/_protected/protected")({
 });
 
 function Info() {
-  const { user } = Route.useLoaderData();
   return (
     <div>
       <MenuGrid />
