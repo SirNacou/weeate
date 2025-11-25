@@ -64,7 +64,7 @@ func (h *GetOrderedItemsQueryHandler) Handle(ctx context.Context, query *GetOrde
 			orders.buyer_user_id
 		`).
 		Joins("JOIN order_items ON order_items.order_id = orders.id").
-		Joins("JOIN order_item_details ON order_item_details.order_item_id = order_items.id").
+		Joins("JOIN order_item_details ON order_item_details.order_id = order_items.order_id AND order_item_details.food_id = order_items.food_id").
 		Joins("LEFT JOIN foods ON foods.id = order_items.food_id").
 		Where("orders.order_date = ?", query.Date).
 		Where("order_item_details.user_id = ?", user.ID).

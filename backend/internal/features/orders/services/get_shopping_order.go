@@ -48,7 +48,7 @@ func (h *GetShoppingOrderQueryHandler) Handle(ctx context.Context, query GetShop
 	}
 
 	order, err := gorm.G[domain.Order](h.db).
-		Preload("OrderItems.OrderItemDetails", nil).
+		Preload("OrderItems.Details", nil).
 		Where("order_date = ? AND buyer_user_id = ?", query.Date, user.ID).First(ctx)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -58,7 +58,16 @@ func (h *GetShoppingOrderQueryHandler) Handle(ctx context.Context, query GetShop
 	}
 
 	return &GetShoppingOrderResponse{
-		Items:      lo.Map(order.OrderItems), // Populate with actual data
+		Items: lo.Map(order.OrderItems, func(item domain.OrderItem, _ int) ShoppingItem {
+			return ShoppingItem{
+				FoodID:     item.FoodID.String(),
+				FoodName:   item.FoodName,
+				Quantity:   item.Quantity,
+				UnitPrice:  item.UnitPrice,
+				TotalPrice: item.TotalPrice,
+				Users:      item.Users, // Adjust if item.Users is not []auth.UserProfile
+			}
+		}),
 		TotalPrice: order.TotalPrice,
 	}, nil
 }
