@@ -53,7 +53,7 @@ func (s *ClosePollScheduler) Start(ctx context.Context) {
 			}
 		}
 
-		slog.InfoContext(ctx, "Sleeping for %v...\n", "duration", duration)
+		slog.InfoContext(ctx, "Sleeping for %v...\n", "duration", duration.String())
 
 		select {
 		case <-s.clock.After(duration):

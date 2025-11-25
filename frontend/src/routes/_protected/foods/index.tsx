@@ -13,15 +13,20 @@ export const Route = createFileRoute("/_protected/foods/")({
   beforeLoad: ({ context }) => {
     context.pageTitle = "Foods";
   },
-  loader: async () => ({
-    initialData: await getFoodsServer({ data: { query: {} } }),
-  }),
+  loader: async () => {
+    const data = await getFoodsServer({ data: { query: {} } });
+    return { foods: data };
+  },
 });
 
 function Foods() {
-  const { initialData } = Route.useLoaderData();
+  const { foods } = Route.useLoaderData();
   const { user } = Route.useRouteContext();
-  const { data } = useQuery({ ...listFoodsOptions(), initialData });
+
+  const { data = foods } = useQuery({
+    ...listFoodsOptions(),
+    initialData: foods,
+  });
 
   const columns = useMemo(() => createColumns(user?.id), [user?.id]);
 
@@ -30,7 +35,7 @@ function Foods() {
       <div className="flex justify-end">
         <AddFoodDialog />
       </div>
-      <DataTable columns={columns} data={data || []} />
+      <DataTable columns={columns} data={data ?? []} />
     </div>
   );
 }

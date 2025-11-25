@@ -21,6 +21,7 @@ import (
 	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	slogfiber "github.com/samber/slog-fiber"
 	"gorm.io/gorm"
 )
@@ -62,6 +63,7 @@ func (s *Server) buildHandler(ctx context.Context) (http.Handler, []func(context
 		WithRequestBody:    true,
 		WithResponseBody:   true,
 	}))
+	app.Use(healthcheck.New())
 	app.Use(recover.New())
 	app.Use(api.CORSMiddleware(s.config.GO_ENV))
 	authMiddleware, err := auth.AuthMiddleware(ctx, s.config.SUPABASE_AUTH_URL, s.config.SUPABASE_COOKIE_AUTH_NAME)

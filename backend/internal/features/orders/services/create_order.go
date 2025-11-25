@@ -9,6 +9,7 @@ import (
 	"github.com/SirNacou/weeate/backend/internal/features/orders/domain"
 	polls_domain "github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 	"github.com/gofrs/uuid/v5"
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
 
@@ -57,6 +58,41 @@ func (h *CreateOrderCommandHandler) Handle(ctx context.Context, req *CreateOrder
 			"buyerID", req.BuyerID,
 			"orderDate", req.OrderDate)
 		return domain.ErrOrderAlreadyExists
+	}
+
+	if req.Strategy == polls_domain.OrderConsensus {
+		totalVotes := lo.SumBy(req.Results, func(option OptionResult) int64 {
+			return int64(len(option.Votes))
+		})
+
+		if totalVotes == 0 {
+			slog.WarnContext(ctx, "cannot create order with consensus strategy with zero votes",
+				"buyerID", req.BuyerID,
+				"orderDate", req.OrderDate)
+			return domain.ErrCannotCreateOrderWithZeroVotes
+		}
+
+		var winningOption *OptionResult
+		for i, option := range req.Results {
+			if winningOption == nil || len(option.Votes) > len(winningOption.Votes) {
+				winningOption = &req.Results[i]
+			}
+		}
+
+		// Collect all unique users from all options
+		allVotes := make(map[string]VoteResult)
+		for _, option := range req.Results {
+			for _, vote := range option.Votes {
+				// Keep the highest quantity if user voted multiple times
+				if existing, exists := allVotes[vote.UserID]; !exists || vote.Quantity > existing.Quantity {
+					allVotes[vote.UserID] = vote
+				}
+			}
+		}
+
+		// Transfer all votes to the winning option
+		winningOption.Votes = lo.Values(allVotes)
+		req.Results = []OptionResult{*winningOption}
 	}
 
 	orderItems := make([]domain.OrderItem, 0)

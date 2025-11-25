@@ -21,7 +21,7 @@ const EventsToForwardTopic = "eventsToForward"
 
 type Bus struct {
 	router           *message.Router
-	cqrsMarshaler    cqrs.ProtoMarshaler
+	cqrsMarshaler    cqrs.JSONMarshaler
 	logger           watermill.LoggerAdapter
 	CommandBus       *cqrs.CommandBus
 	CommandProcessor *cqrs.CommandProcessor
@@ -37,8 +37,9 @@ func NewBus(db *sql.DB, l *slog.Logger) (*Bus, error) {
 		slog.LevelError: slog.LevelError,
 	})
 
-	cqrsMarshaler := cqrs.ProtoMarshaler{
+	cqrsMarshaler := cqrs.JSONMarshaler{
 		GenerateName: cqrs.StructName,
+		NewUUID:      watermill.NewULID,
 	}
 
 	goChannel := gochannel.NewGoChannel(gochannel.Config{
@@ -196,7 +197,7 @@ func (b *Bus) Start(ctx context.Context) error {
 
 type SqlPublisher struct {
 	pub       message.Publisher
-	marshaler cqrs.ProtoMarshaler
+	marshaler cqrs.JSONMarshaler
 	logger    watermill.LoggerAdapter
 }
 
