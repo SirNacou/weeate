@@ -92,7 +92,7 @@ func collectIDs(orders []domain.Order) (userIDs []string, foodIDs []uuid.UUID) {
 }
 
 func (h *GetTodayOrdersQueryHandler) fetchData(ctx context.Context, userIDs []string, foodIDs []uuid.UUID) (map[string]auth.UserProfile, map[uuid.UUID]domain_food.Food, error) {
-	users, err := h.supabaseService.GetUserProfilesByIDs(userIDs)
+	users, err := h.supabaseService.GetUserProfilesByIDs(userIDs...)
 	if err != nil {
 		return nil, nil, err
 	}

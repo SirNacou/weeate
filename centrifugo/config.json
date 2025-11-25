@@ -26,5 +26,8 @@
     "enabled": true,
     "password": "",
     "secret": ""
+  },
+  "health": {
+    "enabled": true
   }
 }

@@ -96,7 +96,7 @@ func (h *GetTodayPollsQueryHandler) Handle(ctx context.Context, query GetTodayPo
 
 	var userProfiles []auth.UserProfile
 	if len(uniqueUserIDs) > 0 {
-		profiles, err := h.supabaseService.GetUserProfilesByIDs(uniqueUserIDs)
+		profiles, err := h.supabaseService.GetUserProfilesByIDs(uniqueUserIDs...)
 		if err != nil {
 			return nil, err
 		}

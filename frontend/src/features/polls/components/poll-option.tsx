@@ -1,16 +1,13 @@
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Image } from "@imagekit/react";
-import TablerCurrencyDong from "~icons/tabler/currency-dong?width=2em&height=2em";
-import LucideForkKnifeCrossed from "~icons/lucide/fork-knife-crossed";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   AvatarGroup,
   AvatarGroupTooltip,
 } from "@/components/animate-ui/components/animate/avatar-group";
+import { FoodImage } from "@/features/foods/components/food-image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { Circle } from "lucide-react";
+import TablerCurrencyDong from "~icons/tabler/currency-dong?width=2em&height=2em";
 
 export type Vote = {
   userId: string;
@@ -39,11 +36,6 @@ function PollOption({
   isSelected = false,
   disabled = false,
 }: Props) {
-  const [isImageError, setIsImageError] = useState(
-    option.foodImageUrl !== "" ? false : true
-  );
-  const [isImageLoading, setIsImageLoading] = useState(true);
-
   return (
     <div
       key={option.id}
@@ -58,28 +50,7 @@ function PollOption({
       onClick={() => !disabled && onSelect?.(option.id)}
     >
       <div className="h-40 sm:h-48 bg-slate-100 overflow-hidden relative">
-        {isImageError ?
-          <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
-            <LucideForkKnifeCrossed className="size-6 sm:size-8 mb-2" />
-            <span className="text-sm sm:text-base">Image not available</span>
-          </div>
-        : <>
-            {isImageLoading && (
-              <Skeleton className="w-full h-full absolute inset-0" />
-            )}
-            <Image
-              src={option.foodImageUrl}
-              alt={option.foodName}
-              className={`w-full h-full object-cover text-center ${isImageLoading ? "opacity-0" : "opacity-100"}`}
-              loading="lazy"
-              onLoad={() => setIsImageLoading(false)}
-              onError={() => {
-                setIsImageError(true);
-                setIsImageLoading(false);
-              }}
-            />
-          </>
-        }
+        <FoodImage src={option.foodImageUrl} alt={option.foodName} />
         <div className="absolute top-2 left-2 bg-white/90 backdrop-blur px-2 py-0.5 sm:px-3 sm:py-1 rounded-full flex items-center gap-0.5 shadow">
           <span className="text-slate-900 font-medium text-xs sm:text-sm">
             {new Intl.NumberFormat("vi-VN").format(option.price)}

@@ -42,7 +42,7 @@ function ProtectedLayout() {
         <AppSidebar />
         <SidebarInset>
           <SidebarTrigger className="size-12" />
-          <div className="container mx-auto p-10 xxl:px-0">
+          <div className="container mx-auto py-6 px-6 md:p-10 max-w-4xl">
             {context.pageTitle && (
               <div className="mb-6">
                 <h1 className="text-3xl font-bold">{context.pageTitle}</h1>
