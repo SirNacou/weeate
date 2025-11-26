@@ -73,5 +73,5 @@ type UserProfile struct {
 	ID          uuid.UUID `json:"id"`
 	AvatarURL   string    `json:"avatar_url"`
 	DisplayName string    `json:"display_name"`
-	CreatedAt   time.Time `json:"created_at"`
+	CreatedAt   time.Time `json:"created_at" format:"date-time"`
 }

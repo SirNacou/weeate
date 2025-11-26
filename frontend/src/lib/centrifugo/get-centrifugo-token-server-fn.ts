@@ -2,7 +2,7 @@ import { serverClient } from "@/api";
 import { getAuthCentrifugoToken } from "@/client";
 import { createServerFn } from "@tanstack/react-start";
 
-export const getCentrifugoTokenServer = createServerFn({
+export const getCentrifugoTokenServerFn = createServerFn({
   method: "GET",
 }).handler(async () => {
   const resp = await getAuthCentrifugoToken({ client: serverClient });

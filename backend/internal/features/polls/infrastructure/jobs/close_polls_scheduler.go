@@ -2,6 +2,7 @@ package jobs
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"time"
 
@@ -39,6 +40,10 @@ func (s *ClosePollScheduler) Start(ctx context.Context) {
 			nextPoll, err = gorm.G[domain.Poll](s.db).Where("closed_at IS NULL").
 				Order("scheduled_closes_at ASC").
 				First(queryCtx)
+
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				slog.ErrorContext(queryCtx, "failed to get next poll to close", "error", err)
+			}
 
 			cancel()
 		}

@@ -17,6 +17,7 @@ export const Route = createFileRoute("/_protected/foods/")({
     const data = await getFoodsServer({ data: { query: {} } });
     return { foods: data };
   },
+  staleTime: 1000 * 60 * 5, // 5 minutes
 });
 
 function Foods() {

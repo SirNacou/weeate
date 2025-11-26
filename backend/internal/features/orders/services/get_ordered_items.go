@@ -5,12 +5,13 @@ import (
 	"time"
 
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	"github.com/gofrs/uuid/v5"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
 
 type GetOrderedItemsQuery struct {
-	Date time.Time `json:"date" format:"date" doc:"The date to get ordered items for"`
+	Date time.Time `json:"date" format:"date-time" doc:"The date to get ordered items for"`
 }
 
 type GetOrderedItemsResponse struct {
@@ -43,8 +44,8 @@ func (h *GetOrderedItemsQueryHandler) Handle(ctx context.Context, query *GetOrde
 	}
 
 	type OrderItemRow struct {
-		OrderID      string
-		FoodID       string
+		OrderID      uuid.UUID
+		FoodID       uuid.UUID
 		FoodName     string
 		FoodURL      string
 		Quantity     int64
@@ -58,18 +59,21 @@ func (h *GetOrderedItemsQueryHandler) Handle(ctx context.Context, query *GetOrde
 			orders.id as order_id,
 			order_items.food_id,
 			foods.name as food_name,
-			foods.url as food_url,
+			foods.image_url as food_url,
 			order_item_details.quantity,
 			order_items.price_at_order,
 			orders.buyer_user_id
 		`).
 		Joins("JOIN order_items ON order_items.order_id = orders.id").
-		Joins("JOIN order_item_details ON order_item_details.order_id = order_items.order_id AND order_item_details.food_id = order_items.food_id").
+		Joins("JOIN order_item_details ON order_item_details.order_item_id = order_items.id").
 		Joins("LEFT JOIN foods ON foods.id = order_items.food_id").
 		Where("orders.order_date = ?", query.Date).
 		Where("order_item_details.user_id = ?", user.ID).
 		Scan(&rows).Error
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return &GetOrderedItemsResponse{Items: []OrderedItem{}}, nil
+		}
 		return nil, err
 	}
 
@@ -83,7 +87,7 @@ func (h *GetOrderedItemsQueryHandler) Handle(ctx context.Context, query *GetOrde
 	return &GetOrderedItemsResponse{
 		Items: lo.Map(rows, func(row OrderItemRow, _ int) OrderedItem {
 			return OrderedItem{
-				FoodID:     row.FoodID,
+				FoodID:     row.FoodID.String(),
 				FoodName:   row.FoodName,
 				FoodURL:    row.FoodURL,
 				Quantity:   row.Quantity,

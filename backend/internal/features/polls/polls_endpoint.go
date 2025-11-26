@@ -2,6 +2,7 @@ package polls
 
 import (
 	"context"
+	"time"
 
 	"github.com/SirNacou/weeate/backend/internal/common/api"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/services"
@@ -41,6 +42,7 @@ func (e *PollsEndpoint) createPoll(ctx context.Context, req *struct {
 	Body services.CreatePollCommand
 },
 ) (*api.Response[services.CreatePollResponse], error) {
+	req.Body.OrderDate = time.Date(req.Body.OrderDate.Year(), req.Body.OrderDate.Month(), req.Body.OrderDate.Day(), 0, 0, 0, 0, time.UTC)
 	res, err := e.createPollCommandHandler.Handle(ctx, req.Body)
 	if err != nil {
 		return nil, err

@@ -11,7 +11,13 @@ import type {
 	GetAuthCentrifugoTokenResponses,
 	GetData,
 	GetErrors,
+	GetOrderedItemsData,
+	GetOrderedItemsErrors,
+	GetOrderedItemsResponses,
 	GetResponses,
+	GetShoppingOrderData,
+	GetShoppingOrderErrors,
+	GetShoppingOrderResponses,
 	ListFoodsData,
 	ListFoodsErrors,
 	ListFoodsResponses,
@@ -43,7 +49,11 @@ import {
 	zGetAuthCentrifugoTokenData,
 	zGetAuthCentrifugoTokenResponse,
 	zGetData,
+	zGetOrderedItemsData,
+	zGetOrderedItemsResponse2,
 	zGetResponse,
+	zGetShoppingOrderData,
+	zGetShoppingOrderResponse2,
 	zListFoodsData,
 	zListFoodsResponse,
 	zListOrdersTodayData,
@@ -84,82 +94,65 @@ export type Options<
  */
 export const get = <ThrowOnError extends boolean = false>(
 	options?: Options<GetData, ThrowOnError>,
-) => {
-	return (options?.client ?? client).get<GetResponses, GetErrors, ThrowOnError>(
-		{
-			requestValidator: async (data) => {
-				return await zGetData.parseAsync(data);
-			},
-			responseValidator: async (data) => {
-				return await zGetResponse.parseAsync(data);
-			},
-			url: "/",
-			...options,
-		},
-	);
-};
+) =>
+	(options?.client ?? client).get<GetResponses, GetErrors, ThrowOnError>({
+		requestValidator: async (data) => await zGetData.parseAsync(data),
+		responseValidator: async (data) => await zGetResponse.parseAsync(data),
+		url: "/",
+		...options,
+	});
 
 /**
  * Get auth centrifugo token
  */
 export const getAuthCentrifugoToken = <ThrowOnError extends boolean = false>(
 	options?: Options<GetAuthCentrifugoTokenData, ThrowOnError>,
-) => {
-	return (options?.client ?? client).get<
+) =>
+	(options?.client ?? client).get<
 		GetAuthCentrifugoTokenResponses,
 		GetAuthCentrifugoTokenErrors,
 		ThrowOnError
 	>({
-		requestValidator: async (data) => {
-			return await zGetAuthCentrifugoTokenData.parseAsync(data);
-		},
-		responseValidator: async (data) => {
-			return await zGetAuthCentrifugoTokenResponse.parseAsync(data);
-		},
+		requestValidator: async (data) =>
+			await zGetAuthCentrifugoTokenData.parseAsync(data),
+		responseValidator: async (data) =>
+			await zGetAuthCentrifugoTokenResponse.parseAsync(data),
 		url: "/auth/centrifugo/token",
 		...options,
 	});
-};
 
 /**
  * List foods
  */
 export const listFoods = <ThrowOnError extends boolean = false>(
 	options?: Options<ListFoodsData, ThrowOnError>,
-) => {
-	return (options?.client ?? client).get<
+) =>
+	(options?.client ?? client).get<
 		ListFoodsResponses,
 		ListFoodsErrors,
 		ThrowOnError
 	>({
-		requestValidator: async (data) => {
-			return await zListFoodsData.parseAsync(data);
-		},
-		responseValidator: async (data) => {
-			return await zListFoodsResponse.parseAsync(data);
-		},
+		requestValidator: async (data) => await zListFoodsData.parseAsync(data),
+		responseValidator: async (data) =>
+			await zListFoodsResponse.parseAsync(data),
 		url: "/foods/",
 		...options,
 	});
-};
 
 /**
  * Post foods
  */
 export const postFoods = <ThrowOnError extends boolean = false>(
 	options: Options<PostFoodsData, ThrowOnError>,
-) => {
-	return (options.client ?? client).post<
+) =>
+	(options.client ?? client).post<
 		PostFoodsResponses,
 		PostFoodsErrors,
 		ThrowOnError
 	>({
-		requestValidator: async (data) => {
-			return await zPostFoodsData.parseAsync(data);
-		},
-		responseValidator: async (data) => {
-			return await zPostFoodsResponse.parseAsync(data);
-		},
+		requestValidator: async (data) => await zPostFoodsData.parseAsync(data),
+		responseValidator: async (data) =>
+			await zPostFoodsResponse.parseAsync(data),
 		url: "/foods/",
 		...options,
 		headers: {
@@ -167,47 +160,40 @@ export const postFoods = <ThrowOnError extends boolean = false>(
 			...options.headers,
 		},
 	});
-};
 
 /**
  * Delete foods by ID
  */
 export const deleteFoodsById = <ThrowOnError extends boolean = false>(
 	options: Options<DeleteFoodsByIdData, ThrowOnError>,
-) => {
-	return (options.client ?? client).delete<
+) =>
+	(options.client ?? client).delete<
 		DeleteFoodsByIdResponses,
 		DeleteFoodsByIdErrors,
 		ThrowOnError
 	>({
-		requestValidator: async (data) => {
-			return await zDeleteFoodsByIdData.parseAsync(data);
-		},
-		responseValidator: async (data) => {
-			return await zDeleteFoodsByIdResponse.parseAsync(data);
-		},
+		requestValidator: async (data) =>
+			await zDeleteFoodsByIdData.parseAsync(data),
+		responseValidator: async (data) =>
+			await zDeleteFoodsByIdResponse.parseAsync(data),
 		url: "/foods/{id}",
 		...options,
 	});
-};
 
 /**
  * Put foods by ID
  */
 export const putFoodsById = <ThrowOnError extends boolean = false>(
 	options: Options<PutFoodsByIdData, ThrowOnError>,
-) => {
-	return (options.client ?? client).put<
+) =>
+	(options.client ?? client).put<
 		PutFoodsByIdResponses,
 		PutFoodsByIdErrors,
 		ThrowOnError
 	>({
-		requestValidator: async (data) => {
-			return await zPutFoodsByIdData.parseAsync(data);
-		},
-		responseValidator: async (data) => {
-			return await zPutFoodsByIdResponse.parseAsync(data);
-		},
+		requestValidator: async (data) => await zPutFoodsByIdData.parseAsync(data),
+		responseValidator: async (data) =>
+			await zPutFoodsByIdResponse.parseAsync(data),
 		url: "/foods/{id}",
 		...options,
 		headers: {
@@ -215,47 +201,59 @@ export const putFoodsById = <ThrowOnError extends boolean = false>(
 			...options.headers,
 		},
 	});
-};
+
+/**
+ * Get ordered items
+ */
+export const getOrderedItems = <ThrowOnError extends boolean = false>(
+	options?: Options<GetOrderedItemsData, ThrowOnError>,
+) =>
+	(options?.client ?? client).get<
+		GetOrderedItemsResponses,
+		GetOrderedItemsErrors,
+		ThrowOnError
+	>({
+		requestValidator: async (data) =>
+			await zGetOrderedItemsData.parseAsync(data),
+		responseValidator: async (data) =>
+			await zGetOrderedItemsResponse2.parseAsync(data),
+		url: "/ordered-items",
+		...options,
+	});
 
 /**
  * List orders today
  */
 export const listOrdersToday = <ThrowOnError extends boolean = false>(
 	options?: Options<ListOrdersTodayData, ThrowOnError>,
-) => {
-	return (options?.client ?? client).get<
+) =>
+	(options?.client ?? client).get<
 		ListOrdersTodayResponses,
 		ListOrdersTodayErrors,
 		ThrowOnError
 	>({
-		requestValidator: async (data) => {
-			return await zListOrdersTodayData.parseAsync(data);
-		},
-		responseValidator: async (data) => {
-			return await zListOrdersTodayResponse.parseAsync(data);
-		},
+		requestValidator: async (data) =>
+			await zListOrdersTodayData.parseAsync(data),
+		responseValidator: async (data) =>
+			await zListOrdersTodayResponse.parseAsync(data),
 		url: "/orders/today",
 		...options,
 	});
-};
 
 /**
  * Post polls
  */
 export const postPolls = <ThrowOnError extends boolean = false>(
 	options: Options<PostPollsData, ThrowOnError>,
-) => {
-	return (options.client ?? client).post<
+) =>
+	(options.client ?? client).post<
 		PostPollsResponses,
 		PostPollsErrors,
 		ThrowOnError
 	>({
-		requestValidator: async (data) => {
-			return await zPostPollsData.parseAsync(data);
-		},
-		responseValidator: async (data) => {
-			return await zPostPollsResponse.parseAsync(data);
-		},
+		requestValidator: async (data) => await zPostPollsData.parseAsync(data),
+		responseValidator: async (data) =>
+			await zPostPollsResponse.parseAsync(data),
 		url: "/polls/",
 		...options,
 		headers: {
@@ -263,69 +261,60 @@ export const postPolls = <ThrowOnError extends boolean = false>(
 			...options.headers,
 		},
 	});
-};
 
 /**
  * List polls today
  */
 export const listPollsToday = <ThrowOnError extends boolean = false>(
 	options?: Options<ListPollsTodayData, ThrowOnError>,
-) => {
-	return (options?.client ?? client).get<
+) =>
+	(options?.client ?? client).get<
 		ListPollsTodayResponses,
 		ListPollsTodayErrors,
 		ThrowOnError
 	>({
-		requestValidator: async (data) => {
-			return await zListPollsTodayData.parseAsync(data);
-		},
-		responseValidator: async (data) => {
-			return await zListPollsTodayResponse.parseAsync(data);
-		},
+		requestValidator: async (data) =>
+			await zListPollsTodayData.parseAsync(data),
+		responseValidator: async (data) =>
+			await zListPollsTodayResponse.parseAsync(data),
 		url: "/polls/today",
 		...options,
 	});
-};
 
 /**
  * Post polls by ID close
  */
 export const postPollsByIdClose = <ThrowOnError extends boolean = false>(
 	options: Options<PostPollsByIdCloseData, ThrowOnError>,
-) => {
-	return (options.client ?? client).post<
+) =>
+	(options.client ?? client).post<
 		PostPollsByIdCloseResponses,
 		PostPollsByIdCloseErrors,
 		ThrowOnError
 	>({
-		requestValidator: async (data) => {
-			return await zPostPollsByIdCloseData.parseAsync(data);
-		},
-		responseValidator: async (data) => {
-			return await zPostPollsByIdCloseResponse.parseAsync(data);
-		},
+		requestValidator: async (data) =>
+			await zPostPollsByIdCloseData.parseAsync(data),
+		responseValidator: async (data) =>
+			await zPostPollsByIdCloseResponse.parseAsync(data),
 		url: "/polls/{id}/close",
 		...options,
 	});
-};
 
 /**
  * Post polls by ID vote
  */
 export const postPollsByIdVote = <ThrowOnError extends boolean = false>(
 	options: Options<PostPollsByIdVoteData, ThrowOnError>,
-) => {
-	return (options.client ?? client).post<
+) =>
+	(options.client ?? client).post<
 		PostPollsByIdVoteResponses,
 		PostPollsByIdVoteErrors,
 		ThrowOnError
 	>({
-		requestValidator: async (data) => {
-			return await zPostPollsByIdVoteData.parseAsync(data);
-		},
-		responseValidator: async (data) => {
-			return await zPostPollsByIdVoteResponse.parseAsync(data);
-		},
+		requestValidator: async (data) =>
+			await zPostPollsByIdVoteData.parseAsync(data),
+		responseValidator: async (data) =>
+			await zPostPollsByIdVoteResponse.parseAsync(data),
 		url: "/polls/{id}/vote",
 		...options,
 		headers: {
@@ -333,4 +322,22 @@ export const postPollsByIdVote = <ThrowOnError extends boolean = false>(
 			...options.headers,
 		},
 	});
-};
+
+/**
+ * Get shopping order
+ */
+export const getShoppingOrder = <ThrowOnError extends boolean = false>(
+	options?: Options<GetShoppingOrderData, ThrowOnError>,
+) =>
+	(options?.client ?? client).get<
+		GetShoppingOrderResponses,
+		GetShoppingOrderErrors,
+		ThrowOnError
+	>({
+		requestValidator: async (data) =>
+			await zGetShoppingOrderData.parseAsync(data),
+		responseValidator: async (data) =>
+			await zGetShoppingOrderResponse2.parseAsync(data),
+		url: "/shopping-order",
+		...options,
+	});

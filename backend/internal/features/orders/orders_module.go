@@ -13,23 +13,25 @@ import (
 )
 
 type OrdersModule struct {
-	endpoint           *OrdersEndpoint
-	ordersEventHandler *OrdersEventHandler
-	bus                *bus.Bus
+	endpoint     *OrdersEndpoint
+	eventHandler *OrdersEventHandler
+	bus          *bus.Bus
 }
 
 func NewOrdersModule(bus *bus.Bus, db *gorm.DB, supabaseService *auth.SupabaseService) *OrdersModule {
 	getTodayOrderHandler := services.NewGetTodayOrdersQueryHandler(db, supabaseService)
-	ordersEndpoint := NewOrdersEndpoint(getTodayOrderHandler)
+	getOrderedItemsHandler := services.NewGetOrderedItemsQueryHandler(db, supabaseService)
+	getShoppingOrderHandler := services.NewGetShoppingOrderQueryHandler(db, supabaseService)
+	ordersEndpoint := NewOrdersEndpoint(getTodayOrderHandler, getOrderedItemsHandler, getShoppingOrderHandler)
 
 	ordersEventHandler := NewOrdersEventHandler(
 		services.NewCreateOrderCommandHandler(db, supabaseService),
 	)
 
 	return &OrdersModule{
-		endpoint:           ordersEndpoint,
-		ordersEventHandler: ordersEventHandler,
-		bus:                bus,
+		endpoint:     ordersEndpoint,
+		eventHandler: ordersEventHandler,
+		bus:          bus,
 	}
 }
 
@@ -41,9 +43,11 @@ func (m *OrdersModule) RegisterAPI(api huma.API) {
 	})
 
 	huma.Get(group, "/today", http.Handle(m.endpoint.getTodayOrders))
+	huma.Get(api, "/ordered-items", http.Handle(m.endpoint.getOrderedItems))
+	huma.Get(api, "/shopping-order", http.Handle(m.endpoint.getShoppingOrder))
 
 	m.bus.EventProcessor.AddHandlers(
-		cqrs.NewEventHandler("orders.onPollClosed", m.ordersEventHandler.onPollClosed),
+		cqrs.NewEventHandler("orders.onPollClosed", m.eventHandler.onPollClosed),
 	)
 }
 

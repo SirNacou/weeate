@@ -46,6 +46,13 @@ func NewCreateOrderCommandHandler(db *gorm.DB, supabaseService *auth.SupabaseSer
 }
 
 func (h *CreateOrderCommandHandler) Handle(ctx context.Context, req *CreateOrderCommand) error {
+	if req.PollID.IsNil() {
+		slog.WarnContext(ctx, "cannot create order without poll ID",
+			"buyerID", req.BuyerID,
+			"orderDate", req.OrderDate)
+		return domain.ErrPollIDRequired
+	}
+
 	r, err := gorm.G[domain.Order](h.db).Where("order_date = ?", req.OrderDate).
 		Where("buyer_user_id = ?", req.BuyerID).
 		Count(ctx, "")

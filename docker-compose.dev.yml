@@ -11,7 +11,8 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
       - 3000:3000
     volumes:
@@ -28,10 +29,13 @@ services:
     env_file:
       - .env
     depends_on:
-      - postgres
-      - centrifugo
+      postgres:
+        condition: service_healthy
+      centrifugo:
+        condition: service_healthy
     volumes:
-      - ./backend/:/app/backend/:ro
+      - ./backend/:/app/backend/
+      - /app/backend/tmp
       - ./go.mod:/app/go.mod
       - ./go.sum:/app/go.sum
       - ./.air.toml:/app/.air.toml
@@ -41,7 +45,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 20s
 
   centrifugo:
     container_name: centrifugo
@@ -76,7 +80,15 @@ services:
     restart: on-failure
     shm_size: 128mb
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "user", "-d", "appdb"]
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-U",
+          "${POSTGRES_USER:-user}",
+          "-d",
+          "${POSTGRES_DB:-weeate}",
+        ]
       interval: 5s
       timeout: 5s
       retries: 5

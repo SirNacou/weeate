@@ -57,11 +57,11 @@ export type CreatePollCommand = {
 	/**
 	 * Date for which the poll is being created in RFC3339 format
 	 */
-	order_date: Date;
+	order_date: string;
 	/**
 	 * Scheduled closing time for the poll in RFC3339 format
 	 */
-	scheduled_close_at: Date;
+	scheduled_close_at: string;
 	/**
 	 * Polling strategy to be used
 	 */
@@ -150,6 +150,23 @@ export type GetFoodsQueryResponse = {
 	user: UserProfile;
 };
 
+export type GetOrderedItemsResponse = {
+	/**
+	 * A URL to the JSON Schema for this object.
+	 */
+	readonly $schema?: string;
+	items: Array<OrderedItem> | null;
+};
+
+export type GetShoppingOrderResponse = {
+	/**
+	 * A URL to the JSON Schema for this object.
+	 */
+	readonly $schema?: string;
+	items: Array<ShoppingItem> | null;
+	total_price: number;
+};
+
 export type GetTodayOrdersResponse = {
 	buyer: UserProfile;
 	order_items: Array<OrderItem> | null;
@@ -158,12 +175,12 @@ export type GetTodayOrdersResponse = {
 };
 
 export type GetTodayPollsQueryResponse = {
-	closed_at: Date | null;
+	closed_at: string | null;
 	creator: UserProfile;
 	final_total_price: number;
 	id: string;
 	poll_options: Array<PollOption> | null;
-	scheduled_closes_at: Date;
+	scheduled_closes_at: string;
 	strategy: string;
 };
 
@@ -196,6 +213,16 @@ export type OrderItem = {
 export type OrderItemDetail = {
 	quantity: number;
 	user: UserProfile;
+};
+
+export type OrderedItem = {
+	buyer: UserProfile;
+	food_id: string;
+	food_name: string;
+	food_url: string;
+	quantity: number;
+	total_price: number;
+	unit_price: number;
 };
 
 export type PollOption = {
@@ -239,13 +266,22 @@ export type PutByIdRequest = {
 	price: number;
 };
 
+export type ShoppingItem = {
+	food_id: string;
+	food_name: string;
+	quantity: number;
+	total_price: number;
+	unit_price: number;
+	users: Array<UserProfile> | null;
+};
+
 export type UserMetadata = {
 	email_verified: boolean;
 };
 
 export type UserProfile = {
 	avatar_url: string;
-	created_at: Date;
+	created_at: string;
 	display_name: string;
 	id: string;
 };
@@ -288,11 +324,11 @@ export type CreatePollCommandWritable = {
 	/**
 	 * Date for which the poll is being created in RFC3339 format
 	 */
-	order_date: Date;
+	order_date: string;
 	/**
 	 * Scheduled closing time for the poll in RFC3339 format
 	 */
-	scheduled_close_at: Date;
+	scheduled_close_at: string;
 	/**
 	 * Polling strategy to be used
 	 */
@@ -338,6 +374,15 @@ export type GetCentrifugoJwtResponseWritable = {
 	 * The generated JWT token for Centrifugo authentication
 	 */
 	token: string;
+};
+
+export type GetOrderedItemsResponseWritable = {
+	items: Array<OrderedItem> | null;
+};
+
+export type GetShoppingOrderResponseWritable = {
+	items: Array<ShoppingItem> | null;
+	total_price: number;
 };
 
 export type PostByIdVoteRequestWritable = {
@@ -536,6 +581,38 @@ export type PutFoodsByIdResponses = {
 export type PutFoodsByIdResponse =
 	PutFoodsByIdResponses[keyof PutFoodsByIdResponses];
 
+export type GetOrderedItemsData = {
+	body?: never;
+	path?: never;
+	query?: {
+		/**
+		 * The date to get ordered items for
+		 */
+		date?: string;
+	};
+	url: "/ordered-items";
+};
+
+export type GetOrderedItemsErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type GetOrderedItemsError =
+	GetOrderedItemsErrors[keyof GetOrderedItemsErrors];
+
+export type GetOrderedItemsResponses = {
+	/**
+	 * OK
+	 */
+	200: GetOrderedItemsResponse;
+};
+
+export type GetOrderedItemsResponse2 =
+	GetOrderedItemsResponses[keyof GetOrderedItemsResponses];
+
 export type ListOrdersTodayData = {
 	body?: never;
 	path?: never;
@@ -678,3 +755,35 @@ export type PostPollsByIdVoteResponses = {
 
 export type PostPollsByIdVoteResponse =
 	PostPollsByIdVoteResponses[keyof PostPollsByIdVoteResponses];
+
+export type GetShoppingOrderData = {
+	body?: never;
+	path?: never;
+	query?: {
+		/**
+		 * The date to get the shopping order for
+		 */
+		date?: string;
+	};
+	url: "/shopping-order";
+};
+
+export type GetShoppingOrderErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type GetShoppingOrderError =
+	GetShoppingOrderErrors[keyof GetShoppingOrderErrors];
+
+export type GetShoppingOrderResponses = {
+	/**
+	 * OK
+	 */
+	200: GetShoppingOrderResponse;
+};
+
+export type GetShoppingOrderResponse2 =
+	GetShoppingOrderResponses[keyof GetShoppingOrderResponses];
