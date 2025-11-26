@@ -17,7 +17,7 @@ services:
       - 3000:3000
     volumes:
       - ./frontend/:/app/frontend/
-      - ./.env:/app/.env
+      - /app/frontend/node_modules
     restart: on-failure
 
   backend:

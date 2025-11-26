@@ -18,7 +18,7 @@ type GetFoodsQuery struct {
 type GetFoodsQueryResponse struct {
 	ID          uuid.UUID        `json:"id"`
 	Name        string           `json:"name"`
-	ImageURL    *string          `json:"image_url,omitempty"`
+	ImageURL    *string          `json:"image_url"`
 	Description string           `json:"description"`
 	Price       int64            `json:"price"`
 	User        auth.UserProfile `json:"user"`

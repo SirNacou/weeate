@@ -20,8 +20,8 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/healthcheck"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	slogfiber "github.com/samber/slog-fiber"
 	"gorm.io/gorm"
 )
@@ -73,6 +73,7 @@ func (s *Server) buildHandler(ctx context.Context) (http.Handler, []func(context
 	app.Use(authMiddleware)
 
 	api := humafiber.New(app, huma.DefaultConfig("Weeate API", "v1.0.0"))
+	huma.DefaultArrayNullable = false
 
 	authModule := auth.NewAuthModule(s.config)
 	authModule.RegisterAPI(api)

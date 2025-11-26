@@ -1,9 +1,16 @@
+import { GetShoppingOrderResponseWritable } from "@/client";
 import {
   AvatarGroup,
   AvatarGroupTooltip,
 } from "@/components/animate-ui/components/animate/avatar-group";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Item,
   ItemContent,
@@ -13,63 +20,57 @@ import {
 } from "@/components/ui/item";
 import { AvatarImage } from "@radix-ui/react-avatar";
 
-type Props = {};
+type Props = {
+  shoppingOrder: GetShoppingOrderResponseWritable;
+};
 
-const ShoppingCard = ({}: Props) => {
+const ShoppingCard = ({ shoppingOrder }: Props) => {
   return (
     <div className="flex flex-col gap-3">
       <h3 className="text-2xl font-bold">Shopping List</h3>
       <Card>
         <CardHeader>
           <CardTitle className="flex justify-between text-xl">
-            <span>Total items: 3</span>
-            <span>
-              {Intl.NumberFormat("vi-VN", {
-                style: "currency",
-                currency: "VND",
-              }).format(100000)}
-            </span>
+            <span>Total items: {shoppingOrder.items?.length ?? 0}</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 p-4">
-          {[1, 2].map((item) => (
-            <Item key={item} variant={"outline"}>
+          {shoppingOrder.items.map((item) => (
+            <Item key={item.food_id} variant={"outline"}>
               <ItemMedia>
                 <AvatarGroup>
-                  <Avatar key={0}>
-                    <AvatarImage src={""} />
-                    <AvatarFallback>BY</AvatarFallback>
-                    <AvatarGroupTooltip>Buyer</AvatarGroupTooltip>
-                  </Avatar>
-
-                  <Avatar key={1}>
-                    <AvatarImage src={""} />
-                    <AvatarFallback>BY</AvatarFallback>
-                    <AvatarGroupTooltip>Buyer2</AvatarGroupTooltip>
-                  </Avatar>
+                  {item.users.map((user) => (
+                    <Avatar key={user.id}>
+                      <AvatarImage src={user.avatar_url} />
+                      <AvatarFallback>
+                        {user.display_name.slice(0, 2)}
+                      </AvatarFallback>
+                      <AvatarGroupTooltip>
+                        {user.display_name}
+                      </AvatarGroupTooltip>
+                    </Avatar>
+                  ))}
                 </AvatarGroup>
               </ItemMedia>
               <ItemContent>
-                <ItemTitle>Test</ItemTitle>
-                <ItemDescription>Quantity: 1</ItemDescription>
+                <ItemTitle>{item.food_name}</ItemTitle>
+                <ItemDescription>Quantity: {item.quantity}</ItemDescription>
               </ItemContent>
             </Item>
           ))}
         </CardContent>
 
-        {/* <CardFooter className="flex justify-between">
-          <div className="flex items-center gap-2">
-            <Avatar className="size-8 sm:size-10">
-              <AvatarImage src={""} />
-              <AvatarFallback>BY</AvatarFallback>
-            </Avatar>
-            <h3 className="text-base sm:text-lg leading-tight text-primary">
-              Buyer
-            </h3>
+        <CardFooter className="flex justify-end items-center">
+          <div className="flex flex-col sm:flex-row items-center justify-end w-full text-lg">
+            <span className="font-bold mr-2">Total Cost:</span>
+            <span className="font-medium text-slate-700">
+              {Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              }).format(shoppingOrder.total_price)}
+            </span>
           </div>
-
-          <QRPayDialog />
-        </CardFooter> */}
+        </CardFooter>
       </Card>
     </div>
   );

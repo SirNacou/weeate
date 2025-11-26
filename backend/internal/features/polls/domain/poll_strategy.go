@@ -8,7 +8,7 @@ import (
 type PollStrategy string
 
 const (
-	OrderMultiple  PollStrategy = "ORDER_MULTIPLE_ITEMS"
+	OrderMultiple  PollStrategy = "ORDER_PERSONAL_CHOICE"
 	OrderConsensus PollStrategy = "ORDER_CONSENSUS_ITEM"
 )
 

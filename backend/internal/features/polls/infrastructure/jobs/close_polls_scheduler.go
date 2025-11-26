@@ -84,8 +84,9 @@ func (s *ClosePollScheduler) TriggerUpdate() {
 }
 
 func (s *ClosePollScheduler) closeDuePolls(ctx context.Context) {
-	duePolls, err := gorm.G[domain.Poll](s.db).Where("closed_at IS NULL").
-		Where("scheduled_closes_at <= ? AND closed_at IS NULL", time.Now()).
+	duePolls, err := gorm.G[domain.Poll](s.db).
+		Where("closed_at IS NULL").
+		Where("scheduled_closes_at <= ?", time.Now()).
 		Find(ctx)
 	if err != nil {
 		slog.ErrorContext(ctx, "Failed to fetch due polls", "error", err)

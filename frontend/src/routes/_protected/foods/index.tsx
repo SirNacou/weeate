@@ -36,7 +36,9 @@ function Foods() {
       <div className="flex justify-end">
         <AddFoodDialog />
       </div>
-      <DataTable columns={columns} data={data ?? []} />
+      <div className="rounded-lg">
+        <DataTable columns={columns} data={data ?? []} />
+      </div>
     </div>
   );
 }

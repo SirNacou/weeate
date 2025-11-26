@@ -42,7 +42,7 @@ export type AppMetadata = {
 	avatar_url: string;
 	display_name: string;
 	provider: string;
-	providers: Array<string> | null;
+	providers: Array<string>;
 };
 
 export type CreatePollCommand = {
@@ -53,7 +53,7 @@ export type CreatePollCommand = {
 	/**
 	 * List of food IDs to include in the poll
 	 */
-	food_ids: Array<string> | null;
+	food_ids: Array<string>;
 	/**
 	 * Date for which the poll is being created in RFC3339 format
 	 */
@@ -106,7 +106,7 @@ export type ErrorModel = {
 	/**
 	 * Optional list of individual error details
 	 */
-	errors?: Array<ErrorDetail> | null;
+	errors?: Array<ErrorDetail>;
 	/**
 	 * A URI reference that identifies the specific occurrence of the problem.
 	 */
@@ -127,6 +127,7 @@ export type ErrorModel = {
 
 export type Food = {
 	id: string;
+	image_url: string | null;
 	name: string;
 };
 
@@ -144,7 +145,7 @@ export type GetCentrifugoJwtResponse = {
 export type GetFoodsQueryResponse = {
 	description: string;
 	id: string;
-	image_url?: string;
+	image_url: string | null;
 	name: string;
 	price: number;
 	user: UserProfile;
@@ -155,7 +156,7 @@ export type GetOrderedItemsResponse = {
 	 * A URL to the JSON Schema for this object.
 	 */
 	readonly $schema?: string;
-	items: Array<OrderedItem> | null;
+	items: Array<OrderedItem>;
 };
 
 export type GetShoppingOrderResponse = {
@@ -163,13 +164,13 @@ export type GetShoppingOrderResponse = {
 	 * A URL to the JSON Schema for this object.
 	 */
 	readonly $schema?: string;
-	items: Array<ShoppingItem> | null;
+	items: Array<ShoppingItem>;
 	total_price: number;
 };
 
 export type GetTodayOrdersResponse = {
 	buyer: UserProfile;
-	order_items: Array<OrderItem> | null;
+	order_items: Array<OrderItem>;
 	poll_id: string;
 	total_price: number;
 };
@@ -177,11 +178,11 @@ export type GetTodayOrdersResponse = {
 export type GetTodayPollsQueryResponse = {
 	closed_at: string | null;
 	creator: UserProfile;
-	final_total_price: number;
 	id: string;
-	poll_options: Array<PollOption> | null;
+	order_date: string;
+	poll_options: Array<PollOption>;
 	scheduled_closes_at: string;
-	strategy: string;
+	strategy: "ORDER_CONSENSUS_ITEM" | "ORDER_PERSONAL_CHOICE";
 };
 
 export type Identity = {
@@ -204,7 +205,7 @@ export type IdentityData = {
 };
 
 export type OrderItem = {
-	details: Array<OrderItemDetail> | null;
+	details: Array<OrderItemDetail>;
 	food_image_url: string | null;
 	food_name: string;
 	price_at_order: number;
@@ -229,7 +230,7 @@ export type PollOption = {
 	food: Food;
 	id: string;
 	price_at_creation: number;
-	votes: Array<Vote> | null;
+	votes: Array<Vote>;
 };
 
 export type PostByIdVoteRequest = {
@@ -272,7 +273,7 @@ export type ShoppingItem = {
 	quantity: number;
 	total_price: number;
 	unit_price: number;
-	users: Array<UserProfile> | null;
+	users: Array<UserProfile>;
 };
 
 export type UserMetadata = {
@@ -320,7 +321,7 @@ export type CreatePollCommandWritable = {
 	/**
 	 * List of food IDs to include in the poll
 	 */
-	food_ids: Array<string> | null;
+	food_ids: Array<string>;
 	/**
 	 * Date for which the poll is being created in RFC3339 format
 	 */
@@ -350,7 +351,7 @@ export type ErrorModelWritable = {
 	/**
 	 * Optional list of individual error details
 	 */
-	errors?: Array<ErrorDetail> | null;
+	errors?: Array<ErrorDetail>;
 	/**
 	 * A URI reference that identifies the specific occurrence of the problem.
 	 */
@@ -377,11 +378,11 @@ export type GetCentrifugoJwtResponseWritable = {
 };
 
 export type GetOrderedItemsResponseWritable = {
-	items: Array<OrderedItem> | null;
+	items: Array<OrderedItem>;
 };
 
 export type GetShoppingOrderResponseWritable = {
-	items: Array<ShoppingItem> | null;
+	items: Array<ShoppingItem>;
 	total_price: number;
 };
 
@@ -488,7 +489,7 @@ export type ListFoodsResponses = {
 	/**
 	 * OK
 	 */
-	200: Array<GetFoodsQueryResponse> | null;
+	200: Array<GetFoodsQueryResponse>;
 };
 
 export type ListFoodsResponse = ListFoodsResponses[keyof ListFoodsResponses];
@@ -634,7 +635,7 @@ export type ListOrdersTodayResponses = {
 	/**
 	 * OK
 	 */
-	200: Array<GetTodayOrdersResponse> | null;
+	200: Array<GetTodayOrdersResponse>;
 };
 
 export type ListOrdersTodayResponse =
@@ -686,7 +687,7 @@ export type ListPollsTodayResponses = {
 	/**
 	 * OK
 	 */
-	200: Array<GetTodayPollsQueryResponse> | null;
+	200: Array<GetTodayPollsQueryResponse>;
 };
 
 export type ListPollsTodayResponse =
