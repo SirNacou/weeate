@@ -50,7 +50,19 @@ func (h *CreateOrderCommandHandler) Handle(ctx context.Context, req *CreateOrder
 		slog.WarnContext(ctx, "cannot create order without poll ID",
 			"buyerID", req.BuyerID,
 			"orderDate", req.OrderDate)
-		return domain.ErrPollIDRequired
+		return nil
+	}
+
+	totalVote := lo.SumBy(req.Results, func(r OptionResult) int {
+		return len(r.Votes)
+	})
+
+	if len(req.Results) == 0 || totalVote == 0 {
+		slog.InfoContext(ctx, "poll closed with no votes, skipping order creation",
+			"pollID", req.PollID,
+			"buyerID", req.BuyerID,
+			"orderDate", req.OrderDate)
+		return nil // Don't return error - this is a valid case
 	}
 
 	r, err := gorm.G[domain.Order](h.db).Where("order_date = ?", req.OrderDate).
@@ -104,6 +116,9 @@ func (h *CreateOrderCommandHandler) Handle(ctx context.Context, req *CreateOrder
 
 	orderItems := make([]domain.OrderItem, 0)
 	for _, option := range req.Results {
+		if len(option.Votes) == 0 {
+			continue
+		}
 		orderItemDetails := make([]domain.OrderItemDetail, 0)
 		for _, vote := range option.Votes {
 			orderItemDetails = append(orderItemDetails, *domain.NewOrderItemDetail(vote.UserID, vote.Quantity))

@@ -15,7 +15,7 @@ type GetOrderedItemsQuery struct {
 }
 
 type GetOrderedItemsResponse struct {
-	Items []OrderedItem `json:"items"`
+	Items []OrderedItem `json:"items" nullable:"false"`
 }
 
 type OrderedItem struct {

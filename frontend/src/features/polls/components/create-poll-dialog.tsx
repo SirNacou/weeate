@@ -2,6 +2,7 @@ import { serverClient } from "@/api";
 import {
   CreatePollCommand,
   CreatePollCommandWritable,
+  GetTodayPollsQueryResponse,
   postPolls,
 } from "@/client";
 import {
@@ -95,17 +96,21 @@ const createPollServerFn = createServerFn({ method: "POST" })
   });
 
 type Props = {
-  userPollExists?: boolean;
+  userPoll?: GetTodayPollsQueryResponse;
 };
 
-const CreatePollDialog = ({ userPollExists }: Props) => {
+const CreatePollDialog = ({ userPoll }: Props) => {
   const [open, setOpen] = useState(false);
   const { user } = ProtectedRoute.useRouteContext();
   const queryClient = useQueryClient();
   const getFoodsServer = useServerFn(getFoodsServerFn);
+  const createPollServer = useServerFn(createPollServerFn);
+
+  const existed = !!userPoll;
+  const disabled = userPoll?.closed_at !== null;
 
   const createPoll = useMutation({
-    mutationFn: createPollServerFn,
+    mutationFn: createPollServer,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: listPollsTodayQueryKey(),
@@ -349,7 +354,7 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
               />
             </FieldGroup>
           </div>
-          {userPollExists && (
+          {existed && !disabled && (
             <Alert variant="warning" appearance="light" className="mt-4">
               <AlertIcon>
                 <LucideAlertTriangle />
@@ -357,8 +362,21 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
               <AlertContent>
                 <AlertTitle>Warning</AlertTitle>
                 <AlertDescription>
-                  A poll already exists for today, it will be replaced and all
-                  existing votes will be lost.
+                  A poll for tomorrow order already exists, it will be replaced
+                  and all existing votes will be lost.
+                </AlertDescription>
+              </AlertContent>
+            </Alert>
+          )}
+          {disabled && (
+            <Alert variant="destructive" appearance="light" className="mt-4">
+              <AlertIcon>
+                <LucideAlertTriangle />
+              </AlertIcon>
+              <AlertContent>
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>
+                  You cannot replace a poll that has already been closed.
                 </AlertDescription>
               </AlertContent>
             </Alert>
@@ -374,7 +392,7 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
               <Button
                 form="create-poll-form"
                 type="submit"
-                disabled={!canSubmit}
+                disabled={!canSubmit || disabled}
               >
                 {isSubmitting ?
                   <>

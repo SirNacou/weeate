@@ -8,7 +8,10 @@ export const getCentrifugoTokenServerFn = createServerFn({
   const resp = await getAuthCentrifugoToken({ client: serverClient });
   if (resp.error) {
     console.error("Failed to get Centrifugo token:", resp.error);
-    throw new Error("Failed to get Centrifugo token");
+    return {
+      error:
+        resp.error.errors?.at(0)?.message ?? "Failed to get Centrifugo token",
+    };
   }
-  return resp.data;
+  return { data: resp.data };
 });

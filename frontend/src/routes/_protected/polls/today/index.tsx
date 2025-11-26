@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listPollsTodayServerFn } from "@/features/polls/api/get-today-polls";
 import CreatePollDialog from "@/features/polls/components/create-poll-dialog";
 import PollCard from "@/features/polls/components/poll-card";
+import { CentrifugoProvider } from "@/lib/centrifugo/centrifugo-context";
 import { useSubscription } from "@/lib/centrifugo/use-subscription";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -17,28 +18,42 @@ export const Route = createFileRoute("/_protected/polls/today/")({
       pageTitle: "Today's Polls",
     };
   },
-  loader: async ({ abortController, context }) => {
-    const polls = await listPollsTodayServerFn({
+  loader: async ({ abortController }) => {
+    const res = await listPollsTodayServerFn({
       signal: abortController.signal,
     });
-    // Pre-populate query cache for instant hydration
-    context.queryClient.setQueryData(listPollsTodayQueryKey(), polls);
-    return { polls };
+    return { polls: res.data || [], error: res.error };
   },
 });
 
 function RouteComponent() {
+  return (
+    <CentrifugoProvider>
+      <PollsContent />
+    </CentrifugoProvider>
+  );
+}
+
+function PollsContent() {
   const { polls } = Route.useLoaderData();
   const { user } = Route.useRouteContext();
+  console.log("polls loader data", polls);
 
   const queryClient = useQueryClient();
 
   // Wrap server function for client-side use
   const fetchPolls = useServerFn(listPollsTodayServerFn);
 
-  const { data = polls } = useQuery({
+  const { data } = useQuery({
     queryKey: listPollsTodayQueryKey(),
-    queryFn: () => fetchPolls(),
+    queryFn: async () => {
+      const res = await fetchPolls();
+      if (res.error) {
+        toast.error(res.error);
+        throw new Error(res.error);
+      }
+      return res.data || [];
+    },
     initialData: polls,
     staleTime: 30000, // Consider data fresh for 30s to prevent immediate refetch
   });
@@ -50,7 +65,12 @@ function RouteComponent() {
       <div className="flex flex-col gap-3">
         <div className="flex w-full flex-col items-center justify-end gap-3 sm:flex-row">
           <CreatePollDialog
-            userPollExists={data?.some((poll) => poll.creator?.id === user?.id)}
+            userPoll={data.find(
+              (poll) =>
+                poll.creator?.id === user?.id &&
+                new Date(poll.order_date).toISOString().split("T")[0] ===
+                  new Date().toISOString().split("T")[0]
+            )}
           />
         </div>
 
@@ -83,31 +103,7 @@ function RouteComponent() {
 
       <div className="grid grid-cols-1 gap-6">
         {data?.map((poll) => {
-          return (
-            <PollCard
-              key={poll.id}
-              pollId={poll.id}
-              avatarUrl={poll.creator?.avatar_url}
-              buyerName={poll.creator?.display_name || "Unknown"}
-              scheduled_close_at={new Date(poll.scheduled_closes_at)}
-              closed_at={poll.closed_at ? new Date(poll.closed_at) : null}
-              strategy={poll.strategy as any}
-              options={
-                poll.poll_options?.map((option) => ({
-                  id: option.id || "",
-                  foodName: option.food?.name || "Unknown Food",
-                  foodImageUrl: "",
-                  price: option.price_at_creation || 0,
-                  votes:
-                    option.votes?.map((vote) => ({
-                      userId: vote.voter?.id || "",
-                      userName: vote.voter?.display_name || "Unknown",
-                      userAvatarUrl: vote.voter?.avatar_url,
-                    })) || [],
-                })) || []
-              }
-            />
-          );
+          return <PollCard key={poll.id} poll={poll} />;
         })}
       </div>
     </div>

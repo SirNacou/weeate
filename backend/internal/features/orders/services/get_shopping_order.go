@@ -17,7 +17,7 @@ type GetShoppingOrderQuery struct {
 
 type GetShoppingOrderResponse struct {
 	// Define the response fields here
-	Items      []ShoppingItem `json:"items"`
+	Items      []ShoppingItem `json:"items" nullable:"false" minItems:"1"`
 	TotalPrice int64          `json:"total_price"`
 }
 
@@ -27,7 +27,7 @@ type ShoppingItem struct {
 	Quantity   int64              `json:"quantity"`
 	UnitPrice  int64              `json:"unit_price"`
 	TotalPrice int64              `json:"total_price"`
-	Users      []auth.UserProfile `json:"users"`
+	Users      []auth.UserProfile `json:"users" nullable:"false" minItems:"1"`
 }
 
 type GetShoppingOrderQueryHandler struct {

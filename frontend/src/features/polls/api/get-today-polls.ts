@@ -11,9 +11,11 @@ export const listPollsTodayServerFn = createServerFn({ method: "GET" }).handler(
     console.log("Today Polls Data:", data, "Error:", error);
 
     if (error) {
-      throw error;
+      return {
+        error: error.errors?.at(0)?.message ?? "Failed to fetch today's polls",
+      };
     }
 
-    return data;
+    return { data };
   }
 );

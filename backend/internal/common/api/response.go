@@ -5,5 +5,9 @@ type Response[T any] struct {
 }
 
 func NewResponse[T any](body *T) *Response[T] {
+	if body == nil {
+		var empty T
+		return &Response[T]{Body: empty}
+	}
 	return &Response[T]{Body: *body}
 }

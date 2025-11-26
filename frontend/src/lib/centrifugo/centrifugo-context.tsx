@@ -53,7 +53,7 @@ export const CentrifugoProvider: React.FC<Props> = ({ children }) => {
       getToken: async () => {
         try {
           const res = await getCentrifugoToken();
-          return res.token;
+          return res.data?.token ?? "";
         } catch (error) {
           console.error("Error fetching Centrifugo token:", error);
           return "";

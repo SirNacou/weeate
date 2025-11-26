@@ -1,5 +1,5 @@
 import { serverClient } from "@/api";
-import { postPollsByIdVote } from "@/client";
+import { GetTodayPollsQueryResponse, postPollsByIdVote } from "@/client";
 import { listPollsTodayQueryKey } from "@/client/@tanstack/react-query.gen";
 import { zPostPollsByIdVoteData } from "@/client/zod.gen";
 import CloseTimer from "@/components/close-timer";
@@ -8,6 +8,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -19,7 +20,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import PollOption, { Option } from "./poll-option";
+import PollOptionRadio from "./poll-option";
 import PollStrategyBadge from "./poll-strategy-badge";
 
 const castVoteServerFn = createServerFn({ method: "POST" })
@@ -39,28 +40,22 @@ const castVoteServerFn = createServerFn({ method: "POST" })
   });
 
 type Props = {
-  pollId: string;
-  buyerName: string;
-  avatarUrl: string;
-  scheduled_close_at: Date;
-  closed_at: Date | null;
-  strategy: "ORDER_CONSENSUS_ITEM" | "ORDER_PERSONAL_CHOICE";
-  options: Option[];
+  poll: GetTodayPollsQueryResponse;
 };
 
-const PollCard = ({
-  pollId,
-  buyerName,
-  avatarUrl,
-  scheduled_close_at,
-  closed_at,
-  strategy,
-  options,
-}: Props) => {
+const PollCard = ({ poll }: Props) => {
   const { user } = Route.useRouteContext();
+  const {
+    id,
+    creator: { display_name: buyerName, avatar_url: avatarUrl },
+    scheduled_closes_at,
+    closed_at,
+    strategy,
+    poll_options,
+  } = poll;
 
-  const initialSelectedOption = options?.find((option) =>
-    option.votes?.some((vote) => vote.userId === user.id)
+  const initialSelectedOption = poll_options?.find((option) =>
+    option.votes?.some((vote) => vote.voter?.id === user.id)
   );
 
   const queryClient = useQueryClient();
@@ -71,13 +66,13 @@ const PollCard = ({
         id: z
           .string()
           .nonempty({ message: "Please select an option" })
-          .refine((val) => options.some((option) => option.id === val), {
+          .refine((val) => poll_options.some((option) => option.id === val), {
             message: "Invalid option selected",
           }),
         isSelected: z.boolean(),
       }),
     });
-  }, [options]);
+  }, [poll_options]);
 
   const castVoteMutation = useMutation({
     mutationFn: castVoteServerFn,
@@ -115,7 +110,7 @@ const PollCard = ({
         .mutateAsync({
           data: {
             path: {
-              id: pollId,
+              id,
             },
             body: {
               poll_option_id: value.selectedOption.id,
@@ -139,7 +134,7 @@ const PollCard = ({
     >
       <Card>
         <CardHeader>
-          <CardTitle className="flex flex-col sm:flex-row text-lg">
+          <CardTitle className="flex flex-col justify-between items-center sm:flex-row text-lg">
             <div className="flex items-center gap-2">
               <Avatar className="size-8 sm:size-10">
                 <AvatarImage src={avatarUrl} />
@@ -149,14 +144,15 @@ const PollCard = ({
               </Avatar>
               <h3 className="text-base sm:text-lg leading-tight">
                 <span className="text-primary font-semibold">{buyerName}</span>{" "}
-                is buying breakfast
+                is buying breakfast for{" "}
+                {new Date(poll.order_date).toLocaleDateString("vi-VN")}
               </h3>
             </div>
           </CardTitle>
           <CardDescription className="mt-1 flex items-center justify-between text-sm sm:text-base">
             <CloseTimer
               className="text-sm sm:text-base shrink-0"
-              closesAt={closed_at || scheduled_close_at}
+              closesAt={closed_at || scheduled_closes_at}
             />
 
             <PollStrategyBadge strategy={strategy} />
@@ -169,8 +165,8 @@ const PollCard = ({
               children={(field) => {
                 return (
                   <div className={"grid grid-cols-1 lg:grid-cols-2 gap-3"}>
-                    {options.map((option) => (
-                      <PollOption
+                    {poll_options.map((option) => (
+                      <PollOptionRadio
                         key={option.id}
                         option={option}
                         disabled={!!closed_at}
@@ -199,6 +195,23 @@ const PollCard = ({
             />
           </FieldGroup>
         </CardContent>
+        <CardFooter>
+          <div className="flex flex-col sm:flex-row items-center justify-end w-full text-lg">
+            <span className="font-bold mr-2">Total Cost:</span>
+            <span className="font-medium text-slate-700">
+              {Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              }).format(
+                poll_options.reduce(
+                  (acc, option) =>
+                    acc + option.price_at_creation * (option.votes.length || 0),
+                  0
+                )
+              )}
+            </span>
+          </div>
+        </CardFooter>
       </Card>
     </form>
   );

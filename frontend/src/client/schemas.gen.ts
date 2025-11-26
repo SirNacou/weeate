@@ -67,7 +67,7 @@ export const AppMetadataSchema = {
 			items: {
 				type: "string",
 			},
-			type: ["array", "null"],
+			type: "array",
 		},
 	},
 	required: ["avatar_url", "display_name", "provider", "providers"],
@@ -90,7 +90,7 @@ export const CreatePollCommandSchema = {
 				type: "string",
 			},
 			minItems: 1,
-			type: ["array", "null"],
+			type: "array",
 		},
 		order_date: {
 			description: "Date for which the poll is being created in RFC3339 format",
@@ -171,7 +171,7 @@ export const ErrorModelSchema = {
 			items: {
 				$ref: "#/components/schemas/ErrorDetail",
 			},
-			type: ["array", "null"],
+			type: "array",
 		},
 		instance: {
 			description:
@@ -210,11 +210,14 @@ export const FoodSchema = {
 		id: {
 			type: "string",
 		},
+		image_url: {
+			type: ["string", "null"],
+		},
 		name: {
 			type: "string",
 		},
 	},
-	required: ["id", "name"],
+	required: ["id", "name", "image_url"],
 	type: "object",
 } as const;
 
@@ -247,7 +250,7 @@ export const GetFoodsQueryResponseSchema = {
 			type: "string",
 		},
 		image_url: {
-			type: "string",
+			type: ["string", "null"],
 		},
 		name: {
 			type: "string",
@@ -260,7 +263,7 @@ export const GetFoodsQueryResponseSchema = {
 			$ref: "#/components/schemas/UserProfile",
 		},
 	},
-	required: ["id", "name", "description", "price", "user"],
+	required: ["id", "name", "image_url", "description", "price", "user"],
 	type: "object",
 } as const;
 
@@ -278,7 +281,7 @@ export const GetOrderedItemsResponseSchema = {
 			items: {
 				$ref: "#/components/schemas/OrderedItem",
 			},
-			type: ["array", "null"],
+			type: "array",
 		},
 	},
 	required: ["items"],
@@ -299,7 +302,8 @@ export const GetShoppingOrderResponseSchema = {
 			items: {
 				$ref: "#/components/schemas/ShoppingItem",
 			},
-			type: ["array", "null"],
+			minItems: 1,
+			type: "array",
 		},
 		total_price: {
 			format: "int64",
@@ -320,7 +324,7 @@ export const GetTodayOrdersResponseSchema = {
 			items: {
 				$ref: "#/components/schemas/OrderItem",
 			},
-			type: ["array", "null"],
+			type: "array",
 		},
 		poll_id: {
 			type: "string",
@@ -344,24 +348,25 @@ export const GetTodayPollsQueryResponseSchema = {
 		creator: {
 			$ref: "#/components/schemas/UserProfile",
 		},
-		final_total_price: {
-			format: "int64",
-			type: "integer",
-		},
 		id: {
+			type: "string",
+		},
+		order_date: {
+			format: "date-time",
 			type: "string",
 		},
 		poll_options: {
 			items: {
 				$ref: "#/components/schemas/PollOption",
 			},
-			type: ["array", "null"],
+			type: "array",
 		},
 		scheduled_closes_at: {
 			format: "date-time",
 			type: "string",
 		},
 		strategy: {
+			enum: ["ORDER_CONSENSUS_ITEM", "ORDER_PERSONAL_CHOICE"],
 			type: "string",
 		},
 	},
@@ -369,10 +374,10 @@ export const GetTodayPollsQueryResponseSchema = {
 		"id",
 		"creator",
 		"scheduled_closes_at",
-		"final_total_price",
 		"strategy",
 		"closed_at",
 		"poll_options",
+		"order_date",
 	],
 	type: "object",
 } as const;
@@ -449,7 +454,7 @@ export const OrderItemSchema = {
 			items: {
 				$ref: "#/components/schemas/OrderItemDetail",
 			},
-			type: ["array", "null"],
+			type: "array",
 		},
 		food_image_url: {
 			type: ["string", "null"],
@@ -538,7 +543,7 @@ export const PollOptionSchema = {
 			items: {
 				$ref: "#/components/schemas/Vote",
 			},
-			type: ["array", "null"],
+			type: "array",
 		},
 	},
 	required: ["id", "food", "price_at_creation", "votes"],
@@ -622,7 +627,8 @@ export const ShoppingItemSchema = {
 			items: {
 				$ref: "#/components/schemas/UserProfile",
 			},
-			type: ["array", "null"],
+			minItems: 1,
+			type: "array",
 		},
 	},
 	required: [
@@ -725,7 +731,7 @@ export const CreatePollCommandWritableSchema = {
 				type: "string",
 			},
 			minItems: 1,
-			type: ["array", "null"],
+			type: "array",
 		},
 		order_date: {
 			description: "Date for which the poll is being created in RFC3339 format",
@@ -773,7 +779,7 @@ export const ErrorModelWritableSchema = {
 			items: {
 				$ref: "#/components/schemas/ErrorDetail",
 			},
-			type: ["array", "null"],
+			type: "array",
 		},
 		instance: {
 			description:
@@ -825,7 +831,7 @@ export const GetOrderedItemsResponseWritableSchema = {
 			items: {
 				$ref: "#/components/schemas/OrderedItem",
 			},
-			type: ["array", "null"],
+			type: "array",
 		},
 	},
 	required: ["items"],
@@ -839,7 +845,8 @@ export const GetShoppingOrderResponseWritableSchema = {
 			items: {
 				$ref: "#/components/schemas/ShoppingItem",
 			},
-			type: ["array", "null"],
+			minItems: 1,
+			type: "array",
 		},
 		total_price: {
 			format: "int64",

@@ -11,13 +11,12 @@ import (
 
 type Poll struct {
 	domain.Base
-	BuyerID           string         `gorm:"not null;uniqueIndex:idx_poll_order_date_buyer"`
-	OrderDate         time.Time      `gorm:"type:date;not null;uniqueIndex:idx_poll_order_date_buyer"`
-	ScheduledClosesAt time.Time      `gorm:"not null"`
-	Strategy          PollStrategy   `gorm:"type:varchar(100);not null;check:strategy IN ('ORDER_MULTIPLE_ITEMS', 'ORDER_CONSENSUS_ITEM')"`
-	ClosedAt          *time.Time     `gorm:"nullable"`
-	PollOptions       []PollOption   `gorm:"foreignKey:PollID;constraint:OnDelete:CASCADE;"`
-	events            []domain.Event `gorm:"-"`
+	BuyerID           string       `gorm:"not null;uniqueIndex:idx_poll_order_date_buyer"`
+	OrderDate         time.Time    `gorm:"type:date;not null;uniqueIndex:idx_poll_order_date_buyer"`
+	ScheduledClosesAt time.Time    `gorm:"not null"`
+	Strategy          PollStrategy `gorm:"type:varchar(100);not null;check:strategy IN ('ORDER_PERSONAL_CHOICE', 'ORDER_CONSENSUS_ITEM')"`
+	ClosedAt          *time.Time   `gorm:"nullable"`
+	PollOptions       []PollOption `gorm:"foreignKey:PollID;constraint:OnDelete:CASCADE;"`
 }
 
 func NewPoll(orderDate, scheduledClosesAt time.Time, strategy PollStrategy, pollOptions []PollOption, buyerID string) (*Poll, error) {
@@ -43,10 +42,10 @@ func NewPoll(orderDate, scheduledClosesAt time.Time, strategy PollStrategy, poll
 	return poll, nil
 }
 
-func (p *Poll) Close() {
+func (p *Poll) Close() (*Poll, domain.Event) {
 	now := time.Now().UTC()
 	p.ClosedAt = &now
-	p.events = append(p.events, events.PollClosedEvent{
+	event := events.PollClosedEvent{
 		PollID:    p.ID,
 		BuyerID:   p.BuyerID,
 		OrderDate: p.OrderDate,
@@ -64,13 +63,9 @@ func (p *Poll) Close() {
 				}),
 			}
 		}),
-	})
-}
+	}
 
-func (p *Poll) PullEvents() []domain.Event {
-	events := p.events
-	p.events = nil
-	return events
+	return p, event
 }
 
 type CastVoteResult struct {
