@@ -264,6 +264,52 @@ export const GetFoodsQueryResponseSchema = {
 	type: "object",
 } as const;
 
+export const GetOrderedItemsResponseSchema = {
+	additionalProperties: false,
+	properties: {
+		$schema: {
+			description: "A URL to the JSON Schema for this object.",
+			examples: ["https://example.com/schemas/GetOrderedItemsResponse.json"],
+			format: "uri",
+			readOnly: true,
+			type: "string",
+		},
+		items: {
+			items: {
+				$ref: "#/components/schemas/OrderedItem",
+			},
+			type: ["array", "null"],
+		},
+	},
+	required: ["items"],
+	type: "object",
+} as const;
+
+export const GetShoppingOrderResponseSchema = {
+	additionalProperties: false,
+	properties: {
+		$schema: {
+			description: "A URL to the JSON Schema for this object.",
+			examples: ["https://example.com/schemas/GetShoppingOrderResponse.json"],
+			format: "uri",
+			readOnly: true,
+			type: "string",
+		},
+		items: {
+			items: {
+				$ref: "#/components/schemas/ShoppingItem",
+			},
+			type: ["array", "null"],
+		},
+		total_price: {
+			format: "int64",
+			type: "integer",
+		},
+	},
+	required: ["items", "total_price"],
+	type: "object",
+} as const;
+
 export const GetTodayOrdersResponseSchema = {
 	additionalProperties: false,
 	properties: {
@@ -435,6 +481,46 @@ export const OrderItemDetailSchema = {
 	type: "object",
 } as const;
 
+export const OrderedItemSchema = {
+	additionalProperties: false,
+	properties: {
+		buyer: {
+			$ref: "#/components/schemas/UserProfile",
+		},
+		food_id: {
+			type: "string",
+		},
+		food_name: {
+			type: "string",
+		},
+		food_url: {
+			type: "string",
+		},
+		quantity: {
+			format: "int64",
+			type: "integer",
+		},
+		total_price: {
+			format: "int64",
+			type: "integer",
+		},
+		unit_price: {
+			format: "int64",
+			type: "integer",
+		},
+	},
+	required: [
+		"food_id",
+		"food_name",
+		"food_url",
+		"quantity",
+		"unit_price",
+		"total_price",
+		"buyer",
+	],
+	type: "object",
+} as const;
+
 export const PollOptionSchema = {
 	additionalProperties: false,
 	properties: {
@@ -508,6 +594,45 @@ export const Put_by_idRequestSchema = {
 		},
 	},
 	required: ["name", "description", "price"],
+	type: "object",
+} as const;
+
+export const ShoppingItemSchema = {
+	additionalProperties: false,
+	properties: {
+		food_id: {
+			type: "string",
+		},
+		food_name: {
+			type: "string",
+		},
+		quantity: {
+			format: "int64",
+			type: "integer",
+		},
+		total_price: {
+			format: "int64",
+			type: "integer",
+		},
+		unit_price: {
+			format: "int64",
+			type: "integer",
+		},
+		users: {
+			items: {
+				$ref: "#/components/schemas/UserProfile",
+			},
+			type: ["array", "null"],
+		},
+	},
+	required: [
+		"food_id",
+		"food_name",
+		"quantity",
+		"unit_price",
+		"total_price",
+		"users",
+	],
 	type: "object",
 } as const;
 
@@ -690,6 +815,38 @@ export const GetCentrifugoJWTResponseWritableSchema = {
 		},
 	},
 	required: ["token"],
+	type: "object",
+} as const;
+
+export const GetOrderedItemsResponseWritableSchema = {
+	additionalProperties: false,
+	properties: {
+		items: {
+			items: {
+				$ref: "#/components/schemas/OrderedItem",
+			},
+			type: ["array", "null"],
+		},
+	},
+	required: ["items"],
+	type: "object",
+} as const;
+
+export const GetShoppingOrderResponseWritableSchema = {
+	additionalProperties: false,
+	properties: {
+		items: {
+			items: {
+				$ref: "#/components/schemas/ShoppingItem",
+			},
+			type: ["array", "null"],
+		},
+		total_price: {
+			format: "int64",
+			type: "integer",
+		},
+	},
+	required: ["items", "total_price"],
 	type: "object",
 } as const;
 

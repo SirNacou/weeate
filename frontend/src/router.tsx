@@ -11,7 +11,7 @@ export const getRouter = () => {
 
   const router = createRouter({
     routeTree,
-    context: { ...rqContext },
+    context: { ...rqContext, pageTitle: "Weeate" },
     defaultPreload: "intent",
     defaultErrorComponent: ({ error }) => <ErrorComponent error={error} />,
     Wrap: (props: { children: React.ReactNode }) => {

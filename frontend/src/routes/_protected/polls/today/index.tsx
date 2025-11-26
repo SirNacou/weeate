@@ -89,8 +89,8 @@ function RouteComponent() {
               pollId={poll.id}
               avatarUrl={poll.creator?.avatar_url}
               buyerName={poll.creator?.display_name || "Unknown"}
-              scheduled_close_at={poll.scheduled_closes_at}
-              closed_at={poll.closed_at}
+              scheduled_close_at={new Date(poll.scheduled_closes_at)}
+              closed_at={poll.closed_at ? new Date(poll.closed_at) : null}
               strategy={poll.strategy as any}
               options={
                 poll.poll_options?.map((option) => ({

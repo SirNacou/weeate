@@ -12,7 +12,7 @@ import (
 )
 
 type GetShoppingOrderQuery struct {
-	Date time.Time `json:"date" format:"date" doc:"The date to get the shopping order for"`
+	Date time.Time `json:"date" format:"date-time" doc:"The date to get the shopping order for"`
 }
 
 type GetShoppingOrderResponse struct {
@@ -42,7 +42,7 @@ func NewGetShoppingOrderQueryHandler(db *gorm.DB, supabaseService *auth.Supabase
 	}
 }
 
-func (h *GetShoppingOrderQueryHandler) Handle(ctx context.Context, query GetShoppingOrderQuery) (*GetShoppingOrderResponse, error) {
+func (h *GetShoppingOrderQueryHandler) Handle(ctx context.Context, query *GetShoppingOrderQuery) (*GetShoppingOrderResponse, error) {
 	user, ok := auth.UserFromContext(ctx)
 	if !ok {
 		return nil, auth.ErrUserNotFoundInContext

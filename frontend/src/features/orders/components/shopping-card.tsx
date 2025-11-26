@@ -15,7 +15,7 @@ import { AvatarImage } from "@radix-ui/react-avatar";
 
 type Props = {};
 
-const ShoppingCard = (props: Props) => {
+const ShoppingCard = ({}: Props) => {
   return (
     <div className="flex flex-col gap-3">
       <h3 className="text-2xl font-bold">Shopping List</h3>
@@ -32,8 +32,8 @@ const ShoppingCard = (props: Props) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 p-4">
-          {[1, 2].map(() => (
-            <Item variant={"outline"}>
+          {[1, 2].map((item) => (
+            <Item key={item} variant={"outline"}>
               <ItemMedia>
                 <AvatarGroup>
                   <Avatar key={0}>
