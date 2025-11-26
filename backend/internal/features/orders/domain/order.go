@@ -16,18 +16,22 @@ type Order struct {
 	OrderDate   time.Time                 `gorm:"type:date;not null;uniqueIndex:idx_order_buyer_date,sort:desc"`
 	Strategy    polls_domain.PollStrategy `gorm:"not null"`
 	TotalPrice  int64                     `gorm:"not null"`
-	OrderItems  []OrderItem               `gorm:"serializer:json"`
+	OrderItems  []OrderItem               `gorm:"foreignKey:OrderID;constraint:OnDelete:CASCADE"`
 }
 
 type OrderItem struct {
+	domain.UUID
+	OrderID      uuid.UUID         `gorm:"type:uuid;not null;uniqueIndex:idx_order_item_order_food"`
 	FoodID       uuid.UUID         `gorm:"type:uuid;not null;uniqueIndex:idx_order_item_order_food"`
 	PriceAtOrder int64             `gorm:"not null"`
-	Details      []OrderItemDetail `gorm:"serializer:json"`
+	Details      []OrderItemDetail `gorm:"foreignKey:OrderItemID;constraint:OnDelete:CASCADE"`
 }
 
 type OrderItemDetail struct {
-	UserID   string
-	Quantity int64
+	domain.UUID
+	OrderItemID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_order_item_detail_user"`
+	UserID      string    `gorm:"not null;uniqueIndex:idx_order_item_detail_user"`
+	Quantity    int64     `gorm:"not null"`
 }
 
 func NewOrder(pollID uuid.UUID, buyerUserID string, orderDate time.Time, strategy polls_domain.PollStrategy, orderItems []OrderItem) (*Order, error) {

@@ -1,15 +1,16 @@
+import { env } from "@/env/client";
+import { getCentrifugoTokenServerFn } from "@/lib/centrifugo/get-centrifugo-token-server-fn";
+import { useServerFn } from "@tanstack/react-start";
+import { Centrifuge, PublicationContext, Subscription } from "centrifuge";
 import React, {
   createContext,
+  ReactNode,
+  useCallback,
   useContext,
   useEffect,
-  useState,
   useRef,
-  useCallback,
-  ReactNode,
+  useState,
 } from "react";
-import { Centrifuge, Subscription, PublicationContext } from "centrifuge";
-import { env } from "@/env/client";
-import { getCentrifugoTokenServer } from "@/lib/centrifugo/get-centrifugo-token-server-fn";
 import { Channel } from "./channel";
 
 // Type for the data callback
@@ -41,6 +42,7 @@ export const CentrifugoProvider: React.FC<Props> = ({ children }) => {
   const [client, setClient] = useState<Centrifuge | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [clientId, setClientId] = useState<string | null>(null);
+  const getCentrifugoToken = useServerFn(getCentrifugoTokenServerFn);
 
   // Store active subscriptions and their listener count
   const subsRef = useRef<Record<string, SubscriptionEntry>>({});
@@ -50,8 +52,8 @@ export const CentrifugoProvider: React.FC<Props> = ({ children }) => {
     const centrifuge = new Centrifuge(env.VITE_WEBSOCKET_URL, {
       getToken: async () => {
         try {
-          const res = await getCentrifugoTokenServer();
-          return res.token;
+          const res = await getCentrifugoToken();
+          return res.data?.token ?? "";
         } catch (error) {
           console.error("Error fetching Centrifugo token:", error);
           return "";

@@ -18,7 +18,7 @@ type GetFoodsQuery struct {
 type GetFoodsQueryResponse struct {
 	ID          uuid.UUID        `json:"id"`
 	Name        string           `json:"name"`
-	ImageURL    *string          `json:"image_url,omitempty"`
+	ImageURL    *string          `json:"image_url"`
 	Description string           `json:"description"`
 	Price       int64            `json:"price"`
 	User        auth.UserProfile `json:"user"`
@@ -56,7 +56,7 @@ func (h *GetFoodsQueryHandler) Handle(ctx context.Context, query GetFoodsQuery) 
 	// 2. Fetch user profiles from Supabase.
 	userProfiles := []auth.UserProfile{}
 	if len(uniqueUserIDs) > 0 {
-		profiles, err := h.supabaseService.GetUserProfilesByIDs(uniqueUserIDs)
+		profiles, err := h.supabaseService.GetUserProfilesByIDs(uniqueUserIDs...)
 		if err != nil {
 			slog.ErrorContext(ctx, "Failed to fetch user profiles from Supabase", "error", err)
 			// We can choose to return the error or continue with partial data.

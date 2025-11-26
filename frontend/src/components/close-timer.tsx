@@ -1,4 +1,4 @@
-import { differenceInSeconds, format } from "date-fns";
+import { differenceInSeconds, format, isToday, isTomorrow } from "date-fns";
 import { AlertCircle, CheckCircle2, Clock, Hourglass } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -37,6 +37,16 @@ const CloseTimer = ({ closesAt, className }: CloseTimerProps) => {
   const closeDate = new Date(closesAt);
   const totalSecondsLeft = differenceInSeconds(closeDate, now);
   const absoluteTime = format(closeDate, "h:mm a");
+
+  // Determine if close date is today or tomorrow
+  const isTodayDate = isToday(closeDate);
+  const isTomorrowDate = isTomorrow(closeDate);
+
+  const getTimeLabel = () => {
+    if (isTodayDate) return `Closes at ${absoluteTime}`;
+    if (isTomorrowDate) return `Closes tomorrow at ${absoluteTime}`;
+    return `Closes at ${absoluteTime}`;
+  };
 
   // --- STATE 1: CLOSED ---
   if (totalSecondsLeft <= 0) {
@@ -94,7 +104,7 @@ const CloseTimer = ({ closesAt, className }: CloseTimerProps) => {
             </Badge>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Closes at {absoluteTime}</p>
+            <p>{getTimeLabel()}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -111,7 +121,7 @@ const CloseTimer = ({ closesAt, className }: CloseTimerProps) => {
             className={cn("gap-1.5 pl-1.5", className)} // Merge here
           >
             <Clock className="h-3.5 w-3.5" />
-            <span>Closes at {absoluteTime}</span>
+            <span>{getTimeLabel()}</span>
           </Badge>
         </TooltipTrigger>
         <TooltipContent>
@@ -121,5 +131,4 @@ const CloseTimer = ({ closesAt, className }: CloseTimerProps) => {
     </TooltipProvider>
   );
 };
-
 export default CloseTimer;

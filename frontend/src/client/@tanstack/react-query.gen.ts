@@ -7,6 +7,8 @@ import {
 	deleteFoodsById,
 	get,
 	getAuthCentrifugoToken,
+	getOrderedItems,
+	getShoppingOrder,
 	listFoods,
 	listOrdersToday,
 	listPollsToday,
@@ -22,10 +24,26 @@ import type {
 	DeleteFoodsByIdError,
 	DeleteFoodsByIdResponse,
 	GetAuthCentrifugoTokenData,
+	GetAuthCentrifugoTokenError,
+	GetAuthCentrifugoTokenResponse,
 	GetData,
+	GetError,
+	GetOrderedItemsData,
+	GetOrderedItemsError,
+	GetOrderedItemsResponse2,
+	GetResponse,
+	GetShoppingOrderData,
+	GetShoppingOrderError,
+	GetShoppingOrderResponse2,
 	ListFoodsData,
+	ListFoodsError,
+	ListFoodsResponse,
 	ListOrdersTodayData,
+	ListOrdersTodayError,
+	ListOrdersTodayResponse,
 	ListPollsTodayData,
+	ListPollsTodayError,
+	ListPollsTodayResponse,
 	PostFoodsData,
 	PostFoodsError,
 	PostFoodsResponse,
@@ -89,8 +107,13 @@ export const getQueryKey = (options?: Options<GetData>) =>
 /**
  * Get
  */
-export const getOptions = (options?: Options<GetData>) => {
-	return queryOptions({
+export const getOptions = (options?: Options<GetData>) =>
+	queryOptions<
+		GetResponse,
+		GetError,
+		GetResponse,
+		ReturnType<typeof getQueryKey>
+	>({
 		queryFn: async ({ queryKey, signal }) => {
 			const { data } = await get({
 				...options,
@@ -102,7 +125,6 @@ export const getOptions = (options?: Options<GetData>) => {
 		},
 		queryKey: getQueryKey(options),
 	});
-};
 
 export const getAuthCentrifugoTokenQueryKey = (
 	options?: Options<GetAuthCentrifugoTokenData>,
@@ -113,8 +135,13 @@ export const getAuthCentrifugoTokenQueryKey = (
  */
 export const getAuthCentrifugoTokenOptions = (
 	options?: Options<GetAuthCentrifugoTokenData>,
-) => {
-	return queryOptions({
+) =>
+	queryOptions<
+		GetAuthCentrifugoTokenResponse,
+		GetAuthCentrifugoTokenError,
+		GetAuthCentrifugoTokenResponse,
+		ReturnType<typeof getAuthCentrifugoTokenQueryKey>
+	>({
 		queryFn: async ({ queryKey, signal }) => {
 			const { data } = await getAuthCentrifugoToken({
 				...options,
@@ -126,7 +153,6 @@ export const getAuthCentrifugoTokenOptions = (
 		},
 		queryKey: getAuthCentrifugoTokenQueryKey(options),
 	});
-};
 
 export const listFoodsQueryKey = (options?: Options<ListFoodsData>) =>
 	createQueryKey("listFoods", options);
@@ -134,8 +160,13 @@ export const listFoodsQueryKey = (options?: Options<ListFoodsData>) =>
 /**
  * List foods
  */
-export const listFoodsOptions = (options?: Options<ListFoodsData>) => {
-	return queryOptions({
+export const listFoodsOptions = (options?: Options<ListFoodsData>) =>
+	queryOptions<
+		ListFoodsResponse,
+		ListFoodsError,
+		ListFoodsResponse,
+		ReturnType<typeof listFoodsQueryKey>
+	>({
 		queryFn: async ({ queryKey, signal }) => {
 			const { data } = await listFoods({
 				...options,
@@ -147,7 +178,6 @@ export const listFoodsOptions = (options?: Options<ListFoodsData>) => {
 		},
 		queryKey: listFoodsQueryKey(options),
 	});
-};
 
 /**
  * Post foods
@@ -230,6 +260,34 @@ export const putFoodsByIdMutation = (
 	return mutationOptions;
 };
 
+export const getOrderedItemsQueryKey = (
+	options?: Options<GetOrderedItemsData>,
+) => createQueryKey("getOrderedItems", options);
+
+/**
+ * Get ordered items
+ */
+export const getOrderedItemsOptions = (
+	options?: Options<GetOrderedItemsData>,
+) =>
+	queryOptions<
+		GetOrderedItemsResponse2,
+		GetOrderedItemsError,
+		GetOrderedItemsResponse2,
+		ReturnType<typeof getOrderedItemsQueryKey>
+	>({
+		queryFn: async ({ queryKey, signal }) => {
+			const { data } = await getOrderedItems({
+				...options,
+				...queryKey[0],
+				signal,
+				throwOnError: true,
+			});
+			return data;
+		},
+		queryKey: getOrderedItemsQueryKey(options),
+	});
+
 export const listOrdersTodayQueryKey = (
 	options?: Options<ListOrdersTodayData>,
 ) => createQueryKey("listOrdersToday", options);
@@ -239,8 +297,13 @@ export const listOrdersTodayQueryKey = (
  */
 export const listOrdersTodayOptions = (
 	options?: Options<ListOrdersTodayData>,
-) => {
-	return queryOptions({
+) =>
+	queryOptions<
+		ListOrdersTodayResponse,
+		ListOrdersTodayError,
+		ListOrdersTodayResponse,
+		ReturnType<typeof listOrdersTodayQueryKey>
+	>({
 		queryFn: async ({ queryKey, signal }) => {
 			const { data } = await listOrdersToday({
 				...options,
@@ -252,7 +315,6 @@ export const listOrdersTodayOptions = (
 		},
 		queryKey: listOrdersTodayQueryKey(options),
 	});
-};
 
 /**
  * Post polls
@@ -287,10 +349,13 @@ export const listPollsTodayQueryKey = (options?: Options<ListPollsTodayData>) =>
 /**
  * List polls today
  */
-export const listPollsTodayOptions = (
-	options?: Options<ListPollsTodayData>,
-) => {
-	return queryOptions({
+export const listPollsTodayOptions = (options?: Options<ListPollsTodayData>) =>
+	queryOptions<
+		ListPollsTodayResponse,
+		ListPollsTodayError,
+		ListPollsTodayResponse,
+		ReturnType<typeof listPollsTodayQueryKey>
+	>({
 		queryFn: async ({ queryKey, signal }) => {
 			const { data } = await listPollsToday({
 				...options,
@@ -302,7 +367,6 @@ export const listPollsTodayOptions = (
 		},
 		queryKey: listPollsTodayQueryKey(options),
 	});
-};
 
 /**
  * Post polls by ID close
@@ -357,3 +421,31 @@ export const postPollsByIdVoteMutation = (
 	};
 	return mutationOptions;
 };
+
+export const getShoppingOrderQueryKey = (
+	options?: Options<GetShoppingOrderData>,
+) => createQueryKey("getShoppingOrder", options);
+
+/**
+ * Get shopping order
+ */
+export const getShoppingOrderOptions = (
+	options?: Options<GetShoppingOrderData>,
+) =>
+	queryOptions<
+		GetShoppingOrderResponse2,
+		GetShoppingOrderError,
+		GetShoppingOrderResponse2,
+		ReturnType<typeof getShoppingOrderQueryKey>
+	>({
+		queryFn: async ({ queryKey, signal }) => {
+			const { data } = await getShoppingOrder({
+				...options,
+				...queryKey[0],
+				signal,
+				throwOnError: true,
+			});
+			return data;
+		},
+		queryKey: getShoppingOrderQueryKey(options),
+	});

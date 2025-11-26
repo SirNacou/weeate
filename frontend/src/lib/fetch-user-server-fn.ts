@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/server";
 import type { Factor, User } from "@supabase/supabase-js";
 import { createServerFn } from "@tanstack/react-start";
-type SSRSafeUser = User & {
+export type SSRSafeUser = User & {
   factors: (Factor & { factor_type: "phone" | "totp" })[];
   app_metadata: {
     provider: string | null;

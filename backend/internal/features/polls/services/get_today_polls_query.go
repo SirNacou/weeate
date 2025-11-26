@@ -19,10 +19,10 @@ type (
 		ID                string              `json:"id"`
 		Creator           auth.UserProfile    `json:"creator"`
 		ScheduledClosesAt time.Time           `json:"scheduled_closes_at"`
-		FinalTotalPrice   int64               `json:"final_total_price"`
-		Strategy          domain.PollStrategy `json:"strategy"`
+		Strategy          domain.PollStrategy `json:"strategy" enum:"ORDER_CONSENSUS_ITEM,ORDER_PERSONAL_CHOICE"`
 		ClosedAt          *time.Time          `json:"closed_at"`
 		PollOptions       []PollOption        `json:"poll_options"`
+		OrderDate         time.Time           `json:"order_date" format:"date-time"`
 	}
 
 	PollOption struct {
@@ -33,8 +33,9 @@ type (
 	}
 
 	Food struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
+		ID       string  `json:"id"`
+		Name     string  `json:"name"`
+		ImageURL *string `json:"image_url"`
 	}
 
 	Vote struct {
@@ -96,7 +97,7 @@ func (h *GetTodayPollsQueryHandler) Handle(ctx context.Context, query GetTodayPo
 
 	var userProfiles []auth.UserProfile
 	if len(uniqueUserIDs) > 0 {
-		profiles, err := h.supabaseService.GetUserProfilesByIDs(uniqueUserIDs)
+		profiles, err := h.supabaseService.GetUserProfilesByIDs(uniqueUserIDs...)
 		if err != nil {
 			return nil, err
 		}
@@ -115,6 +116,8 @@ func (h *GetTodayPollsQueryHandler) Handle(ctx context.Context, query GetTodayPo
 			Creator:           userProfileMap[poll.BuyerID],
 			ScheduledClosesAt: poll.ScheduledClosesAt,
 			Strategy:          poll.Strategy,
+			ClosedAt:          poll.ClosedAt,
+			OrderDate:         poll.OrderDate,
 			PollOptions: lo.Map(poll.PollOptions, func(option domain.PollOption, _ int) PollOption {
 				food := foodMap[option.FoodID.String()]
 				return PollOption{

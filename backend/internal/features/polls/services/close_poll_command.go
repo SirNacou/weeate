@@ -17,8 +17,8 @@ type ClosePollCommand struct {
 }
 
 type ClosePollCommandHandler struct {
-	db  *gorm.DB
-	bus *bus.Bus
+	db         *gorm.DB
+	bus        *bus.Bus
 	centrifugo *centrifugo.CentrifugoClient
 }
 
@@ -36,6 +36,7 @@ func (c *ClosePollCommandHandler) Handle(ctx context.Context, req ClosePollComma
 	}
 
 	poll, err := gorm.G[domain.Poll](c.db).
+		Preload("PollOptions.Votes", nil).
 		Where("id = ?", req.PollID).
 		First(ctx)
 	if err != nil {
@@ -46,7 +47,7 @@ func (c *ClosePollCommandHandler) Handle(ctx context.Context, req ClosePollComma
 		return domain.ErrPollAlreadyClosed
 	}
 
-	poll.Close()
+	closedPoll, event := poll.Close()
 
 	return c.db.Transaction(func(tx *gorm.DB) error {
 		db, ok := tx.Statement.ConnPool.(*sql.Tx)
@@ -54,21 +55,17 @@ func (c *ClosePollCommandHandler) Handle(ctx context.Context, req ClosePollComma
 			return errors.New("failed to get sql transaction")
 		}
 
-		if _, err := gorm.G[domain.Poll](tx).Updates(ctx, poll); err != nil {
+		if _, err := gorm.G[domain.Poll](tx).Updates(ctx, *closedPoll); err != nil {
 			return err
 		}
-
-		events := poll.PullEvents()
 
 		publisher, err := c.bus.NewSqlPublisher(db)
 		if err != nil {
 			return err
 		}
 
-		for _, event := range events {
-			if err := publisher.Publish(ctx, event); err != nil {
-				return err
-			}
+		if err := publisher.Publish(ctx, event); err != nil {
+			return err
 		}
 
 		return nil

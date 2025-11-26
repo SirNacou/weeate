@@ -3,7 +3,7 @@ import { defineConfig } from "@hey-api/openapi-ts";
 export default defineConfig({
   input: {
     path: "http://localhost:8080/openapi.yaml",
-    watch: false,
+    watch: true,
   },
   interactive: true,
   output: {
@@ -17,14 +17,28 @@ export default defineConfig({
   },
   plugins: [
     "@hey-api/typescript",
-    { name: "@hey-api/sdk", validator: true },
-    { name: "@hey-api/transformers", bigInt: false, dates: true },
+    {
+      name: "@hey-api/sdk",
+      validator: true,
+      transformer: true,
+    },
+    {
+      name: "@hey-api/transformers",
+      bigInt: false,
+      dates: false,
+    },
     "@hey-api/schemas",
     {
       name: "@hey-api/client-fetch",
       runtimeConfigPath: "../api/api-client-config.ts",
+      dates: {
+        offset: true,
+      },
     },
-    { name: "zod", requests: true, responses: true, dates: { offset: true } },
+    {
+      name: "zod",
+      dates: { offset: true },
+    },
     "@tanstack/react-query",
   ],
 });

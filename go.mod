@@ -7,7 +7,7 @@ require (
 	github.com/ThreeDotsLabs/watermill-sql/v4 v4.1.2
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/danielgtaylor/huma/v2 v2.34.1
-	github.com/gofiber/fiber/v2 v2.52.9
+	github.com/gofiber/fiber/v2 v2.52.10
 	github.com/gofrs/uuid/v5 v5.4.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/lestrrat-go/httprc/v3 v3.0.1

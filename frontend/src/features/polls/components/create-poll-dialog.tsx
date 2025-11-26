@@ -2,6 +2,7 @@ import { serverClient } from "@/api";
 import {
   CreatePollCommand,
   CreatePollCommandWritable,
+  GetTodayPollsQueryResponse,
   postPolls,
 } from "@/client";
 import {
@@ -20,20 +21,45 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/animate-ui/components/radix/dialog";
-import { useForm } from "@tanstack/react-form";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createServerFn } from "@tanstack/react-start";
-import LucidePlus from "~icons/lucide/plus?width=2em&height=2em";
-import { getFoodsServer } from "@/features/foods/functions/get-server-foods";
-import { Route as ProtectedRoute } from "@/routes/_protected/route";
+import {
+  Alert,
+  AlertContent,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+} from "@/components/ui/alert";
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { MultiSelect, MultiSelectOption } from "@/components/multi-select";
-import { useMemo, useState } from "react";
+import { Label } from "@/components/ui/label";
+import {
+  MultiSelect,
+  MultiSelectContent,
+  MultiSelectGroup,
+  MultiSelectItem,
+  MultiSelectTrigger,
+  MultiSelectValue,
+} from "@/components/ui/multi-select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
+import { getFoodsServer as getFoodsServerFn } from "@/features/foods/functions/get-server-foods";
+import { getFormSubmissionStatus } from "@/lib/form-utils";
+import { Route as ProtectedRoute } from "@/routes/_protected/route";
+import { useForm } from "@tanstack/react-form";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createServerFn, useServerFn } from "@tanstack/react-start";
 import {
   add,
   addDays,
@@ -46,29 +72,10 @@ import {
   setMinutes,
   startOfHour,
 } from "date-fns";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import {
-  Alert,
-  AlertContent,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
-} from "@/components/ui/alert";
 import LucideAlertTriangle from "~icons/lucide/alert-triangle";
-import { getFormSubmissionStatus } from "@/lib/form-utils";
-import { useCentrifugo } from "@/lib/centrifugo/centrifugo-context"
+import LucidePlus from "~icons/lucide/plus?width=2em&height=2em";
 
 const createPollServerFn = createServerFn({ method: "POST" })
   .inputValidator(zCreatePollCommandWritable)
@@ -77,8 +84,8 @@ const createPollServerFn = createServerFn({ method: "POST" })
       client: serverClient,
       body: {
         food_ids: data.food_ids,
-        order_date: data.order_date as unknown as Date,
-        scheduled_close_at: data.scheduled_close_at as unknown as Date,
+        order_date: data.order_date,
+        scheduled_close_at: data.scheduled_close_at,
         strategy: data.strategy,
       },
     });
@@ -89,16 +96,21 @@ const createPollServerFn = createServerFn({ method: "POST" })
   });
 
 type Props = {
-  userPollExists?: boolean;
+  userPoll?: GetTodayPollsQueryResponse;
 };
 
-const CreatePollDialog = ({ userPollExists }: Props) => {
+const CreatePollDialog = ({ userPoll }: Props) => {
   const [open, setOpen] = useState(false);
   const { user } = ProtectedRoute.useRouteContext();
   const queryClient = useQueryClient();
+  const getFoodsServer = useServerFn(getFoodsServerFn);
+  const createPollServer = useServerFn(createPollServerFn);
+
+  const existed = !!userPoll;
+  const disabled = userPoll?.closed_at !== null;
 
   const createPoll = useMutation({
-    mutationFn: createPollServerFn,
+    mutationFn: createPollServer,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: listPollsTodayQueryKey(),
@@ -114,18 +126,6 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
     queryKey: listFoodsQueryKey({ query: { user_id: user.id } }),
     queryFn: () => getFoodsServer({ data: { query: { user_id: user.id } } }),
   });
-
-  const foodOptions = useMemo(() => {
-    return foods ?
-        foods.map(
-          (food) =>
-            ({
-              label: food.name,
-              value: food.id,
-            }) as MultiSelectOption
-        )
-      : [];
-  }, [foods]);
 
   const orderDate = new Date(add(Date.now(), { days: 1 }));
   const form = useForm({
@@ -174,7 +174,7 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
     ) {
       // Safety Check: Ensure we aren't showing past times if logic drifts
       if (isAfter(currentSlot, now)) {
-        slots.push(new Date(currentSlot));
+        slots.push(new Date(currentSlot).toISOString());
       }
 
       // Increment by 1 hour (Change to 30 for half-hour slots)
@@ -186,10 +186,10 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
 
   // Group slots into "Today" and "Tomorrow" for better UI
   const todaySlots = timeSlots.filter(
-    (d) => d.getDate() === new Date().getDate()
+    (d) => new Date(d).getDate() === new Date().getDate()
   );
   const tomorrowSlots = timeSlots.filter(
-    (d) => d.getDate() !== new Date().getDate()
+    (d) => new Date(d).getDate() !== new Date().getDate()
   );
 
   return (
@@ -226,15 +226,24 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
                     <Field data-invalid={isInvalid} className="grid gap-1">
                       <FieldLabel htmlFor={field.name}>Select Foods</FieldLabel>
                       <MultiSelect
-                        id={field.name}
-                        name={field.name}
-                        variant={"default"}
-                        onBlur={field.handleBlur}
-                        options={foodOptions}
-                        defaultValue={field.state.value || []}
-                        value={field.state.value || []}
-                        onValueChange={field.handleChange}
-                      />
+                        defaultValues={field.state.value ?? []}
+                        values={field.state.value ?? []}
+                        onValuesChange={field.handleChange}
+                      >
+                        <MultiSelectTrigger className="w-full">
+                          <MultiSelectValue placeholder="Select food..." />
+                        </MultiSelectTrigger>
+                        <MultiSelectContent>
+                          <MultiSelectGroup>
+                            {foods &&
+                              foods.map((food) => (
+                                <MultiSelectItem key={food.id} value={food.id}>
+                                  {food.name}
+                                </MultiSelectItem>
+                              ))}
+                          </MultiSelectGroup>
+                        </MultiSelectContent>
+                      </MultiSelect>
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
                       )}
@@ -266,10 +275,7 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
                             <SelectGroup>
                               <SelectLabel>Today</SelectLabel>
                               {todaySlots.map((date) => (
-                                <SelectItem
-                                  key={date.toISOString()}
-                                  value={date.toISOString()}
-                                >
+                                <SelectItem key={date} value={date}>
                                   {format(date, "h:00 a")}
                                 </SelectItem>
                               ))}
@@ -281,10 +287,7 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
                             <SelectGroup>
                               <SelectLabel>Tomorrow Morning</SelectLabel>
                               {tomorrowSlots.map((date) => (
-                                <SelectItem
-                                  key={date.toISOString()}
-                                  value={date.toISOString()}
-                                >
+                                <SelectItem key={date} value={date}>
                                   {format(date, "h:00 a")}
                                 </SelectItem>
                               ))}
@@ -351,7 +354,7 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
               />
             </FieldGroup>
           </div>
-          {userPollExists && (
+          {existed && !disabled && (
             <Alert variant="warning" appearance="light" className="mt-4">
               <AlertIcon>
                 <LucideAlertTriangle />
@@ -359,8 +362,21 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
               <AlertContent>
                 <AlertTitle>Warning</AlertTitle>
                 <AlertDescription>
-                  A poll already exists for today, it will be replaced and all
-                  existing votes will be lost.
+                  A poll for tomorrow order already exists, it will be replaced
+                  and all existing votes will be lost.
+                </AlertDescription>
+              </AlertContent>
+            </Alert>
+          )}
+          {disabled && (
+            <Alert variant="destructive" appearance="light" className="mt-4">
+              <AlertIcon>
+                <LucideAlertTriangle />
+              </AlertIcon>
+              <AlertContent>
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>
+                  You cannot replace a poll that has already been closed.
                 </AlertDescription>
               </AlertContent>
             </Alert>
@@ -376,7 +392,7 @@ const CreatePollDialog = ({ userPollExists }: Props) => {
               <Button
                 form="create-poll-form"
                 type="submit"
-                disabled={!canSubmit}
+                disabled={!canSubmit || disabled}
               >
                 {isSubmitting ?
                   <>

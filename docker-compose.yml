@@ -1,8 +1,5 @@
 name: weeate
 
-include:
-  - ./centrifugo/docker-compose.yml
-
 services:
   backend:
     build:

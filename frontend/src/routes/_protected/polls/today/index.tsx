@@ -1,52 +1,120 @@
 import { GetTodayPollsQueryResponse, Vote } from "@/client";
-import {
-  listPollsTodayOptions,
-  listPollsTodayQueryKey,
-} from "@/client/@tanstack/react-query.gen";
+import { listPollsTodayQueryKey } from "@/client/@tanstack/react-query.gen";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listPollsTodayServerFn } from "@/features/polls/api/get-today-polls";
 import CreatePollDialog from "@/features/polls/components/create-poll-dialog";
 import PollCard from "@/features/polls/components/poll-card";
+import { CentrifugoProvider } from "@/lib/centrifugo/centrifugo-context";
 import { useSubscription } from "@/lib/centrifugo/use-subscription";
-import { getPageTitle } from "@/lib/head-utils";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_protected/polls/today/")({
   component: RouteComponent,
-  loader: async () => {
-    const polls = await listPollsTodayServerFn();
-    return { polls };
-  },
-  head: () => {
+  beforeLoad: () => {
     return {
-      meta: [
-        {
-          title: getPageTitle("Today Polls"),
-        },
-      ],
+      pageTitle: "Today's Polls",
     };
+  },
+  loader: async ({ abortController }) => {
+    const res = await listPollsTodayServerFn({
+      signal: abortController.signal,
+    });
+    return { polls: res.data || [], error: res.error };
   },
 });
 
 function RouteComponent() {
+  return (
+    <CentrifugoProvider>
+      <PollsContent />
+    </CentrifugoProvider>
+  );
+}
+
+function PollsContent() {
   const { polls } = Route.useLoaderData();
   const { user } = Route.useRouteContext();
-
-  const { data, refetch } = useQuery({
-    ...listPollsTodayOptions(),
-    queryFn: listPollsTodayServerFn,
-    initialData: polls,
-  });
+  console.log("polls loader data", polls);
 
   const queryClient = useQueryClient();
 
-  useSubscription("public:polls", async (data) => {
+  // Wrap server function for client-side use
+  const fetchPolls = useServerFn(listPollsTodayServerFn);
+
+  const { data } = useQuery({
+    queryKey: listPollsTodayQueryKey(),
+    queryFn: async () => {
+      const res = await fetchPolls();
+      if (res.error) {
+        toast.error(res.error);
+        throw new Error(res.error);
+      }
+      return res.data || [];
+    },
+    initialData: polls,
+    staleTime: 30000, // Consider data fresh for 30s to prevent immediate refetch
+  });
+
+  useSubscription("public:polls", updatePollsPage(queryClient));
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-3">
+        <div className="flex w-full flex-col items-center justify-end gap-3 sm:flex-row">
+          <CreatePollDialog
+            userPoll={data.find(
+              (poll) =>
+                poll.creator?.id === user?.id &&
+                new Date(poll.order_date).toISOString().split("T")[0] ===
+                  new Date().toISOString().split("T")[0]
+            )}
+          />
+        </div>
+
+        <div className="flex gap-2 text-center">
+          <Card className="basis-1/2 md:basis-[200px] gap-2 py-4">
+            <CardHeader>
+              <CardTitle>Polls</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <span className="font-bold">{data?.length || 0}</span>
+            </CardContent>
+          </Card>
+          <Card className="basis-1/2 md:basis-[200px] gap-2 py-4">
+            <CardHeader>
+              <CardTitle>Your Votes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <span className="font-bold">
+                {data?.reduce((acc, poll) => {
+                  const hasVoted = poll.poll_options?.some((option) =>
+                    option.votes?.some((vote) => vote.voter?.id === user?.id)
+                  );
+                  return acc + (hasVoted ? 1 : 0);
+                }, 0) || 0}
+              </span>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6">
+        {data?.map((poll) => {
+          return <PollCard key={poll.id} poll={poll} />;
+        })}
+      </div>
+    </div>
+  );
+}
+function updatePollsPage(queryClient: QueryClient): (data: any) => void {
+  return (data) => {
     console.log("Vote moved event received", data);
     if (data.type === "poll_created") {
       toast("New poll created, refetching today's polls...");
-      await refetch();
+      queryClient.invalidateQueries({ queryKey: listPollsTodayQueryKey() });
     }
     if (data.type === "vote_added") {
       queryClient.setQueryData(
@@ -166,78 +234,5 @@ function RouteComponent() {
         }
       );
     }
-  });
-
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
-          <div className="flex flex-col self-start">
-            <h1 className="text-2xl font-bold">Today Food Polls</h1>
-            <p>Vote for your favorite meals and let your voice be heard!</p>
-          </div>
-
-          <CreatePollDialog
-            userPollExists={data?.some((poll) => poll.creator?.id === user?.id)}
-          />
-        </div>
-
-        <div className="flex gap-2 text-center">
-          <Card className="basis-1/2 md:basis-[200px] gap-2 py-4">
-            <CardHeader>
-              <CardTitle>Today Polls</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <span className="font-bold">{polls?.length || 0}</span>
-            </CardContent>
-          </Card>
-          <Card className="basis-1/2 md:basis-[200px] gap-2 py-4">
-            <CardHeader>
-              <CardTitle>Your Votes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <span className="font-bold">
-                {data?.reduce((acc, poll) => {
-                  const hasVoted = poll.poll_options?.some((option) =>
-                    option.votes?.some((vote) => vote.voter?.id === user?.id)
-                  );
-                  return acc + (hasVoted ? 1 : 0);
-                }, 0) || 0}
-              </span>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6">
-        {data?.map((poll) => {
-          return (
-            <PollCard
-              key={poll.id}
-              pollId={poll.id}
-              avatarUrl={poll.creator?.avatar_url}
-              buyerName={poll.creator?.display_name || "Unknown"}
-              scheduled_close_at={poll.scheduled_closes_at}
-              closed_at={poll.closed_at}
-              strategy={poll.strategy as any}
-              options={
-                poll.poll_options?.map((option) => ({
-                  id: option.id || "",
-                  foodName: option.food?.name || "Unknown Food",
-                  foodImageUrl: "",
-                  price: option.price_at_creation || 0,
-                  votes:
-                    option.votes?.map((vote) => ({
-                      userId: vote.voter?.id || "",
-                      userName: vote.voter?.display_name || "Unknown",
-                      userAvatarUrl: vote.voter?.avatar_url,
-                    })) || [],
-                })) || []
-              }
-            />
-          );
-        })}
-      </div>
-    </div>
-  );
+  };
 }

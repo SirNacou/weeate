@@ -20,6 +20,7 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	slogfiber "github.com/samber/slog-fiber"
 	"gorm.io/gorm"
@@ -62,6 +63,7 @@ func (s *Server) buildHandler(ctx context.Context) (http.Handler, []func(context
 		WithRequestBody:    true,
 		WithResponseBody:   true,
 	}))
+	app.Use(healthcheck.New())
 	app.Use(recover.New())
 	app.Use(api.CORSMiddleware(s.config.GO_ENV))
 	authMiddleware, err := auth.AuthMiddleware(ctx, s.config.SUPABASE_AUTH_URL, s.config.SUPABASE_COOKIE_AUTH_NAME)
@@ -71,6 +73,7 @@ func (s *Server) buildHandler(ctx context.Context) (http.Handler, []func(context
 	app.Use(authMiddleware)
 
 	api := humafiber.New(app, huma.DefaultConfig("Weeate API", "v1.0.0"))
+	huma.DefaultArrayNullable = false
 
 	authModule := auth.NewAuthModule(s.config)
 	authModule.RegisterAPI(api)

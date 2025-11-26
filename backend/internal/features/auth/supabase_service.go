@@ -35,7 +35,7 @@ func (s *SupabaseService) GetUserProfileByID(userID string) (*UserProfile, error
 	return &profiles[0], nil
 }
 
-func (s *SupabaseService) GetUserProfilesByIDs(userIDs []string) ([]UserProfile, error) {
+func (s *SupabaseService) GetUserProfilesByIDs(userIDs ...string) ([]UserProfile, error) {
 	var profiles []UserProfile
 	res, _, err := s.supabaseClient.From("user_profiles").
 		Select("*", "", false).

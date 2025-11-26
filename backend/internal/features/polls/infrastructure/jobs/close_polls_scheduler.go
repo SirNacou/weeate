@@ -2,6 +2,7 @@ package jobs
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"time"
 
@@ -40,6 +41,10 @@ func (s *ClosePollScheduler) Start(ctx context.Context) {
 				Order("scheduled_closes_at ASC").
 				First(queryCtx)
 
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				slog.ErrorContext(queryCtx, "failed to get next poll to close", "error", err)
+			}
+
 			cancel()
 		}
 
@@ -53,7 +58,7 @@ func (s *ClosePollScheduler) Start(ctx context.Context) {
 			}
 		}
 
-		slog.InfoContext(ctx, "Sleeping for %v...\n", "duration", duration)
+		slog.InfoContext(ctx, "Sleeping for %v...\n", "duration", duration.String())
 
 		select {
 		case <-s.clock.After(duration):
@@ -79,8 +84,9 @@ func (s *ClosePollScheduler) TriggerUpdate() {
 }
 
 func (s *ClosePollScheduler) closeDuePolls(ctx context.Context) {
-	duePolls, err := gorm.G[domain.Poll](s.db).Where("closed_at IS NULL").
-		Where("scheduled_closes_at <= ? AND closed_at IS NULL", time.Now()).
+	duePolls, err := gorm.G[domain.Poll](s.db).
+		Where("closed_at IS NULL").
+		Where("scheduled_closes_at <= ?", time.Now()).
 		Find(ctx)
 	if err != nil {
 		slog.ErrorContext(ctx, "Failed to fetch due polls", "error", err)
