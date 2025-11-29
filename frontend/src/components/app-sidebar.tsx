@@ -179,7 +179,9 @@ const AppSidebar = () => {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => {
+                  console.log("Logout")
+                }}>
                   <LogOut />
                   Log out
                 </DropdownMenuItem>
