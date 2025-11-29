@@ -1,0 +1,16 @@
+FROM golang:1-alpine
+
+ENV CGO_ENABLED=0
+
+WORKDIR /app
+
+RUN go install github.com/bokwoon95/wgo@latest
+RUN go install github.com/go-delve/delve/cmd/dlv@latest
+
+COPY go.mod .
+COPY go.sum .
+COPY ./backend ./backend
+
+EXPOSE 8080 40000
+
+CMD ["sh", "-c", "wgo -file .go go build -gcflags 'all=-N -l' -o main ./backend/cmd/ :: dlv exec --headless --listen=:40000 --api-version=2 --accept-multiclient --continue ./main"]

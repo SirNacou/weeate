@@ -1,0 +1,3 @@
+ancestorEntries = []
+ourEntries = ["backend/Dockerfile.dev"]
+theirEntries = ["backend/Dockerfile.dev"]

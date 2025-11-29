@@ -1,0 +1,29 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "src/styles.css",
+    "baseColor": "zinc",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "registries": {
+    "@supabase": "https://supabase.com/ui/r/{name}.json",
+    "@animate-ui": "https://animate-ui.com/r/{name}.json",
+    "@reui": "https://reui.io/r/{name}.json",
+    "@blocks": "https://blocks.so/r/{name}.json",
+    "@eo-n": "https://eo-n.vercel.app/r/{name}",
+    "@wds": "https://wds-shadcn-registry.netlify.app/r/{name}.json"
+  }
+}

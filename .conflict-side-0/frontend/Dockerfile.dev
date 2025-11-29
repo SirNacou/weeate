@@ -1,0 +1,14 @@
+FROM oven/bun:1-debian AS builder
+
+WORKDIR /app/frontend
+
+COPY ./frontend/bun.lock ./
+COPY ./frontend/package.json ./
+
+RUN bun install --frozen-lockfile
+
+COPY ./frontend/ ./
+
+EXPOSE 3000
+
+CMD [ "bun", "run", "dev" ]
