@@ -19,7 +19,9 @@ export function createClient() {
         },
         setAll(cookies) {
           cookies.forEach((cookie) => {
-            setCookie(cookie.name, cookie.value);
+            const { name, value, options } = cookie;
+            // Handle cookie deletion (maxAge: 0) and set proper cookie options
+            setCookie(name, value, options);
           });
         },
       },
