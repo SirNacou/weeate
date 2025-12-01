@@ -4,22 +4,21 @@ WORKDIR /app
 
 COPY ./.env ./
 
-WORKDIR /app/frontend
+COPY ./frontend/package.json ./frontend/bun.lock ./
 
-COPY ./frontend/package.json ./
-COPY ./frontend/package-lock.json ./
+RUN bun install
 
-RUN npm ci
+COPY ./frontend ./
+RUN bun run build
 
-COPY ./frontend/ ./
-RUN bunx dotenvx run -f ../.env -- bun run build
+FROM oven/bun:1-alpine
 
-FROM nginx:mainline-alpine
+WORKDIR /app
 
-COPY --from=builder /app/frontend/dist /usr/share/nginx/html
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/.env ./
 
-COPY ./frontend/nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 3000
 
-EXPOSE 80
-
-CMD [ "nginx", "-g", "daemon off;" ]
+CMD ["bun", "run", "start"]

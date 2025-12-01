@@ -9,8 +9,8 @@ COPY go.mod go.sum ./
 
 RUN go mod download
 
-COPY ./backend ./backend
+COPY ./backend ./
 
-RUN go build -o /usr/local/bin/app ./backend/cmd/main.go
+RUN go build -o /usr/local/bin/app ./cmd/
 EXPOSE 8080
 CMD ["app"]
