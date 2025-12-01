@@ -111,17 +111,9 @@ function Index() {
   useEffect(() => {
     if (error) {
       console.error("Error loading data:", error);
-      toast.error(`Error loading data: ${error}`);
+      toast.error(error);
     }
   }, [error]);
-
-  if (!!error) {
-    return (
-      <div className="container mx-auto py-6 px-6 md:p-10 max-w-4xl">
-        <p className="text-red-600">Error loading data: {error}</p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -146,7 +138,9 @@ function Index() {
         </Card>
       : <MealCard orderedItems={orderedItems} />}
 
-        {shoppingOrder && <ShoppingCard shoppingOrder={shoppingOrder} />}
+      {shoppingOrder && shoppingOrder.items.length > 0 && (
+        <ShoppingCard shoppingOrder={shoppingOrder} />
+      )}
     </div>
   );
 }
