@@ -10,10 +10,10 @@ type Props = {
 export function LoginWithGoogleButton({ redirectTo = "/", ...props }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const supabase = createClient();
 
   const handleSocialLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
     setIsLoading(true);
     setError(null);
 

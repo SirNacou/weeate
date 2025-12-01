@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev --port 3000 --host",
+    "dev": "TSS_DEV_SERVER=true vite dev --port 3000 --host",
     "build": "bun --bun vite build",
     "start": "bun run .output/server/index.mjs",
     "serve": "vite preview",
