@@ -31,7 +31,7 @@ const confirmFn = createServerFn({ method: "GET" })
     const next = _next?.startsWith("/") ? _next : "/";
 
     if (token_hash && type) {
-      const supabase = createClient();
+      const supabase = createServer();
 
       const { error } = await supabase.auth.verifyOtp({
         type,

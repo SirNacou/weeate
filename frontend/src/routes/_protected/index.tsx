@@ -15,7 +15,6 @@ import ShoppingCard from "@/features/orders/components/shopping-card";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useEffect } from "react";
-import { toast } from "sonner";
 import z from "zod";
 import LucideSandwich from "~icons/lucide/sandwich";
 
@@ -111,7 +110,6 @@ function Index() {
   useEffect(() => {
     if (error) {
       console.error("Error loading data:", error);
-      toast.error(error);
     }
   }, [error]);
 

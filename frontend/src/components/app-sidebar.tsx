@@ -3,6 +3,7 @@ import { createSupabaseClient } from "@/lib/supabase";
 import { fetchUser } from "@/lib/supabase/fetch-user-server-fn";
 import { useQuery } from "@tanstack/react-query";
 import { Link, LinkOptions, useNavigate } from "@tanstack/react-router";
+import { Link, LinkOptions, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-react";
 import React from "react";
@@ -77,6 +78,19 @@ const AppSidebar = () => {
     queryKey: ["user"],
     queryFn: getUser,
   });
+
+  function handleSignOut(
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ): void {
+    event.preventDefault();
+    supabase.auth.signOut().then(({ error }) => {
+      if (error) {
+        console.error("Error signing out:", error.message);
+      } else {
+        navigate({ to: "/login" });
+      }
+    });
+  }
 
   return (
     <Sidebar>

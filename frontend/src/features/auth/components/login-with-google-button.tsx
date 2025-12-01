@@ -25,6 +25,10 @@ export function LoginWithGoogleButton({}: Props) {
             access_type: "offline",
             prompt: "consent",
           },
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
         },
       });
 
