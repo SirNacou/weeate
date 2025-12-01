@@ -302,7 +302,6 @@ export const GetShoppingOrderResponseSchema = {
 			items: {
 				$ref: "#/components/schemas/ShoppingItem",
 			},
-			minItems: 1,
 			type: "array",
 		},
 		total_price: {
@@ -845,7 +844,6 @@ export const GetShoppingOrderResponseWritableSchema = {
 			items: {
 				$ref: "#/components/schemas/ShoppingItem",
 			},
-			minItems: 1,
 			type: "array",
 		},
 		total_price: {

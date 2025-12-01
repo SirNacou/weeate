@@ -67,5 +67,6 @@ func (e *OrdersEndpoint) getShoppingOrder(ctx context.Context, request *struct {
 	if err != nil {
 		return nil, http.MapError(err)
 	}
+
 	return api.NewResponse(order), nil
 }

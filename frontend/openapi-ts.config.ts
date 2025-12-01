@@ -2,7 +2,7 @@ import { defineConfig } from "@hey-api/openapi-ts";
 
 export default defineConfig({
   input: {
-    path: "http://localhost:8080/openapi.yaml",
+    path: "http://localhost/api/openapi.yaml",
     watch: true,
   },
   interactive: true,

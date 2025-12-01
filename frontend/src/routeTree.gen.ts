@@ -13,8 +13,10 @@ import { Route as ProtectedRouteRouteImport } from './routes/_protected/route'
 import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoStorybookRouteImport } from './routes/demo/storybook'
+import { Route as AuthOauthRouteImport } from './routes/auth/oauth'
 import { Route as AuthErrorRouteImport } from './routes/auth/error'
 import { Route as AuthConfirmRouteImport } from './routes/auth/confirm'
+import { Route as AuthAuthCodeErrorRouteImport } from './routes/auth/auth-code-error'
 import { Route as ProtectedProtectedRouteImport } from './routes/_protected/protected'
 import { Route as AuthUpdatePasswordRouteImport } from './routes/_auth/update-password'
 import { Route as AuthSignUpSuccessRouteImport } from './routes/_auth/sign-up-success'
@@ -53,6 +55,11 @@ const DemoStorybookRoute = DemoStorybookRouteImport.update({
   path: '/demo/storybook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthOauthRoute = AuthOauthRouteImport.update({
+  id: '/auth/oauth',
+  path: '/auth/oauth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthErrorRoute = AuthErrorRouteImport.update({
   id: '/auth/error',
   path: '/auth/error',
@@ -61,6 +68,11 @@ const AuthErrorRoute = AuthErrorRouteImport.update({
 const AuthConfirmRoute = AuthConfirmRouteImport.update({
   id: '/auth/confirm',
   path: '/auth/confirm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthAuthCodeErrorRoute = AuthAuthCodeErrorRouteImport.update({
+  id: '/auth/auth-code-error',
+  path: '/auth/auth-code-error',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProtectedProtectedRoute = ProtectedProtectedRouteImport.update({
@@ -162,8 +174,10 @@ export interface FileRoutesByFullPath {
   '/sign-up-success': typeof AuthSignUpSuccessRoute
   '/update-password': typeof AuthUpdatePasswordRoute
   '/protected': typeof ProtectedProtectedRoute
+  '/auth/auth-code-error': typeof AuthAuthCodeErrorRoute
   '/auth/confirm': typeof AuthConfirmRoute
   '/auth/error': typeof AuthErrorRoute
+  '/auth/oauth': typeof AuthOauthRoute
   '/demo/storybook': typeof DemoStorybookRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/': typeof ProtectedIndexRoute
@@ -187,8 +201,10 @@ export interface FileRoutesByTo {
   '/sign-up-success': typeof AuthSignUpSuccessRoute
   '/update-password': typeof AuthUpdatePasswordRoute
   '/protected': typeof ProtectedProtectedRoute
+  '/auth/auth-code-error': typeof AuthAuthCodeErrorRoute
   '/auth/confirm': typeof AuthConfirmRoute
   '/auth/error': typeof AuthErrorRoute
+  '/auth/oauth': typeof AuthOauthRoute
   '/demo/storybook': typeof DemoStorybookRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/': typeof ProtectedIndexRoute
@@ -214,8 +230,10 @@ export interface FileRoutesById {
   '/_auth/sign-up-success': typeof AuthSignUpSuccessRoute
   '/_auth/update-password': typeof AuthUpdatePasswordRoute
   '/_protected/protected': typeof ProtectedProtectedRoute
+  '/auth/auth-code-error': typeof AuthAuthCodeErrorRoute
   '/auth/confirm': typeof AuthConfirmRoute
   '/auth/error': typeof AuthErrorRoute
+  '/auth/oauth': typeof AuthOauthRoute
   '/demo/storybook': typeof DemoStorybookRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/_protected/': typeof ProtectedIndexRoute
@@ -241,8 +259,10 @@ export interface FileRouteTypes {
     | '/sign-up-success'
     | '/update-password'
     | '/protected'
+    | '/auth/auth-code-error'
     | '/auth/confirm'
     | '/auth/error'
+    | '/auth/oauth'
     | '/demo/storybook'
     | '/demo/tanstack-query'
     | '/'
@@ -266,8 +286,10 @@ export interface FileRouteTypes {
     | '/sign-up-success'
     | '/update-password'
     | '/protected'
+    | '/auth/auth-code-error'
     | '/auth/confirm'
     | '/auth/error'
+    | '/auth/oauth'
     | '/demo/storybook'
     | '/demo/tanstack-query'
     | '/'
@@ -292,8 +314,10 @@ export interface FileRouteTypes {
     | '/_auth/sign-up-success'
     | '/_auth/update-password'
     | '/_protected/protected'
+    | '/auth/auth-code-error'
     | '/auth/confirm'
     | '/auth/error'
+    | '/auth/oauth'
     | '/demo/storybook'
     | '/demo/tanstack-query'
     | '/_protected/'
@@ -318,8 +342,10 @@ export interface RootRouteChildren {
   AuthSignUpRoute: typeof AuthSignUpRoute
   AuthSignUpSuccessRoute: typeof AuthSignUpSuccessRoute
   AuthUpdatePasswordRoute: typeof AuthUpdatePasswordRoute
+  AuthAuthCodeErrorRoute: typeof AuthAuthCodeErrorRoute
   AuthConfirmRoute: typeof AuthConfirmRoute
   AuthErrorRoute: typeof AuthErrorRoute
+  AuthOauthRoute: typeof AuthOauthRoute
   DemoStorybookRoute: typeof DemoStorybookRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   DemoApiNamesRoute: typeof DemoApiNamesRoute
@@ -364,6 +390,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoStorybookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/oauth': {
+      id: '/auth/oauth'
+      path: '/auth/oauth'
+      fullPath: '/auth/oauth'
+      preLoaderRoute: typeof AuthOauthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/error': {
       id: '/auth/error'
       path: '/auth/error'
@@ -376,6 +409,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/confirm'
       fullPath: '/auth/confirm'
       preLoaderRoute: typeof AuthConfirmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/auth-code-error': {
+      id: '/auth/auth-code-error'
+      path: '/auth/auth-code-error'
+      fullPath: '/auth/auth-code-error'
+      preLoaderRoute: typeof AuthAuthCodeErrorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_protected/protected': {
@@ -532,8 +572,10 @@ const rootRouteChildren: RootRouteChildren = {
   AuthSignUpRoute: AuthSignUpRoute,
   AuthSignUpSuccessRoute: AuthSignUpSuccessRoute,
   AuthUpdatePasswordRoute: AuthUpdatePasswordRoute,
+  AuthAuthCodeErrorRoute: AuthAuthCodeErrorRoute,
   AuthConfirmRoute: AuthConfirmRoute,
   AuthErrorRoute: AuthErrorRoute,
+  AuthOauthRoute: AuthOauthRoute,
   DemoStorybookRoute: DemoStorybookRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   DemoApiNamesRoute: DemoApiNamesRoute,

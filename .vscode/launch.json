@@ -50,7 +50,7 @@
       "name": "Debug Full Stack",
       "configurations": [
         "Connect to Docker Backend",
-        "Debug Frontend (Chrome)"
+        "Debug Frontend (Firefox)"
       ],
       "stopAll": true
     }

@@ -2,24 +2,19 @@ FROM oven/bun:1 AS builder
 
 WORKDIR /app
 
-COPY ./.env ./
+COPY ./frontend/package.json ./frontend/bun.lock ./
+RUN bun install --frozen-lockfile
 
-WORKDIR /app/frontend
+COPY ./.env ./.env
+COPY ./frontend ./
 
-COPY ./frontend/package.json ./
-COPY ./frontend/package-lock.json ./
+RUN bun run build
 
-RUN npm ci
+FROM oven/bun:1-alpine
 
-COPY ./frontend/ ./
-RUN bunx dotenvx run -f ../.env -- bun run build
+WORKDIR /app
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/.output ./.output
 
-FROM nginx:mainline-alpine
-
-COPY --from=builder /app/frontend/dist /usr/share/nginx/html
-
-COPY ./frontend/nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
-
-CMD [ "nginx", "-g", "daemon off;" ]
+EXPOSE 3000
+CMD [ "bun", "run", "start" ]

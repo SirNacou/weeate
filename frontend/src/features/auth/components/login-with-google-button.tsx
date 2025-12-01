@@ -1,11 +1,13 @@
+import { LogosGoogleIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/client";
 import { useState } from "react";
-import { LogosGoogleIcon } from "@/components/icons";
 
-type Props = {} & React.HTMLAttributes<HTMLDivElement>;
+type Props = {
+  redirectTo?: string;
+} & React.HTMLAttributes<HTMLFormElement>;
 
-export function LoginWithGoogleButton({}: Props) {
+export function LoginWithGoogleButton({ redirectTo = "/", ...props }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -19,7 +21,11 @@ export function LoginWithGoogleButton({}: Props) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/oauth?next=/protected`,
+          redirectTo: `${window.location.origin}/auth/oauth?next=${redirectTo}`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "select_account",
+          },
         },
       });
 
@@ -31,9 +37,13 @@ export function LoginWithGoogleButton({}: Props) {
   };
 
   return (
-    <form onSubmit={handleSocialLogin}>
+    <form onSubmit={handleSocialLogin} {...props}>
       <div className="flex flex-col gap-6">
-        {error && <p className="text-sm text-destructive-500">{error}</p>}
+        {error && (
+          <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+            {error}
+          </div>
+        )}
 
         <Button
           type="submit"
@@ -42,10 +52,10 @@ export function LoginWithGoogleButton({}: Props) {
           disabled={isLoading}
         >
           {isLoading ?
-            "Logging in..."
+            "Connecting to Google..."
           : <>
               <LogosGoogleIcon className="mr-2 h-5 w-5" />
-              Google
+              Continue with Google
             </>
           }
         </Button>

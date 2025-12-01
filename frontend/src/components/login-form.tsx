@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import {
   Card,
   CardContent,
@@ -6,11 +5,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useNavigate } from "@tanstack/react-router";
-import LoginWithPasswordCard from "@/features/auth/components/login-with-password-card";
-import { SeparatorWithText } from "./separator-with-text";
 import { LoginWithGoogleButton } from "@/features/auth/components/login-with-google-button";
+import LoginWithPasswordCard from "@/features/auth/components/login-with-password-card";
 import RegisterLink from "@/features/auth/components/register-link";
+import { cn } from "@/lib/utils";
+import { useNavigate } from "@tanstack/react-router";
+import { SeparatorWithText } from "./separator-with-text";
 
 export function LoginForm({
   className,
@@ -19,7 +19,7 @@ export function LoginForm({
   const navigate = useNavigate();
 
   async function onLoginSuccess(): Promise<void> {
-    await navigate({ to: "/protected" });
+    await navigate({ to: "/" });
   }
 
   return (

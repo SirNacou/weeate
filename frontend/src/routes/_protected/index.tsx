@@ -34,7 +34,7 @@ const getOrderedItemsServerFn = createServerFn({ method: "GET" })
       };
     }
     return {
-      data: resp.data,
+      data: resp.data.items,
     };
   });
 
@@ -98,7 +98,7 @@ export const Route = createFileRoute("/_protected/")({
     });
 
     return {
-      orderedItems: orderedItemsRes.data?.items || [],
+      orderedItems: orderedItemsRes.data || [],
       shoppingOrder: shoppingOrderRes.data,
       error: orderedItemsRes.error || shoppingOrderRes.error,
     };
@@ -146,7 +146,9 @@ function Index() {
         </Card>
       : <MealCard orderedItems={orderedItems} />}
 
-        {shoppingOrder && <ShoppingCard shoppingOrder={shoppingOrder} />}
+      {shoppingOrder && shoppingOrder.items.length > 0 && (
+        <ShoppingCard shoppingOrder={shoppingOrder} />
+      )}
     </div>
   );
 }
