@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import {
   Card,
   CardContent,
@@ -6,11 +5,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useNavigate } from "@tanstack/react-router";
-import LoginWithPasswordCard from "@/features/auth/components/login-with-password-card";
-import { SeparatorWithText } from "./separator-with-text";
 import { LoginWithGoogleButton } from "@/features/auth/components/login-with-google-button";
+import LoginWithPasswordCard from "@/features/auth/components/login-with-password-card";
 import RegisterLink from "@/features/auth/components/register-link";
+import { cn } from "@/lib/utils";
+import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { SeparatorWithText } from "./separator-with-text";
 
 export function LoginForm({
   className,
@@ -35,7 +36,7 @@ export function LoginForm({
           <LoginWithPasswordCard
             onSuccess={onLoginSuccess}
             onError={function (error: string): void {
-              throw new Error("Function not implemented.");
+              toast.error(error);
             }}
           />
           <SeparatorWithText text="Or Login With" />

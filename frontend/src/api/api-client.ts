@@ -1,6 +1,6 @@
 import { client } from "@/client/client.gen";
 import { clientEnv } from "@/env";
-import { createClient } from "@/lib/client";
+import { createClient } from "@/lib/supabase/client";
 
 // Handle successful responses
 client.interceptors.response.use((response, request, options) => {

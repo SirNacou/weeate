@@ -13,14 +13,15 @@ import { Route as ProtectedRouteRouteImport } from './routes/_protected/route'
 import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoStorybookRouteImport } from './routes/demo/storybook'
+import { Route as AuthOauthRouteImport } from './routes/auth/oauth'
 import { Route as AuthErrorRouteImport } from './routes/auth/error'
 import { Route as AuthConfirmRouteImport } from './routes/auth/confirm'
 import { Route as ProtectedProtectedRouteImport } from './routes/_protected/protected'
-import { Route as AuthUpdatePasswordRouteImport } from './routes/_auth/update-password'
-import { Route as AuthSignUpSuccessRouteImport } from './routes/_auth/sign-up-success'
-import { Route as AuthSignUpRouteImport } from './routes/_auth/sign-up'
-import { Route as AuthLoginRouteImport } from './routes/_auth/login'
-import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
+import { Route as authUpdatePasswordRouteImport } from './routes/(auth)/update-password'
+import { Route as authSignUpSuccessRouteImport } from './routes/(auth)/sign-up-success'
+import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
+import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
 import { Route as ProtectedFoodsIndexRouteImport } from './routes/_protected/foods/index'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
@@ -53,6 +54,11 @@ const DemoStorybookRoute = DemoStorybookRouteImport.update({
   path: '/demo/storybook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthOauthRoute = AuthOauthRouteImport.update({
+  id: '/auth/oauth',
+  path: '/auth/oauth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthErrorRoute = AuthErrorRouteImport.update({
   id: '/auth/error',
   path: '/auth/error',
@@ -68,28 +74,28 @@ const ProtectedProtectedRoute = ProtectedProtectedRouteImport.update({
   path: '/protected',
   getParentRoute: () => ProtectedRouteRoute,
 } as any)
-const AuthUpdatePasswordRoute = AuthUpdatePasswordRouteImport.update({
-  id: '/_auth/update-password',
+const authUpdatePasswordRoute = authUpdatePasswordRouteImport.update({
+  id: '/(auth)/update-password',
   path: '/update-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthSignUpSuccessRoute = AuthSignUpSuccessRouteImport.update({
-  id: '/_auth/sign-up-success',
+const authSignUpSuccessRoute = authSignUpSuccessRouteImport.update({
+  id: '/(auth)/sign-up-success',
   path: '/sign-up-success',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthSignUpRoute = AuthSignUpRouteImport.update({
-  id: '/_auth/sign-up',
+const authSignUpRoute = authSignUpRouteImport.update({
+  id: '/(auth)/sign-up',
   path: '/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: '/_auth/login',
+const authLoginRoute = authLoginRouteImport.update({
+  id: '/(auth)/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
-  id: '/_auth/forgot-password',
+const authForgotPasswordRoute = authForgotPasswordRouteImport.update({
+  id: '/(auth)/forgot-password',
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
@@ -156,14 +162,15 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/forgot-password': typeof AuthForgotPasswordRoute
-  '/login': typeof AuthLoginRoute
-  '/sign-up': typeof AuthSignUpRoute
-  '/sign-up-success': typeof AuthSignUpSuccessRoute
-  '/update-password': typeof AuthUpdatePasswordRoute
+  '/forgot-password': typeof authForgotPasswordRoute
+  '/login': typeof authLoginRoute
+  '/sign-up': typeof authSignUpRoute
+  '/sign-up-success': typeof authSignUpSuccessRoute
+  '/update-password': typeof authUpdatePasswordRoute
   '/protected': typeof ProtectedProtectedRoute
   '/auth/confirm': typeof AuthConfirmRoute
   '/auth/error': typeof AuthErrorRoute
+  '/auth/oauth': typeof AuthOauthRoute
   '/demo/storybook': typeof DemoStorybookRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/': typeof ProtectedIndexRoute
@@ -181,14 +188,15 @@ export interface FileRoutesByFullPath {
   '/demo/start/ssr': typeof DemoStartSsrIndexRoute
 }
 export interface FileRoutesByTo {
-  '/forgot-password': typeof AuthForgotPasswordRoute
-  '/login': typeof AuthLoginRoute
-  '/sign-up': typeof AuthSignUpRoute
-  '/sign-up-success': typeof AuthSignUpSuccessRoute
-  '/update-password': typeof AuthUpdatePasswordRoute
+  '/forgot-password': typeof authForgotPasswordRoute
+  '/login': typeof authLoginRoute
+  '/sign-up': typeof authSignUpRoute
+  '/sign-up-success': typeof authSignUpSuccessRoute
+  '/update-password': typeof authUpdatePasswordRoute
   '/protected': typeof ProtectedProtectedRoute
   '/auth/confirm': typeof AuthConfirmRoute
   '/auth/error': typeof AuthErrorRoute
+  '/auth/oauth': typeof AuthOauthRoute
   '/demo/storybook': typeof DemoStorybookRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/': typeof ProtectedIndexRoute
@@ -208,14 +216,15 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_protected': typeof ProtectedRouteRouteWithChildren
-  '/_auth/forgot-password': typeof AuthForgotPasswordRoute
-  '/_auth/login': typeof AuthLoginRoute
-  '/_auth/sign-up': typeof AuthSignUpRoute
-  '/_auth/sign-up-success': typeof AuthSignUpSuccessRoute
-  '/_auth/update-password': typeof AuthUpdatePasswordRoute
+  '/(auth)/forgot-password': typeof authForgotPasswordRoute
+  '/(auth)/login': typeof authLoginRoute
+  '/(auth)/sign-up': typeof authSignUpRoute
+  '/(auth)/sign-up-success': typeof authSignUpSuccessRoute
+  '/(auth)/update-password': typeof authUpdatePasswordRoute
   '/_protected/protected': typeof ProtectedProtectedRoute
   '/auth/confirm': typeof AuthConfirmRoute
   '/auth/error': typeof AuthErrorRoute
+  '/auth/oauth': typeof AuthOauthRoute
   '/demo/storybook': typeof DemoStorybookRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/_protected/': typeof ProtectedIndexRoute
@@ -243,6 +252,7 @@ export interface FileRouteTypes {
     | '/protected'
     | '/auth/confirm'
     | '/auth/error'
+    | '/auth/oauth'
     | '/demo/storybook'
     | '/demo/tanstack-query'
     | '/'
@@ -268,6 +278,7 @@ export interface FileRouteTypes {
     | '/protected'
     | '/auth/confirm'
     | '/auth/error'
+    | '/auth/oauth'
     | '/demo/storybook'
     | '/demo/tanstack-query'
     | '/'
@@ -286,14 +297,15 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_protected'
-    | '/_auth/forgot-password'
-    | '/_auth/login'
-    | '/_auth/sign-up'
-    | '/_auth/sign-up-success'
-    | '/_auth/update-password'
+    | '/(auth)/forgot-password'
+    | '/(auth)/login'
+    | '/(auth)/sign-up'
+    | '/(auth)/sign-up-success'
+    | '/(auth)/update-password'
     | '/_protected/protected'
     | '/auth/confirm'
     | '/auth/error'
+    | '/auth/oauth'
     | '/demo/storybook'
     | '/demo/tanstack-query'
     | '/_protected/'
@@ -313,13 +325,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   ProtectedRouteRoute: typeof ProtectedRouteRouteWithChildren
-  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
-  AuthLoginRoute: typeof AuthLoginRoute
-  AuthSignUpRoute: typeof AuthSignUpRoute
-  AuthSignUpSuccessRoute: typeof AuthSignUpSuccessRoute
-  AuthUpdatePasswordRoute: typeof AuthUpdatePasswordRoute
+  authForgotPasswordRoute: typeof authForgotPasswordRoute
+  authLoginRoute: typeof authLoginRoute
+  authSignUpRoute: typeof authSignUpRoute
+  authSignUpSuccessRoute: typeof authSignUpSuccessRoute
+  authUpdatePasswordRoute: typeof authUpdatePasswordRoute
   AuthConfirmRoute: typeof AuthConfirmRoute
   AuthErrorRoute: typeof AuthErrorRoute
+  AuthOauthRoute: typeof AuthOauthRoute
   DemoStorybookRoute: typeof DemoStorybookRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   DemoApiNamesRoute: typeof DemoApiNamesRoute
@@ -364,6 +377,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoStorybookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/oauth': {
+      id: '/auth/oauth'
+      path: '/auth/oauth'
+      fullPath: '/auth/oauth'
+      preLoaderRoute: typeof AuthOauthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/error': {
       id: '/auth/error'
       path: '/auth/error'
@@ -385,39 +405,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedProtectedRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
-    '/_auth/update-password': {
-      id: '/_auth/update-password'
+    '/(auth)/update-password': {
+      id: '/(auth)/update-password'
       path: '/update-password'
       fullPath: '/update-password'
-      preLoaderRoute: typeof AuthUpdatePasswordRouteImport
+      preLoaderRoute: typeof authUpdatePasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/sign-up-success': {
-      id: '/_auth/sign-up-success'
+    '/(auth)/sign-up-success': {
+      id: '/(auth)/sign-up-success'
       path: '/sign-up-success'
       fullPath: '/sign-up-success'
-      preLoaderRoute: typeof AuthSignUpSuccessRouteImport
+      preLoaderRoute: typeof authSignUpSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/sign-up': {
-      id: '/_auth/sign-up'
+    '/(auth)/sign-up': {
+      id: '/(auth)/sign-up'
       path: '/sign-up'
       fullPath: '/sign-up'
-      preLoaderRoute: typeof AuthSignUpRouteImport
+      preLoaderRoute: typeof authSignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/login': {
-      id: '/_auth/login'
+    '/(auth)/login': {
+      id: '/(auth)/login'
       path: '/login'
       fullPath: '/login'
-      preLoaderRoute: typeof AuthLoginRouteImport
+      preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/forgot-password': {
-      id: '/_auth/forgot-password'
+    '/(auth)/forgot-password': {
+      id: '/(auth)/forgot-password'
       path: '/forgot-password'
       fullPath: '/forgot-password'
-      preLoaderRoute: typeof AuthForgotPasswordRouteImport
+      preLoaderRoute: typeof authForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_protected/foods/': {
@@ -527,13 +547,14 @@ const ProtectedRouteRouteWithChildren = ProtectedRouteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   ProtectedRouteRoute: ProtectedRouteRouteWithChildren,
-  AuthForgotPasswordRoute: AuthForgotPasswordRoute,
-  AuthLoginRoute: AuthLoginRoute,
-  AuthSignUpRoute: AuthSignUpRoute,
-  AuthSignUpSuccessRoute: AuthSignUpSuccessRoute,
-  AuthUpdatePasswordRoute: AuthUpdatePasswordRoute,
+  authForgotPasswordRoute: authForgotPasswordRoute,
+  authLoginRoute: authLoginRoute,
+  authSignUpRoute: authSignUpRoute,
+  authSignUpSuccessRoute: authSignUpSuccessRoute,
+  authUpdatePasswordRoute: authUpdatePasswordRoute,
   AuthConfirmRoute: AuthConfirmRoute,
   AuthErrorRoute: AuthErrorRoute,
+  AuthOauthRoute: AuthOauthRoute,
   DemoStorybookRoute: DemoStorybookRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   DemoApiNamesRoute: DemoApiNamesRoute,

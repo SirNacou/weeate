@@ -1,6 +1,6 @@
 FROM oven/bun:1-debian AS builder
 
-WORKDIR /app/frontend
+WORKDIR /app
 
 COPY ./frontend/bun.lock ./
 COPY ./frontend/package.json ./

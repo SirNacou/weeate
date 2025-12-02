@@ -1,15 +1,15 @@
-import { UpdatePasswordForm } from '@/components/update-password-form'
+import { SignUpForm } from '@/components/sign-up-form'
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_auth/update-password')({
-  component: UpdatePassword,
+export const Route = createFileRoute('/(auth)/sign-up')({
+  component: SignUp,
 })
 
-function UpdatePassword() {
+function SignUp() {
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
-        <UpdatePasswordForm />
+        <SignUpForm />
       </div>
     </div>
   )

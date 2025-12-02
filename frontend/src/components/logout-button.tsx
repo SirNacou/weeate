@@ -1,6 +1,5 @@
-import { createClient } from "@/lib/client";
-import { createClient as create } from "@/lib/server";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
 import { useNavigate } from "@tanstack/react-router";
 
 export function LogoutButton() {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -62,6 +63,17 @@ func (s *Server) buildHandler(ctx context.Context) (http.Handler, []func(context
 		WithResponseHeader: true,
 		WithRequestBody:    true,
 		WithResponseBody:   true,
+		Filters: []slogfiber.Filter{
+			func(ctx *fiber.Ctx) bool {
+				ignorePath := []string{"/livez", "/metrics", "/docs", "openapi"}
+				for _, path := range ignorePath {
+					if strings.Contains(ctx.Path(), path) {
+						return false
+					}
+				}
+				return true
+			},
+		},
 	}))
 	app.Use(healthcheck.New())
 	app.Use(recover.New())
