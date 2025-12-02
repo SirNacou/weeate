@@ -1,5 +1,5 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { FormDevtoolsPlugin } from "@tanstack/react-form-devtools";
+import { formDevtoolsPlugin } from "@tanstack/react-form-devtools";
 import {
   ClientOnly,
   HeadContent,
@@ -26,6 +26,9 @@ export interface MyRouterContext {
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
+  staticData: {
+    title: "Weeate",
+  },
   head: () => {
     return {
       meta: [
@@ -54,7 +57,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 function RootDocument({ children }: { children: React.ReactNode }) {
   const { matches } = useRouterState();
   const currentRoute = matches[matches.length - 1];
-  const pageTitle = currentRoute?.context.pageTitle;
+  const pageTitle = currentRoute?.staticData.title;
 
   const { isMobile } = useIsMobile();
   return (
@@ -91,11 +94,17 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               render: <TanStackRouterDevtoolsPanel />,
             },
             TanStackQueryDevtools,
-            FormDevtoolsPlugin(),
+            formDevtoolsPlugin(),
           ]}
         />
         <Scripts />
       </body>
     </html>
   );
+}
+
+declare module "@tanstack/react-router" {
+  interface StaticDataRouteOption {
+    title: string;
+  }
 }

@@ -1,4 +1,4 @@
-import { createServer } from "@/lib/server";
+import { createSupabaseClient } from "@/lib/supabase";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
@@ -32,7 +32,7 @@ const confirmFn = createServerFn({ method: "GET" })
       return { success: false, error: "No code found", redirectTo: null };
     }
 
-    const supabase = createServer();
+    const supabase = await createSupabaseClient();
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
@@ -45,6 +45,9 @@ const confirmFn = createServerFn({ method: "GET" })
 
 export const Route = createFileRoute("/auth/oauth")({
   preload: false,
+  staticData: {
+    title: "OAuth Callback",
+  },
   loader: async (opts) => {
     const result = await confirmFn({ data: opts.location.search });
 

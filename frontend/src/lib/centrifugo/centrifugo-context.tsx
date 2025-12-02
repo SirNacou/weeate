@@ -64,13 +64,13 @@ export const CentrifugoProvider: React.FC<Props> = ({ children }) => {
     centrifuge.on("connected", (ctx) => {
       setIsConnected(true);
       setClientId(ctx.client);
-      console.log("Centrifugo connected", ctx);
+      console.debug("Centrifugo connected", ctx);
     });
 
     centrifuge.on("disconnected", (ctx) => {
       setIsConnected(false);
       setClientId(null);
-      console.log("Centrifugo disconnected", ctx);
+      console.debug("Centrifugo disconnected", ctx);
     });
 
     centrifuge.connect();
@@ -87,7 +87,6 @@ export const CentrifugoProvider: React.FC<Props> = ({ children }) => {
 
       // 1. Initialize subscription entry if it doesn't exist
       if (!subsRef.current[channel]) {
-        console.log(`[Centrifugo] Creating new subscription: ${channel}`);
         const sub = client.newSubscription(channel);
         sub.subscribe();
 
@@ -126,13 +125,8 @@ export const CentrifugoProvider: React.FC<Props> = ({ children }) => {
         currentEntry.wrappers.delete(onData);
         currentEntry.count -= 1;
 
-        console.log(
-          `[Centrifugo] Unsubscribing component from ${channel}. Remaining: ${currentEntry.count}`
-        );
-
         // If no components are listening anymore, kill the subscription
         if (currentEntry.count <= 0) {
-          console.log(`[Centrifugo] Closing real subscription: ${channel}`);
           currentEntry.sub.removeAllListeners();
           currentEntry.sub.unsubscribe();
           client.removeSubscription(currentEntry.sub);

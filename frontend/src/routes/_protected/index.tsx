@@ -58,6 +58,9 @@ const getShoppingOrderServerFn = createServerFn({ method: "GET" })
 
 export const Route = createFileRoute("/_protected/")({
   component: Index,
+  staticData: {
+    title: "Home",
+  },
   beforeLoad: () => {
     return {
       pageTitle: "Home",
@@ -90,11 +93,6 @@ export const Route = createFileRoute("/_protected/")({
         },
       }),
     ]);
-
-    console.log("Loader fetched ordered items and shopping order", {
-      orderedItemsRes,
-      shoppingOrderRes,
-    });
 
     return {
       orderedItems: orderedItemsRes.data?.items || [],

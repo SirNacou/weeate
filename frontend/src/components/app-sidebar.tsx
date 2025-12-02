@@ -3,7 +3,6 @@ import { createSupabaseClient } from "@/lib/supabase";
 import { fetchUser } from "@/lib/supabase/fetch-user-server-fn";
 import { useQuery } from "@tanstack/react-query";
 import { Link, LinkOptions, useNavigate } from "@tanstack/react-router";
-import { Link, LinkOptions, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-react";
 import React from "react";
@@ -70,27 +69,15 @@ const AppSidebar = () => {
   const logOut: React.MouseEventHandler<HTMLDivElement> = async (e) => {
     e.preventDefault();
     const supabase = await createSupabaseClient();
-    supabase.auth.signOut();
-    navigate({ to: "/login" });
+    supabase.auth.signOut().then(() => {
+      navigate({ to: "/login" });
+    });
   };
 
   const { data: user } = useQuery({
     queryKey: ["user"],
     queryFn: getUser,
   });
-
-  function handleSignOut(
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
-  ): void {
-    event.preventDefault();
-    supabase.auth.signOut().then(({ error }) => {
-      if (error) {
-        console.error("Error signing out:", error.message);
-      } else {
-        navigate({ to: "/login" });
-      }
-    });
-  }
 
   return (
     <Sidebar>
@@ -194,12 +181,22 @@ const AppSidebar = () => {
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem>
-                    <BadgeCheck />
-                    Account
+                    <Link
+                      to="/account"
+                      className="flex gap-2 items-center w-full"
+                    >
+                      <BadgeCheck />
+                      Account
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Bell />
-                    Notifications
+                    <Link
+                      to="/notifications"
+                      className="flex gap-2 items-center w-full"
+                    >
+                      <Bell />
+                      Notifications
+                    </Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />

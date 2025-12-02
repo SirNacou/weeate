@@ -10,6 +10,9 @@ import { useMemo } from "react";
 
 export const Route = createFileRoute("/_protected/foods/")({
   component: Foods,
+  staticData: {
+    title: "Foods",
+  },
   beforeLoad: ({ context }) => {
     context.pageTitle = "Foods";
   },

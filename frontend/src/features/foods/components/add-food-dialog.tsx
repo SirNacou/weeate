@@ -58,8 +58,7 @@ const AddFoodDialog = () => {
       onChange: foodSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log("Submitted values:", value);
-      const result = await addFood.mutateAsync({
+      await addFood.mutateAsync({
         body: {
           name: value.name,
           price: value.price,
@@ -67,13 +66,11 @@ const AddFoodDialog = () => {
           image_file_id: value.imageFileId,
         },
       });
-      console.log("Add food result:", result);
     },
   });
 
   const handleFileChange = useCallback(
     (files: FileWithPreview[]) => {
-      console.log("File changed:", files);
       const file = files.at(0);
       if (file?.file instanceof File) {
         // Update the imageFile field
@@ -81,7 +78,6 @@ const AddFoodDialog = () => {
           form.setFieldValue("imageFileId", file.file.name);
         }, 5000);
       }
-      console.log("handleFileChange completed");
     },
     [form]
   );

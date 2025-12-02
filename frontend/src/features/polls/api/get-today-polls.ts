@@ -8,7 +8,6 @@ export const listPollsTodayServerFn = createServerFn({ method: "GET" }).handler(
       client: serverClient,
       signal,
     });
-    console.log("Today Polls Data:", data, "Error:", error);
 
     if (error) {
       return {

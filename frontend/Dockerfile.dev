@@ -2,12 +2,12 @@ FROM oven/bun:1-debian AS builder
 
 WORKDIR /app
 
-COPY ./bun.lock ./
-COPY ./package.json ./
+COPY ./frontend/bun.lock ./
+COPY ./frontend/package.json ./
 
 RUN bun install --frozen-lockfile
 
-COPY . .
+COPY ./frontend ./
 
 EXPOSE 3000
 

@@ -1,8 +1,5 @@
 "use client";
 
-import type { Table } from "@tanstack/react-table";
-import { Check, Settings2 } from "lucide-react";
-import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -18,9 +15,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import type { Table } from "@tanstack/react-table";
+import { Check, Settings2 } from "lucide-react";
+import * as React from "react";
 
-interface DataTableViewOptionsProps<TData>
-  extends React.ComponentProps<typeof PopoverContent> {
+interface DataTableViewOptionsProps<TData> extends React.ComponentProps<
+  typeof PopoverContent
+> {
   table: Table<TData>;
 }
 
@@ -63,7 +64,6 @@ export function DataTableViewOptions<TData>({
                 <CommandItem
                   key={column.id}
                   onSelect={() => {
-                    console.log(column.getIsVisible());
                     column.toggleVisibility(!column.getIsVisible());
                   }}
                 >

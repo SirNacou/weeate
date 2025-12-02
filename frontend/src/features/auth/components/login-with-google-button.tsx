@@ -1,5 +1,4 @@
 import { LogosGoogleIcon } from "@/components/icons";
-import { LogosGoogleIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { createSupabaseClient } from "@/lib/supabase";
 import { useState } from "react";
@@ -21,10 +20,6 @@ export function LoginWithGoogleButton({}: Props) {
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth/oauth?next=/`,
-          queryParams: {
-            access_type: "offline",
-            prompt: "consent",
-          },
           queryParams: {
             access_type: "offline",
             prompt: "consent",

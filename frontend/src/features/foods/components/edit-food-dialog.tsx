@@ -3,7 +3,6 @@ import {
   putFoodsByIdMutation,
 } from "@/client/@tanstack/react-query.gen";
 import ImageUpload from "@/components/image-upload";
-import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { FileWithPreview } from "@/hooks/use-file-upload";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect } from "react";
@@ -101,7 +101,6 @@ const AddFoodDialog = ({
 
   const handleFileChange = useCallback(
     (files: FileWithPreview[]) => {
-      console.log("File changed:", files);
       const file = files.at(0);
       if (file?.file instanceof File) {
         // Update the imageFile field
@@ -109,12 +108,9 @@ const AddFoodDialog = ({
           form.setFieldValue("imageFileId", file.file.name);
         }, 5000);
       }
-      console.log("handleFileChange completed");
     },
     [form]
   );
-
-  console.log("handleFileChange callback:", handleFileChange);
 
   return (
     <Dialog onOpenChange={onOpenChange} {...props}>

@@ -13,6 +13,9 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_protected/polls/today/")({
   component: RouteComponent,
+  staticData: {
+    title: "Today's Polls",
+  },
   beforeLoad: () => {
     return {
       pageTitle: "Today's Polls",
@@ -37,7 +40,6 @@ function RouteComponent() {
 function PollsContent() {
   const { polls } = Route.useLoaderData();
   const { user } = Route.useRouteContext();
-  console.log("polls loader data", polls);
 
   const queryClient = useQueryClient();
 
@@ -111,7 +113,6 @@ function PollsContent() {
 }
 function updatePollsPage(queryClient: QueryClient): (data: any) => void {
   return (data) => {
-    console.log("Vote moved event received", data);
     if (data.type === "poll_created") {
       toast("New poll created, refetching today's polls...");
       queryClient.invalidateQueries({ queryKey: listPollsTodayQueryKey() });
