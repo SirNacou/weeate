@@ -17,7 +17,7 @@ type GetShoppingOrderQuery struct {
 
 type GetShoppingOrderResponse struct {
 	// Define the response fields here
-	Items      []ShoppingItem `json:"items" nullable:"false" minItems:"1"`
+	Items      []ShoppingItem `json:"items" nullable:"false"`
 	TotalPrice int64          `json:"total_price"`
 }
 
@@ -53,7 +53,10 @@ func (h *GetShoppingOrderQueryHandler) Handle(ctx context.Context, query *GetSho
 		Where("order_date = ? AND buyer_user_id = ?", query.Date, user.ID).First(ctx)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, nil
+			return &GetShoppingOrderResponse{
+				Items:      []ShoppingItem{},
+				TotalPrice: 0,
+			}, nil
 		}
 		return nil, err
 	}

@@ -1,3 +1,23 @@
+import useIsMobile from "@/hooks/use-is-mobile";
+import { createSupabaseClient } from "@/lib/supabase";
+import { fetchUser } from "@/lib/supabase/fetch-user-server-fn";
+import { useQuery } from "@tanstack/react-query";
+import { Link, LinkOptions, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-react";
+import React from "react";
+import FluentFood32Filled from "~icons/fluent/food-32-filled";
+import FluentHome32Filled from "~icons/fluent/home-32-filled";
+import LucideVote from "~icons/lucide/vote?width=2em&height=2em";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./animate-ui/components/radix/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
@@ -9,25 +29,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "./animate-ui/components/radix/sidebar";
-import { Link, LinkOptions } from "@tanstack/react-router";
-import { ChevronsUpDown, BadgeCheck, Bell, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import useIsMobile from "@/hooks/use-is-mobile";
-import { fetchUser } from "@/lib/fetch-user-server-fn";
-import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
-import {
-  DropdownMenu,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "./animate-ui/components/radix/dropdown-menu";
-import FluentHome32Filled from "~icons/fluent/home-32-filled";
-import FluentFood32Filled from "~icons/fluent/food-32-filled";
-import LucideVote from "~icons/lucide/vote?width=2em&height=2em";
 
 type NavData = {
   linkOptions: LinkOptions;
@@ -62,6 +64,14 @@ const DATA: NavData[] = [
 const AppSidebar = () => {
   const { isMobile } = useIsMobile();
   const getUser = useServerFn(fetchUser);
+  const navigate = useNavigate();
+
+  const logOut: React.MouseEventHandler<HTMLDivElement> = async (e) => {
+    e.preventDefault();
+    const supabase = await createSupabaseClient();
+    supabase.auth.signOut();
+    navigate({ to: "/login" });
+  };
 
   const { data: user } = useQuery({
     queryKey: ["user"],
@@ -179,9 +189,7 @@ const AppSidebar = () => {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={(e) => {
-                  console.log("Logout")
-                }}>
+                <DropdownMenuItem onClick={logOut}>
                   <LogOut />
                   Log out
                 </DropdownMenuItem>
