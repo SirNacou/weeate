@@ -20,7 +20,7 @@ export function LoginForm({
   const navigate = useNavigate();
 
   async function onLoginSuccess(): Promise<void> {
-    await navigate({ to: "/protected" });
+    await navigate({ to: "/" });
   }
 
   return (

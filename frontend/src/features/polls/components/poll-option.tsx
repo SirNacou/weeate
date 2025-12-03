@@ -23,7 +23,6 @@ function PollOptionRadio({
   isSelected = false,
   disabled = false,
 }: Props) {
-  console.log(disabled);
   return (
     <div
       key={option.id}

@@ -7,7 +7,7 @@ COPY ./frontend/package.json ./
 
 RUN bun install --frozen-lockfile
 
-COPY ./frontend/ ./
+COPY ./frontend ./
 
 EXPOSE 3000
 

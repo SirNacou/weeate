@@ -1,25 +1,25 @@
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
-import { format, parse, isValid, getYear } from "date-fns";
-import {
-  useRef,
-  useState,
-  useMemo,
-  useEffect,
-  useLayoutEffect,
-  useCallback,
-} from "react";
-import { CalendarIcon, CircleAlert, CircleCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useFormContext } from "react-hook-form";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { format, getYear, isValid, parse } from "date-fns";
+import { CalendarIcon, CircleAlert, CircleCheck } from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { TZDate } from "react-day-picker";
+import { useFormContext } from "react-hook-form";
 
 type DateTimeInputProps = {
   className?: string;
@@ -157,7 +157,6 @@ const DateTimeInput = React.forwardRef<HTMLInputElement, DateTimeInputProps>(
         value || new TZDate(new Date(), timezone)
       );
       const year = getYear(date);
-      // console.log('inputValue', {allHasValue, validSegments, inputStr, formatStr, date, year});
       if (isValid(date) && year > 1900 && year < 2100) {
         return date;
       }
@@ -165,7 +164,6 @@ const DateTimeInput = React.forwardRef<HTMLInputElement, DateTimeInputProps>(
     useEffect(() => {
       if (!inputValue) return;
       if (value?.getTime() !== inputValue.getTime()) {
-        // console.log('inputValueChanged', {formatStr, inputStr, value, inputValue, });
         options.onChange?.(inputValue);
       }
     }, [inputValue]);

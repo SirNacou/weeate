@@ -159,7 +159,7 @@ export const zShoppingItem = z.object({
 
 export const zGetShoppingOrderResponse = z.object({
 	$schema: z.optional(z.url().readonly()),
-	items: z.array(zShoppingItem).min(1),
+	items: z.array(zShoppingItem),
 	total_price: z.coerce.bigint(),
 });
 
@@ -224,7 +224,7 @@ export const zGetOrderedItemsResponseWritable = z.object({
 });
 
 export const zGetShoppingOrderResponseWritable = z.object({
-	items: z.array(zShoppingItem).min(1),
+	items: z.array(zShoppingItem),
 	total_price: z.coerce.bigint(),
 });
 

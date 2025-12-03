@@ -5,7 +5,6 @@ import {
 } from "@/components/animate-ui/components/radix/sidebar";
 import AppSidebar from "@/components/app-sidebar";
 import { fetchUser } from "@/lib/supabase/fetch-user-server-fn";
-import { ProtectedRouteContext } from "@/types/route-context";
 import {
   createFileRoute,
   Outlet,
@@ -14,9 +13,11 @@ import {
 } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_protected")({
+  staticData: {
+    title: "",
+  },
   beforeLoad: async () => {
     const user = await fetchUser();
-    console.log("Fetch user", user);
 
     if (!user) {
       throw redirect({ to: "/login" });
@@ -31,9 +32,7 @@ export const Route = createFileRoute("/_protected")({
 
 function ProtectedLayout() {
   const matches = useMatches();
-  const { context } = matches[matches.length - 1] as {
-    context: ProtectedRouteContext;
-  };
+  const staticData = matches[matches.length - 1].staticData;
 
   return (
     <SidebarProvider>
@@ -41,9 +40,9 @@ function ProtectedLayout() {
       <SidebarInset>
         <SidebarTrigger className="size-12" />
         <div className="container mx-auto py-6 px-6 md:p-10 max-w-4xl">
-          {context.pageTitle && (
+          {staticData.title && (
             <div className="mb-6">
-              <h1 className="text-3xl font-bold">{context.pageTitle}</h1>
+              <h1 className="text-3xl font-bold">{staticData.title}</h1>
             </div>
           )}
           <Outlet />

@@ -102,7 +102,6 @@ const PollCard = ({ poll }: Props) => {
       onChangeDebounceMs: 500,
       onChange(props) {
         props.formApi.handleSubmit();
-        console.log("Form changed:", props.fieldApi.state.value);
       },
     },
     onSubmit: async ({ value }) => {
@@ -120,9 +119,7 @@ const PollCard = ({ poll }: Props) => {
         .catch(() => {});
     },
   });
-  useEffect(() => {
-    console.log("Form state updated:", form.state.values.selectedOption);
-  }, [form.state.values.selectedOption]);
+  useEffect(() => {}, [form.state.values.selectedOption]);
 
   return (
     <form
@@ -175,7 +172,6 @@ const PollCard = ({ poll }: Props) => {
                           field.state.value.isSelected
                         }
                         onSelect={(id) => {
-                          console.log("Option selected:", id);
                           if (field.state.value.id === id) {
                             // Deselecting the currently selected option
                             field.handleChange({

@@ -69,8 +69,9 @@ const AppSidebar = () => {
   const logOut: React.MouseEventHandler<HTMLDivElement> = async (e) => {
     e.preventDefault();
     const supabase = await createSupabaseClient();
-    supabase.auth.signOut();
-    navigate({ to: "/login" });
+    supabase.auth.signOut().then(() => {
+      navigate({ to: "/login" });
+    });
   };
 
   const { data: user } = useQuery({
@@ -180,12 +181,22 @@ const AppSidebar = () => {
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem>
-                    <BadgeCheck />
-                    Account
+                    <Link
+                      to="/account"
+                      className="flex gap-2 items-center w-full"
+                    >
+                      <BadgeCheck />
+                      Account
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Bell />
-                    Notifications
+                    <Link
+                      to="/notifications"
+                      className="flex gap-2 items-center w-full"
+                    >
+                      <Bell />
+                      Notifications
+                    </Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />

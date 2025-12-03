@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createSupabaseClient } from "@/lib/supabase";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
@@ -31,13 +31,12 @@ const confirmFn = createServerFn({ method: "GET" })
     const next = _next?.startsWith("/") ? _next : "/";
 
     if (token_hash && type) {
-      const supabase = createClient();
+      const supabase = await createSupabaseClient();
 
       const { error } = await supabase.auth.verifyOtp({
         type,
         token_hash,
       });
-      console.log(error?.message);
       if (!error) {
         // redirect user to specified redirect URL or root of app
         throw redirect({ href: next });
@@ -59,5 +58,8 @@ const confirmFn = createServerFn({ method: "GET" })
 
 export const Route = createFileRoute("/auth/confirm")({
   preload: false,
+  staticData: {
+    title: "Confirm Email",
+  },
   loader: (opts) => confirmFn({ data: opts.location.search }),
 });
