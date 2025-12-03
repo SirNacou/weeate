@@ -1,7 +1,6 @@
-import { serverClient } from "@/api";
-import { getOrderedItems, getShoppingOrder } from "@/client";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { getOrderedItems, getShoppingOrder, serverClient } from "@/api"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import {
   Empty,
   EmptyContent,
@@ -9,14 +8,14 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty";
-import MealCard from "@/features/orders/components/meal-card";
-import ShoppingCard from "@/features/orders/components/shopping-card";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { useEffect } from "react";
-import z from "zod";
-import LucideSandwich from "~icons/lucide/sandwich";
+} from "@/components/ui/empty"
+import MealCard from "@/features/orders/components/meal-card"
+import ShoppingCard from "@/features/orders/components/shopping-card"
+import { createFileRoute, Link, redirect } from "@tanstack/react-router"
+import { createServerFn } from "@tanstack/react-start"
+import { useEffect } from "react"
+import z from "zod"
+import LucideSandwich from "~icons/lucide/sandwich"
 
 const getOrderedItemsServerFn = createServerFn({ method: "GET" })
   .inputValidator(z.object({ date: z.date() }))

@@ -1,6 +1,5 @@
-import { serverClient } from "@/api";
-import { getAuthCentrifugoToken } from "@/client";
-import { createServerFn } from "@tanstack/react-start";
+import { getAuthCentrifugoToken, serverClient } from "@/api"
+import { createServerFn } from "@tanstack/react-start"
 
 export const getCentrifugoTokenServerFn = createServerFn({
   method: "GET",

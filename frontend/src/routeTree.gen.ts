@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as HealthRouteImport } from './routes/health'
 import { Route as ProtectedRouteRouteImport } from './routes/_protected/route'
 import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
 import { Route as AuthOauthRouteImport } from './routes/auth/oauth'
@@ -25,6 +26,11 @@ import { Route as ProtectedSettingsNotificationsRouteImport } from './routes/_pr
 import { Route as ProtectedSettingsAccountRouteImport } from './routes/_protected/_settings/account'
 import { Route as ProtectedPollsTodayIndexRouteImport } from './routes/_protected/polls/today/index'
 
+const HealthRoute = HealthRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProtectedRouteRoute = ProtectedRouteRouteImport.update({
   id: '/_protected',
   getParentRoute: () => rootRouteImport,
@@ -104,6 +110,7 @@ const ProtectedPollsTodayIndexRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/health': typeof HealthRoute
   '/forgot-password': typeof authForgotPasswordRoute
   '/login': typeof authLoginRoute
   '/sign-up': typeof authSignUpRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/polls/today': typeof ProtectedPollsTodayIndexRoute
 }
 export interface FileRoutesByTo {
+  '/health': typeof HealthRoute
   '/forgot-password': typeof authForgotPasswordRoute
   '/login': typeof authLoginRoute
   '/sign-up': typeof authSignUpRoute
@@ -138,6 +146,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_protected': typeof ProtectedRouteRouteWithChildren
+  '/health': typeof HealthRoute
   '/(auth)/forgot-password': typeof authForgotPasswordRoute
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/sign-up': typeof authSignUpRoute
@@ -156,6 +165,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/health'
     | '/forgot-password'
     | '/login'
     | '/sign-up'
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/polls/today'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/health'
     | '/forgot-password'
     | '/login'
     | '/sign-up'
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_protected'
+    | '/health'
     | '/(auth)/forgot-password'
     | '/(auth)/login'
     | '/(auth)/sign-up'
@@ -207,6 +219,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   ProtectedRouteRoute: typeof ProtectedRouteRouteWithChildren
+  HealthRoute: typeof HealthRoute
   authForgotPasswordRoute: typeof authForgotPasswordRoute
   authLoginRoute: typeof authLoginRoute
   authSignUpRoute: typeof authSignUpRoute
@@ -219,6 +232,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/health': {
+      id: '/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof HealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_protected': {
       id: '/_protected'
       path: ''
@@ -351,6 +371,7 @@ const ProtectedRouteRouteWithChildren = ProtectedRouteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   ProtectedRouteRoute: ProtectedRouteRouteWithChildren,
+  HealthRoute: HealthRoute,
   authForgotPasswordRoute: authForgotPasswordRoute,
   authLoginRoute: authLoginRoute,
   authSignUpRoute: authSignUpRoute,

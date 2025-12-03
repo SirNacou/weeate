@@ -39,7 +39,15 @@ func AuthMiddleware(ctx context.Context, authUrl, cookieName string) (fiber.Hand
 		if strings.Contains(c.Path(), "/docs") || strings.Contains(c.Path(), "/openapi") {
 			return c.Next()
 		}
-		authCookie := c.Cookies(cookieName)
+
+		authCookie := ""
+		for k, v := range c.Request().Header.Cookies() {
+			if strings.Contains(string(k), cookieName) {
+				authCookie += string(v)
+			}
+		}
+
+		slog.Info("log auth cookie", "auth cookie", c.GetReqHeaders()["Authorization"])
 
 		if !strings.HasPrefix(authCookie, "base64-") {
 			return c.SendStatus(http.StatusUnauthorized)

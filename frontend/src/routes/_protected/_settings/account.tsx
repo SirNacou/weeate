@@ -1,19 +1,14 @@
-import { Button } from "@/components/animate-ui/components/buttons/button";
-import {
-  Dialog,
-  DialogTrigger,
-} from "@/components/animate-ui/components/radix/dialog";
-import EditableAvatar from "@/components/editable-avatar";
+import { Button } from "@/components/animate-ui/components/buttons/button"
+import EditableAvatar from "@/components/editable-avatar"
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { DialogContent } from "@radix-ui/react-dialog"
-import { useForm } from "@tanstack/react-form";
-import { createFileRoute } from "@tanstack/react-router";
+} from "@/components/ui/card"
+import { useForm } from "@tanstack/react-form"
+import { createFileRoute } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/_protected/_settings/account")({
   component: RouteComponent,

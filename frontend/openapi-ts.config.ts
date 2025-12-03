@@ -1,4 +1,4 @@
-import { defineConfig } from "@hey-api/openapi-ts";
+import { defineConfig } from "@hey-api/openapi-ts"
 
 export default defineConfig({
   input: {
@@ -30,7 +30,7 @@ export default defineConfig({
     "@hey-api/schemas",
     {
       name: "@hey-api/client-fetch",
-      runtimeConfigPath: "../api/api-client-config.ts",
+      runtimeConfigPath: "@/api/hey-api.ts",
       dates: {
         offset: true,
       },

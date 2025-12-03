@@ -38,7 +38,7 @@ services:
       - ./go.sum:/app/go.sum
     restart: on-failure
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/livez"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8080/livez"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -99,12 +99,15 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - frontend
-      - backend
-      - centrifugo
+      frontend:
+        condition: service_started
+      backend:
+        condition: service_healthy
+      centrifugo:
+        condition: service_healthy
     restart: on-failure
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost/api/livez"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost/"]
       interval: 10s
       timeout: 5s
       retries: 3

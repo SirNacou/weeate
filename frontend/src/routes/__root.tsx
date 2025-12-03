@@ -1,24 +1,24 @@
-import { TanStackDevtools } from "@tanstack/react-devtools";
-import { formDevtoolsPlugin } from "@tanstack/react-form-devtools";
+import { TanStackDevtools } from "@tanstack/react-devtools"
+import { formDevtoolsPlugin } from "@tanstack/react-form-devtools"
 import {
   ClientOnly,
   HeadContent,
   Scripts,
   createRootRouteWithContext,
   useRouterState,
-} from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+} from "@tanstack/react-router"
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 
-import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
+import TanStackQueryDevtools from "../integrations/tanstack-query/devtools"
 
-import appCss from "../styles.css?url";
+import appCss from "../styles.css?url"
 
-import { Toaster } from "@/components/ui/sonner";
-import { env } from "@/env/client";
-import useIsMobile from "@/hooks/use-is-mobile";
-import { ImageKitProvider } from "@imagekit/react";
-import type { QueryClient } from "@tanstack/react-query";
-import { MotionConfig } from "motion/react";
+import { Toaster } from "@/components/ui/sonner"
+import { env } from "@/env/client"
+import useIsMobile from "@/hooks/use-is-mobile"
+import { ImageKitProvider } from "@imagekit/react"
+import type { QueryClient } from "@tanstack/react-query"
+import { MotionConfig } from "motion/react"
 
 export interface MyRouterContext {
   queryClient: QueryClient;

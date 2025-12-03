@@ -1,14 +1,14 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { FoodImage } from "@/features/foods/components/food-image";
+} from "@/components/ui/card"
+import { FoodImage } from "@/features/foods/components/food-image"
 
-import { OrderedItem } from "@/client";
+import { OrderedItem } from "@/api"
 
 type Props = {
   orderedItems: OrderedItem[];

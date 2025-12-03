@@ -1,9 +1,8 @@
-import { serverClient } from "@/api";
-import { GetTodayPollsQueryResponse, postPollsByIdVote } from "@/client";
-import { listPollsTodayQueryKey } from "@/client/@tanstack/react-query.gen";
-import { zPostPollsByIdVoteData } from "@/client/zod.gen";
-import CloseTimer from "@/components/close-timer";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { GetTodayPollsQueryResponse, postPollsByIdVote, serverClient } from "@/api"
+import { listPollsTodayQueryKey } from "@/client/@tanstack/react-query.gen"
+import { zPostPollsByIdVoteData } from "@/client/zod.gen"
+import CloseTimer from "@/components/close-timer"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Card,
   CardContent,
@@ -11,17 +10,17 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { FieldGroup } from "@/components/ui/field";
-import { Route } from "@/routes/_protected/route";
-import { useForm } from "@tanstack/react-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo } from "react";
-import { toast } from "sonner";
-import { z } from "zod";
-import PollOptionRadio from "./poll-option";
-import PollStrategyBadge from "./poll-strategy-badge";
+} from "@/components/ui/card"
+import { FieldGroup } from "@/components/ui/field"
+import { Route } from "@/routes/_protected/route"
+import { useForm } from "@tanstack/react-form"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { createServerFn } from "@tanstack/react-start"
+import { useEffect, useMemo } from "react"
+import { toast } from "sonner"
+import { z } from "zod"
+import PollOptionRadio from "./poll-option"
+import PollStrategyBadge from "./poll-strategy-badge"
 
 const castVoteServerFn = createServerFn({ method: "POST" })
   .inputValidator(zPostPollsByIdVoteData)
