@@ -1,10 +1,11 @@
-import tailwindcss from "@tailwindcss/vite";
-import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-import viteReact from "@vitejs/plugin-react";
-import path from "path";
-import Icons from "unplugin-icons/vite";
-import { defineConfig } from "vite";
-import viteTsConfigPaths from "vite-tsconfig-paths";
+import "@/env/index"
+import tailwindcss from "@tailwindcss/vite"
+import { tanstackStart } from "@tanstack/react-start/plugin/vite"
+import viteReact from "@vitejs/plugin-react"
+import path from "path"
+import Icons from "unplugin-icons/vite"
+import { defineConfig } from "vite"
+import viteTsConfigPaths from "vite-tsconfig-paths"
 
 const config = defineConfig({
   resolve: {

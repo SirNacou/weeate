@@ -1,7 +1,6 @@
-import { serverClient } from "@/api";
-import { getOrderedItems, getShoppingOrder } from "@/client";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { getOrderedItems, getShoppingOrder, serverClient } from "@/api"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import {
   Empty,
   EmptyContent,
@@ -9,15 +8,14 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty";
-import MealCard from "@/features/orders/components/meal-card";
-import ShoppingCard from "@/features/orders/components/shopping-card";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { useEffect } from "react";
-import { toast } from "sonner";
-import z from "zod";
-import LucideSandwich from "~icons/lucide/sandwich";
+} from "@/components/ui/empty"
+import MealCard from "@/features/orders/components/meal-card"
+import ShoppingCard from "@/features/orders/components/shopping-card"
+import { createFileRoute, Link, redirect } from "@tanstack/react-router"
+import { createServerFn } from "@tanstack/react-start"
+import { useEffect } from "react"
+import z from "zod"
+import LucideSandwich from "~icons/lucide/sandwich"
 
 const getOrderedItemsServerFn = createServerFn({ method: "GET" })
   .inputValidator(z.object({ date: z.date() }))
@@ -59,6 +57,9 @@ const getShoppingOrderServerFn = createServerFn({ method: "GET" })
 
 export const Route = createFileRoute("/_protected/")({
   component: Index,
+  staticData: {
+    title: "Home",
+  },
   beforeLoad: () => {
     return {
       pageTitle: "Home",
@@ -92,11 +93,6 @@ export const Route = createFileRoute("/_protected/")({
       }),
     ]);
 
-    console.log("Loader fetched ordered items and shopping order", {
-      orderedItemsRes,
-      shoppingOrderRes,
-    });
-
     return {
       orderedItems: orderedItemsRes.data?.items || [],
       shoppingOrder: shoppingOrderRes.data,
@@ -111,17 +107,8 @@ function Index() {
   useEffect(() => {
     if (error) {
       console.error("Error loading data:", error);
-      toast.error(`Error loading data: ${error}`);
     }
   }, [error]);
-
-  if (!!error) {
-    return (
-      <div className="container mx-auto py-6 px-6 md:p-10 max-w-4xl">
-        <p className="text-red-600">Error loading data: {error}</p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -146,7 +133,9 @@ function Index() {
         </Card>
       : <MealCard orderedItems={orderedItems} />}
 
-        {shoppingOrder && <ShoppingCard shoppingOrder={shoppingOrder} />}
+      {shoppingOrder && shoppingOrder.items.length > 0 && (
+        <ShoppingCard shoppingOrder={shoppingOrder} />
+      )}
     </div>
   );
 }

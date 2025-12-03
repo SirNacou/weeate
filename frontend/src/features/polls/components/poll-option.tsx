@@ -1,14 +1,14 @@
-import { PollOption } from "@/client";
+import { PollOption } from "@/api"
 import {
   AvatarGroup,
   AvatarGroupTooltip,
-} from "@/components/animate-ui/components/animate/avatar-group";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Label } from "@/components/ui/label";
-import { FoodImage } from "@/features/foods/components/food-image";
-import { cn } from "@/lib/utils";
-import { Circle } from "lucide-react";
-import TablerCurrencyDong from "~icons/tabler/currency-dong?width=2em&height=2em";
+} from "@/components/animate-ui/components/animate/avatar-group"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Label } from "@/components/ui/label"
+import { FoodImage } from "@/features/foods/components/food-image"
+import { cn } from "@/lib/utils"
+import { Circle } from "lucide-react"
+import TablerCurrencyDong from "~icons/tabler/currency-dong?width=2em&height=2em"
 
 type Props = {
   option: PollOption;
@@ -23,7 +23,6 @@ function PollOptionRadio({
   isSelected = false,
   disabled = false,
 }: Props) {
-  console.log(disabled);
   return (
     <div
       key={option.id}

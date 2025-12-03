@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/client";
-import { useState } from "react";
 import { LogosGoogleIcon } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+import { createSupabaseClient } from "@/lib/supabase";
+import { useState } from "react";
 
 type Props = {} & React.HTMLAttributes<HTMLDivElement>;
 
@@ -11,7 +11,7 @@ export function LoginWithGoogleButton({}: Props) {
 
   const handleSocialLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
+    const supabase = await createSupabaseClient();
     setIsLoading(true);
     setError(null);
 
@@ -19,7 +19,11 @@ export function LoginWithGoogleButton({}: Props) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/oauth?next=/protected`,
+          redirectTo: `${window.location.origin}/auth/oauth?next=/`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
         },
       });
 

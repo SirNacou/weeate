@@ -13,8 +13,8 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./frontend/:/app/frontend/
-      - /app/frontend/node_modules
+      - ./frontend/:/app/
+      - /app/node_modules
     restart: on-failure
 
   backend:
@@ -23,8 +23,8 @@ services:
       dockerfile: ./backend/Dockerfile.dev
     container_name: backend
     ports:
-      - 8080:8080
       - 40000:40000
+      - 8080:8080
     env_file:
       - .env
     depends_on:
@@ -38,7 +38,7 @@ services:
       - ./go.sum:/app/go.sum
     restart: on-failure
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/livez"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8080/livez"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -52,8 +52,8 @@ services:
     volumes:
       - ./centrifugo/config.json:/centrifugo/config.json
     command: centrifugo -c config.json
-    ports:
-      - 8000:8000
+    expose:
+      - 8000
     ulimits:
       nofile:
         soft: 65535
@@ -89,6 +89,28 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 10s
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      frontend:
+        condition: service_started
+      backend:
+        condition: service_healthy
+      centrifugo:
+        condition: service_healthy
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
       start_period: 10s
 
 volumes:

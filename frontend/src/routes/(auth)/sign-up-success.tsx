@@ -7,8 +7,11 @@ import {
 } from '@/components/ui/card'
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_auth/sign-up-success')({
+export const Route = createFileRoute('/(auth)/sign-up-success')({
   component: SignUpSuccess,
+  staticData: {
+    title: 'Sign Up Successful',
+  },
 })
 
 function SignUpSuccess() {

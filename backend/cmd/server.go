@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -52,7 +53,10 @@ func NewServer(
 
 func (s *Server) buildHandler(ctx context.Context) (http.Handler, []func(context.Context), error) {
 	// Setup Fiber app
-	app := fiber.New(fiber.Config{})
+	app := fiber.New(fiber.Config{
+		ReadBufferSize:  16384, // 16KB (default is 4KB)
+		WriteBufferSize: 16384, // 16KB
+	})
 
 	app.Use(slogfiber.NewWithConfig(slog.Default(), slogfiber.Config{
 		WithRequestID:      true,
@@ -62,6 +66,17 @@ func (s *Server) buildHandler(ctx context.Context) (http.Handler, []func(context
 		WithResponseHeader: true,
 		WithRequestBody:    true,
 		WithResponseBody:   true,
+		Filters: []slogfiber.Filter{
+			func(ctx *fiber.Ctx) bool {
+				ignorePath := []string{"/livez", "/metrics", "/docs", "openapi"}
+				for _, path := range ignorePath {
+					if strings.Contains(ctx.Path(), path) {
+						return false
+					}
+				}
+				return true
+			},
+		},
 	}))
 	app.Use(healthcheck.New())
 	app.Use(recover.New())

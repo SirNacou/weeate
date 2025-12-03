@@ -11,6 +11,6 @@ RUN go mod download
 
 COPY ./backend ./backend
 
-RUN go build -o /usr/local/bin/app ./backend/cmd/main.go
+RUN go build -o /usr/local/bin/app ./backend/cmd/
 EXPOSE 8080
 CMD ["app"]

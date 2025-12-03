@@ -1,9 +1,8 @@
-import { serverClient } from "@/api";
-import { GetTodayPollsQueryResponse, postPollsByIdVote } from "@/client";
-import { listPollsTodayQueryKey } from "@/client/@tanstack/react-query.gen";
-import { zPostPollsByIdVoteData } from "@/client/zod.gen";
-import CloseTimer from "@/components/close-timer";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { GetTodayPollsQueryResponse, postPollsByIdVote, serverClient } from "@/api"
+import { listPollsTodayQueryKey } from "@/client/@tanstack/react-query.gen"
+import { zPostPollsByIdVoteData } from "@/client/zod.gen"
+import CloseTimer from "@/components/close-timer"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Card,
   CardContent,
@@ -11,17 +10,17 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { FieldGroup } from "@/components/ui/field";
-import { Route } from "@/routes/_protected/route";
-import { useForm } from "@tanstack/react-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo } from "react";
-import { toast } from "sonner";
-import { z } from "zod";
-import PollOptionRadio from "./poll-option";
-import PollStrategyBadge from "./poll-strategy-badge";
+} from "@/components/ui/card"
+import { FieldGroup } from "@/components/ui/field"
+import { Route } from "@/routes/_protected/route"
+import { useForm } from "@tanstack/react-form"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { createServerFn } from "@tanstack/react-start"
+import { useEffect, useMemo } from "react"
+import { toast } from "sonner"
+import { z } from "zod"
+import PollOptionRadio from "./poll-option"
+import PollStrategyBadge from "./poll-strategy-badge"
 
 const castVoteServerFn = createServerFn({ method: "POST" })
   .inputValidator(zPostPollsByIdVoteData)
@@ -102,7 +101,6 @@ const PollCard = ({ poll }: Props) => {
       onChangeDebounceMs: 500,
       onChange(props) {
         props.formApi.handleSubmit();
-        console.log("Form changed:", props.fieldApi.state.value);
       },
     },
     onSubmit: async ({ value }) => {
@@ -120,9 +118,7 @@ const PollCard = ({ poll }: Props) => {
         .catch(() => {});
     },
   });
-  useEffect(() => {
-    console.log("Form state updated:", form.state.values.selectedOption);
-  }, [form.state.values.selectedOption]);
+  useEffect(() => {}, [form.state.values.selectedOption]);
 
   return (
     <form
@@ -175,7 +171,6 @@ const PollCard = ({ poll }: Props) => {
                           field.state.value.isSelected
                         }
                         onSelect={(id) => {
-                          console.log("Option selected:", id);
                           if (field.state.value.id === id) {
                             // Deselecting the currently selected option
                             field.handleChange({
