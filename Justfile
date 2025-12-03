@@ -20,3 +20,12 @@ docker-dev-restart *ARGS:
 # Stop development environment
 docker-dev-down *ARGS:
   docker compose -f docker-compose.dev.yml down {{ARGS}}
+
+docker-up *ARGS:
+  docker compose up --build -d {{ARGS}}
+
+docker-down *ARGS:
+  docker compose down {{ARGS}}
+
+docker-restart *ARGS:
+  docker compose restart {{ARGS}}

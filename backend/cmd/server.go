@@ -53,7 +53,10 @@ func NewServer(
 
 func (s *Server) buildHandler(ctx context.Context) (http.Handler, []func(context.Context), error) {
 	// Setup Fiber app
-	app := fiber.New(fiber.Config{})
+	app := fiber.New(fiber.Config{
+		ReadBufferSize:  16384, // 16KB (default is 4KB)
+		WriteBufferSize: 16384, // 16KB
+	})
 
 	app.Use(slogfiber.NewWithConfig(slog.Default(), slogfiber.Config{
 		WithRequestID:      true,

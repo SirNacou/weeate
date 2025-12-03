@@ -1,6 +1,21 @@
-import { client } from "@/client/client.gen";
-import { clientEnv } from "@/env";
-import { createClient } from "@/lib/supabase/client";
+import { client } from "@/client/client.gen"
+import { clientEnv } from "@/env"
+import { createSupabaseClient } from "@/lib/supabase"
+import { createClient } from "@/lib/supabase/client"
+import { getRequestHeader } from "@tanstack/react-start/server"
+
+client.interceptors.request.use(async (request) => {
+  const supabase = await createSupabaseClient()
+  const accessToken = (await supabase.auth.getSession()).data.session?.access_token
+  console.log("Retrieved access token", accessToken)
+  if (accessToken) {
+    console.log("Setting Authorization header with access token", accessToken)
+    request.headers.set("Authorization", `Bearer ${accessToken}`)
+  }
+  // Forward cookies from the incoming request to the API
+  request.headers.set("Cookie", getRequestHeader("Cookie") || "");
+  return request;
+});
 
 // Handle successful responses
 client.interceptors.response.use((response, request, options) => {
@@ -78,4 +93,4 @@ client.interceptors.error.use(async (error) => {
   return error;
 });
 
-export { client };
+export { client }

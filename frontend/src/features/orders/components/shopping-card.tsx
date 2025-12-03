@@ -1,24 +1,24 @@
-import { GetShoppingOrderResponseWritable } from "@/client";
+import { GetShoppingOrderResponseWritable } from "@/api"
 import {
   AvatarGroup,
   AvatarGroupTooltip,
-} from "@/components/animate-ui/components/animate/avatar-group";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+} from "@/components/animate-ui/components/animate/avatar-group"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
 import {
   Item,
   ItemContent,
   ItemDescription,
   ItemMedia,
   ItemTitle,
-} from "@/components/ui/item";
-import { AvatarImage } from "@radix-ui/react-avatar";
+} from "@/components/ui/item"
+import { AvatarImage } from "@radix-ui/react-avatar"
 
 type Props = {
   shoppingOrder: GetShoppingOrderResponseWritable;

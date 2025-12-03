@@ -3,6 +3,9 @@ import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/(auth)/forgot-password')({
   component: ForgotPassword,
+  staticData: {
+    title: 'Forgot Password',
+  },
 })
 
 function ForgotPassword() {
