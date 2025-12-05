@@ -1,5 +1,5 @@
 import { TanStackDevtools } from "@tanstack/react-devtools"
-import { formDevtoolsPlugin } from "@tanstack/react-form-devtools"
+import { FormDevtoolsPanel } from "@tanstack/react-form-devtools"
 import {
   ClientOnly,
   HeadContent,
@@ -9,7 +9,6 @@ import {
 } from "@tanstack/react-router"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 
-import TanStackQueryDevtools from "../integrations/tanstack-query/devtools"
 
 import appCss from "../styles.css?url"
 
@@ -18,11 +17,12 @@ import { env } from "@/env/client"
 import useIsMobile from "@/hooks/use-is-mobile"
 import { ImageKitProvider } from "@imagekit/react"
 import type { QueryClient } from "@tanstack/react-query"
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools"
 import { MotionConfig } from "motion/react"
 
 export interface MyRouterContext {
-  queryClient: QueryClient;
-  pageTitle: string;
+  queryClient: QueryClient
+  pageTitle: string
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -49,17 +49,17 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
           href: appCss,
         },
       ],
-    };
+    }
   },
   shellComponent: RootDocument,
-});
+})
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const { matches } = useRouterState();
-  const currentRoute = matches[matches.length - 1];
-  const pageTitle = currentRoute?.staticData.title;
+  const { matches } = useRouterState()
+  const currentRoute = matches[matches.length - 1]
+  const pageTitle = currentRoute?.staticData.title
 
-  const { isMobile } = useIsMobile();
+  const { isMobile } = useIsMobile()
   return (
     <html lang="en">
       <head>
@@ -90,21 +90,27 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           }}
           plugins={[
             {
+              name: "Tanstack Query",
+              render: <ReactQueryDevtoolsPanel />,
+            },
+            {
               name: "Tanstack Router",
               render: <TanStackRouterDevtoolsPanel />,
             },
-            TanStackQueryDevtools,
-            formDevtoolsPlugin(),
+            {
+              name: "Tanstack Form",
+              render: <FormDevtoolsPanel />,
+            }
           ]}
         />
         <Scripts />
       </body>
     </html>
-  );
+  )
 }
 
 declare module "@tanstack/react-router" {
   interface StaticDataRouteOption {
-    title: string;
+    title: string
   }
 }
