@@ -1,56 +1,56 @@
 import {
-  CreatePollCommand,
-  CreatePollCommandWritable,
-  GetTodayPollsQueryResponse,
-  postPolls, serverClient
+	CreatePollCommand,
+	CreatePollCommandWritable,
+	GetTodayPollsQueryResponse,
+	postPolls, serverClient
 } from "@/api"
 import {
-  listFoodsQueryKey,
-  listPollsTodayQueryKey,
+	listFoodsQueryKey,
+	listPollsTodayQueryKey,
 } from "@/client/@tanstack/react-query.gen"
 import { zCreatePollCommandWritable } from "@/client/zod.gen"
 import { Button } from "@/components/animate-ui/components/buttons/button"
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
 } from "@/components/animate-ui/components/radix/dialog"
 import {
-  Alert,
-  AlertContent,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
+	Alert,
+	AlertContent,
+	AlertDescription,
+	AlertIcon,
+	AlertTitle,
 } from "@/components/ui/alert"
 import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
+	Field,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
 } from "@/components/ui/field"
 import { Label } from "@/components/ui/label"
 import {
-  MultiSelect,
-  MultiSelectContent,
-  MultiSelectGroup,
-  MultiSelectItem,
-  MultiSelectTrigger,
-  MultiSelectValue,
+	MultiSelect,
+	MultiSelectContent,
+	MultiSelectGroup,
+	MultiSelectItem,
+	MultiSelectTrigger,
+	MultiSelectValue,
 } from "@/components/ui/multi-select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectTrigger,
+	SelectValue,
 } from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
 import { getFoodsServer as getFoodsServerFn } from "@/features/foods/functions/get-server-foods"
@@ -60,16 +60,16 @@ import { useForm } from "@tanstack/react-form"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createServerFn, useServerFn } from "@tanstack/react-start"
 import {
-  add,
-  addDays,
-  addHours,
-  format,
-  getMinutes,
-  isAfter,
-  isBefore,
-  setHours,
-  setMinutes,
-  startOfHour,
+	add,
+	addDays,
+	addHours,
+	format,
+	getMinutes,
+	isAfter,
+	isBefore,
+	setHours,
+	setMinutes,
+	startOfHour,
 } from "date-fns"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
@@ -87,46 +87,46 @@ const createPollServerFn = createServerFn({ method: "POST" })
 				scheduled_close_at: data.scheduled_close_at,
 				strategy: data.strategy,
 			},
-		});
+		})
 		if (result.error) {
-			throw result.error.errors?.at(0) || new Error("Failed to create poll");
+			throw result.error.errors?.at(0) || new Error("Failed to create poll")
 		}
-		return result.data;
-	});
+		return result.data
+	})
 
 type Props = {
-	userPoll?: GetTodayPollsQueryResponse;
-};
+	userPoll?: GetTodayPollsQueryResponse
+}
 
 const CreatePollDialog = ({ userPoll }: Props) => {
-	const [open, setOpen] = useState(false);
-	const { user } = ProtectedRoute.useRouteContext();
-	const queryClient = useQueryClient();
-	const getFoodsServer = useServerFn(getFoodsServerFn);
-	const createPollServer = useServerFn(createPollServerFn);
+	const [open, setOpen] = useState(false)
+	const { user } = ProtectedRoute.useRouteContext()
+	const queryClient = useQueryClient()
+	const getFoodsServer = useServerFn(getFoodsServerFn)
+	const createPollServer = useServerFn(createPollServerFn)
 
-	const existed = !!userPoll;
-	const disabled = userPoll?.closed_at !== null;
+	const existed = !!userPoll
+	const disabled = userPoll && userPoll.closed_at !== null
 
 	const createPoll = useMutation({
 		mutationFn: createPollServer,
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: listPollsTodayQueryKey(),
-			});
-			toast.success("Poll created successfully");
-			setOpen(false);
+			})
+			toast.success("Poll created successfully")
+			setOpen(false)
 		},
 		onError: (error) => {
-			toast.error(error.message);
+			toast.error(error.message)
 		},
-	});
+	})
 	const { data: foods } = useQuery({
 		queryKey: listFoodsQueryKey({ query: { user_id: user.id } }),
 		queryFn: () => getFoodsServer({ data: { query: { user_id: user.id } } }),
-	});
+	})
 
-	const orderDate = new Date(add(Date.now(), { days: 1 }));
+	const orderDate = new Date(add(Date.now(), { days: 1 }))
 	const form = useForm({
 		defaultValues: {
 			food_ids: [] as CreatePollCommand["food_ids"],
@@ -145,26 +145,26 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 				})
 				.catch(() => {
 					// Error is handled in useMutation onError
-				});
+				})
 		},
-	});
+	})
 
 	const timeSlots = useMemo(() => {
-		const now = new Date();
-		const slots = [];
+		const now = new Date()
+		const slots = []
 
 		// 1. Calculate the Constraint Boundaries
 
 		// Min: Current time + 1 hour, rounded to start of hour
-		let currentSlot = startOfHour(addHours(now, 1));
+		let currentSlot = startOfHour(addHours(now, 1))
 
 		if (getMinutes(now) > 55) {
-			currentSlot = addHours(currentSlot, 1);
+			currentSlot = addHours(currentSlot, 1)
 		}
 
 		// Max: Tomorrow at 6:00 AM
-		const tomorrow = addDays(now, 1);
-		const maxTime = setMinutes(setHours(tomorrow, 6), 0); // Tomorrow 06:00
+		const tomorrow = addDays(now, 1)
+		const maxTime = setMinutes(setHours(tomorrow, 6), 0) // Tomorrow 06:00
 
 		// 2. Loop to generate slots
 		while (
@@ -173,23 +173,23 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 		) {
 			// Safety Check: Ensure we aren't showing past times if logic drifts
 			if (isAfter(currentSlot, now)) {
-				slots.push(new Date(currentSlot).toISOString());
+				slots.push(new Date(currentSlot).toISOString())
 			}
 
 			// Increment by 1 hour (Change to 30 for half-hour slots)
-			currentSlot = addHours(currentSlot, 1);
+			currentSlot = addHours(currentSlot, 1)
 		}
 
-		return slots;
-	}, []);
+		return slots
+	}, [])
 
 	// Group slots into "Today" and "Tomorrow" for better UI
 	const todaySlots = timeSlots.filter(
 		(d) => new Date(d).getDate() === new Date().getDate(),
-	);
+	)
 	const tomorrowSlots = timeSlots.filter(
 		(d) => new Date(d).getDate() !== new Date().getDate(),
-	);
+	)
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
@@ -209,9 +209,9 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 				<form
 					id="create-poll-form"
 					onSubmit={(e) => {
-						e.preventDefault();
-						e.stopPropagation();
-						form.handleSubmit();
+						e.preventDefault()
+						e.stopPropagation()
+						form.handleSubmit()
 					}}
 				>
 					<div className="flex flex-col gap-1">
@@ -219,7 +219,7 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 							<form.Field name="food_ids">
 								{(field) => {
 									const isInvalid =
-										field.state.meta.isTouched && !field.state.meta.isValid;
+										field.state.meta.isTouched && !field.state.meta.isValid
 									return (
 										<Field data-invalid={isInvalid} className="grid gap-1">
 											<FieldLabel htmlFor={field.name}>Select Foods</FieldLabel>
@@ -246,14 +246,14 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 												<FieldError errors={field.state.meta.errors} />
 											)}
 										</Field>
-									);
+									)
 								}}
 							</form.Field>
 
 							<form.Field name="scheduled_close_at">
 								{(field) => {
 									const isInvalid =
-										field.state.meta.isTouched && !field.state.meta.isValid;
+										field.state.meta.isTouched && !field.state.meta.isValid
 									return (
 										<Field data-invalid={isInvalid} className="grid gap-1">
 											<FieldLabel htmlFor={field.name}>
@@ -296,14 +296,14 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 												<FieldError errors={field.state.meta.errors} />
 											)}
 										</Field>
-									);
+									)
 								}}
 							</form.Field>
 
 							<form.Field name="strategy">
 								{(field) => {
 									const isInvalid =
-										field.state.meta.isTouched && !field.state.meta.isValid;
+										field.state.meta.isTouched && !field.state.meta.isValid
 									return (
 										<Field data-invalid={isInvalid} className="grid gap-1">
 											<FieldLabel htmlFor={field.name}>Poll Type</FieldLabel>
@@ -345,7 +345,7 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 												<FieldError errors={field.state.meta.errors} />
 											)}
 										</Field>
-									);
+									)
 								}}
 							</form.Field>
 						</FieldGroup>
@@ -404,7 +404,7 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
-	);
-};
+	)
+}
 
-export default CreatePollDialog;
+export default CreatePollDialog
