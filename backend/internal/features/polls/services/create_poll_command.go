@@ -18,7 +18,7 @@ type CreatePollCommand struct {
 	OrderDate        time.Time `json:"order_date" format:"date-time" doc:"Date for which the poll is being created in RFC3339 format"`
 	ScheduledCloseAt time.Time `json:"scheduled_close_at" format:"date-time" doc:"Scheduled closing time for the poll in RFC3339 format"`
 	FoodIDs          []string  `json:"food_ids" minItems:"1" doc:"List of food IDs to include in the poll"`
-	Strategy         string    `json:"strategy" enum:"ORDER_MULTIPLE_ITEMS,ORDER_CONSENSUS_ITEM" doc:"Polling strategy to be used"`
+	Strategy         string    `json:"strategy" enum:"ORDER_PERSONAL_CHOICE,ORDER_CONSENSUS_ITEM" doc:"Polling strategy to be used"`
 }
 
 type CreatePollResponse struct {
