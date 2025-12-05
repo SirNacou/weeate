@@ -1,5 +1,7 @@
 FROM oven/bun:1 AS builder
 
+ENV NODE_ENV=production
+
 WORKDIR /app
 
 COPY ./frontend/package.json ./
