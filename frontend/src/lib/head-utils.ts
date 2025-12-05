@@ -1,8 +1,8 @@
 export function getPageTitle(title: string) {
-  return `${title} | Weeate`;
+	return `${title} | Weeate`;
 }
 
 export function getTitleFromPageTitle(pageTitle: string) {
-  const parts = pageTitle.split(" | ");
-  return parts[0];
+	const parts = pageTitle.split(" | ");
+	return parts[0];
 }
