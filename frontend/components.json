@@ -24,7 +24,6 @@
     "@reui": "https://reui.io/r/{name}.json",
     "@blocks": "https://blocks.so/r/{name}.json",
     "@eo-n": "https://eo-n.vercel.app/r/{name}",
-    "@wds": "https://wds-shadcn-registry.netlify.app/r/{name}.json",
-    "@diceui": "https://diceui.com/r/{name}.json"
+    "@wds": "https://wds-shadcn-registry.netlify.app/r/{name}.json"
   }
 }
