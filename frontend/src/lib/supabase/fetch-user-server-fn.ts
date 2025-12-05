@@ -2,23 +2,23 @@ import type { Factor, User } from "@supabase/supabase-js";
 import { createServerFn } from "@tanstack/react-start";
 import { createSupabaseClient } from ".";
 export type SSRSafeUser = User & {
-  factors: (Factor & { factor_type: "phone" | "totp" })[];
-  app_metadata: {
-    provider: string | null;
-    avatar_url: string;
-    display_name: string;
-  };
+	factors: (Factor & { factor_type: "phone" | "totp" })[];
+	app_metadata: {
+		provider: string | null;
+		avatar_url: string;
+		display_name: string;
+	};
 };
 
 export const fetchUser: () => Promise<SSRSafeUser | null> = createServerFn({
-  method: "GET",
+	method: "GET",
 }).handler(async () => {
-  const supabase = await createSupabaseClient();
-  const { data, error } = await supabase.auth.getUser();
+	const supabase = await createSupabaseClient();
+	const { data, error } = await supabase.auth.getUser();
 
-  if (error) {
-    return null;
-  }
+	if (error) {
+		return null;
+	}
 
-  return data.user as SSRSafeUser | null;
+	return data.user as SSRSafeUser | null;
 });
