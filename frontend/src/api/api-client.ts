@@ -6,7 +6,7 @@ import { getRequestHeader } from "@tanstack/react-start/server"
 
 client.interceptors.request.use(async (request) => {
   const supabase = await createSupabaseClient()
-  const accessToken = (await supabase.auth.getSession()).data.session?.access_token
+  const accessToken = (await supabase.auth.getSession()).data.session?.access_token.replace("base64-", "")
   console.log("Retrieved access token", accessToken)
   if (accessToken) {
     console.log("Setting Authorization header with access token", accessToken)
