@@ -22,7 +22,7 @@ func CORSMiddleware(goEnv string) fiber.Handler {
 	}
 
 	return cors.New(cors.Config{
-		AllowOrigins:     strings.Join([]string{"https://weeate.nacou.uk"}, ", "),
+		AllowOrigins:     strings.Join([]string{"https://weeate.nacou.uk", "http://frontend:3000"}, ", "),
 		AllowMethods:     strings.Join([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch, http.MethodOptions, http.MethodHead}, ", "),
 		AllowHeaders:     strings.Join([]string{fiber.HeaderOrigin, fiber.HeaderContentType, fiber.HeaderAccept, fiber.HeaderAuthorization}, ", "),
 		AllowCredentials: true,
