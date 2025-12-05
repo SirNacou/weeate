@@ -1,5 +1,4 @@
 import {
-	CreatePollCommand,
 	CreatePollCommandWritable,
 	GetTodayPollsQueryResponse,
 	postPolls, serverClient
@@ -73,6 +72,7 @@ import {
 } from "date-fns"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
+import z from "zod"
 import LucideAlertTriangle from "~icons/lucide/alert-triangle"
 import LucidePlus from "~icons/lucide/plus?width=2em&height=2em"
 
@@ -97,6 +97,10 @@ const createPollServerFn = createServerFn({ method: "POST" })
 type Props = {
 	userPoll?: GetTodayPollsQueryResponse
 }
+
+const MINUTES_BEFORE_NEXT_HOUR = 45
+const TOMORROW_CLOSE_HOUR = 6
+const TOMORROW_CLOSE_MINUTE = 0
 
 const CreatePollDialog = ({ userPoll }: Props) => {
 	const [open, setOpen] = useState(false)
@@ -126,14 +130,47 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 		queryFn: () => getFoodsServer({ data: { query: { user_id: user.id } } }),
 	})
 
-	const orderDate = new Date(add(Date.now(), { days: 1 }))
+	const { orderDate, defaultCloseTime, timeSlots } = useMemo(() => {
+		const orderDate = new Date(add(Date.now(), { days: 1 }))
+
+		// Calculate default close time (next hour from now)
+		const now = new Date()
+		let defaultCloseTime = startOfHour(addHours(now, 1))
+		if (getMinutes(now) > MINUTES_BEFORE_NEXT_HOUR) {
+			defaultCloseTime = addHours(defaultCloseTime, 1)
+		}
+
+		// Generate time slots
+		const slots = []
+		let currentSlot = startOfHour(addHours(now, 1))
+
+		if (getMinutes(now) > MINUTES_BEFORE_NEXT_HOUR) {
+			currentSlot = addHours(currentSlot, 1)
+		}
+
+		const tomorrow = addDays(now, 1)
+		const maxTime = setMinutes(setHours(tomorrow, TOMORROW_CLOSE_HOUR), TOMORROW_CLOSE_MINUTE)
+
+		while (
+			isBefore(currentSlot, maxTime) ||
+			currentSlot.getTime() === maxTime.getTime()
+		) {
+			if (isAfter(currentSlot, now)) {
+				slots.push(new Date(currentSlot).toISOString())
+			}
+			currentSlot = addHours(currentSlot, 1)
+		}
+
+		return { orderDate, defaultCloseTime, timeSlots: slots }
+	}, [])
+
 	const form = useForm({
 		defaultValues: {
-			food_ids: [] as CreatePollCommand["food_ids"],
+			food_ids: Array<string>(),
 			order_date: orderDate.toISOString(),
-			scheduled_close_at: new Date(Date.now()).toISOString(),
-			strategy: "ORDER_MULTIPLE_ITEMS" as CreatePollCommand["strategy"],
-		},
+			scheduled_close_at: defaultCloseTime.toISOString(),
+			strategy: "ORDER_PERSONAL_CHOICE",
+		} as z.infer<typeof zCreatePollCommandWritable>,
 		validators: {
 			onChange: zCreatePollCommandWritable,
 			onMount: zCreatePollCommandWritable,
@@ -148,40 +185,6 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 				})
 		},
 	})
-
-	const timeSlots = useMemo(() => {
-		const now = new Date()
-		const slots = []
-
-		// 1. Calculate the Constraint Boundaries
-
-		// Min: Current time + 1 hour, rounded to start of hour
-		let currentSlot = startOfHour(addHours(now, 1))
-
-		if (getMinutes(now) > 55) {
-			currentSlot = addHours(currentSlot, 1)
-		}
-
-		// Max: Tomorrow at 6:00 AM
-		const tomorrow = addDays(now, 1)
-		const maxTime = setMinutes(setHours(tomorrow, 6), 0) // Tomorrow 06:00
-
-		// 2. Loop to generate slots
-		while (
-			isBefore(currentSlot, maxTime) ||
-			currentSlot.getTime() === maxTime.getTime()
-		) {
-			// Safety Check: Ensure we aren't showing past times if logic drifts
-			if (isAfter(currentSlot, now)) {
-				slots.push(new Date(currentSlot).toISOString())
-			}
-
-			// Increment by 1 hour (Change to 30 for half-hour slots)
-			currentSlot = addHours(currentSlot, 1)
-		}
-
-		return slots
-	}, [])
 
 	// Group slots into "Today" and "Tomorrow" for better UI
 	const todaySlots = timeSlots.filter(
@@ -319,11 +322,11 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 												<div className="flex items-center gap-3">
 													<RadioGroupItem
 														value={
-															"ORDER_MULTIPLE_ITEMS" as CreatePollCommandWritable["strategy"]
+															"ORDER_PERSONAL_CHOICE" as CreatePollCommandWritable["strategy"]
 														}
-														id="ORDER_MULTIPLE_ITEMS"
+														id="ORDER_PERSONAL_CHOICE"
 													/>
-													<Label htmlFor="ORDER_MULTIPLE_ITEMS">
+													<Label htmlFor="ORDER_PERSONAL_CHOICE">
 														Order All
 													</Label>
 												</div>
