@@ -42,12 +42,32 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         {
           title: "Weeate",
         },
+        {
+          property: "og:title",
+          content: "Weeate",
+        },
+        {
+          property: "og:description",
+          content: "Weeate - Your personal recipe manager",
+        },
+        {
+          property: "og:image",
+          content: `/logo512.png?v=${Date.now()}`,
+        },
+        {
+          property: "og:url",
+          content: "https://weeate.nacou.uk",
+        }
       ],
       links: [
         {
           rel: "stylesheet",
           href: appCss,
         },
+        {
+          rel: "icon",
+          href: `/logo64.png?v=${Date.now()}`,
+        }
       ],
     }
   },
