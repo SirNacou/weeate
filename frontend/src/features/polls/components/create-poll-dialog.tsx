@@ -1,63 +1,6 @@
-import {
-	CreatePollCommandWritable,
-	GetTodayPollsQueryResponse,
-	postPolls, serverClient
-} from "@/api"
-import {
-	listFoodsQueryKey,
-	listPollsTodayQueryKey,
-} from "@/client/@tanstack/react-query.gen"
-import { zCreatePollCommandWritable } from "@/client/zod.gen"
-import { Button } from "@/components/animate-ui/components/buttons/button"
-import {
-	Dialog,
-	DialogClose,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/animate-ui/components/radix/dialog"
-import {
-	Alert,
-	AlertContent,
-	AlertDescription,
-	AlertIcon,
-	AlertTitle,
-} from "@/components/ui/alert"
-import {
-	Field,
-	FieldError,
-	FieldGroup,
-	FieldLabel,
-} from "@/components/ui/field"
-import { Label } from "@/components/ui/label"
-import {
-	MultiSelect,
-	MultiSelectContent,
-	MultiSelectGroup,
-	MultiSelectItem,
-	MultiSelectTrigger,
-	MultiSelectValue,
-} from "@/components/ui/multi-select"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectLabel,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select"
-import { Spinner } from "@/components/ui/spinner"
-import { getFoodsServer as getFoodsServerFn } from "@/features/foods/functions/get-server-foods"
-import { getFormSubmissionStatus } from "@/lib/form-utils"
-import { Route as ProtectedRoute } from "@/routes/_protected/route"
-import { useForm } from "@tanstack/react-form"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createServerFn, useServerFn } from "@tanstack/react-start"
+import { useForm } from "@tanstack/react-form";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createServerFn, useServerFn } from "@tanstack/react-start";
 import {
 	add,
 	addDays,
@@ -69,12 +12,70 @@ import {
 	setHours,
 	setMinutes,
 	startOfHour,
-} from "date-fns"
-import { useMemo, useState } from "react"
-import { toast } from "sonner"
-import z from "zod"
-import LucideAlertTriangle from "~icons/lucide/alert-triangle"
-import LucidePlus from "~icons/lucide/plus?width=2em&height=2em"
+} from "date-fns";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import type z from "zod";
+import {
+	type CreatePollCommandWritable,
+	type GetTodayPollsQueryResponse,
+	postPolls,
+	serverClient,
+} from "@/api";
+import {
+	listFoodsQueryKey,
+	listPollsTodayQueryKey,
+} from "@/client/@tanstack/react-query.gen";
+import { zCreatePollCommandWritable } from "@/client/zod.gen";
+import { Button } from "@/components/animate-ui/components/buttons/button";
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/animate-ui/components/radix/dialog";
+import {
+	Alert,
+	AlertContent,
+	AlertDescription,
+	AlertIcon,
+	AlertTitle,
+} from "@/components/ui/alert";
+import {
+	Field,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+} from "@/components/ui/field";
+import { Label } from "@/components/ui/label";
+import {
+	MultiSelect,
+	MultiSelectContent,
+	MultiSelectGroup,
+	MultiSelectItem,
+	MultiSelectTrigger,
+	MultiSelectValue,
+} from "@/components/ui/multi-select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
+import { getFoodsServer as getFoodsServerFn } from "@/features/foods/functions/get-server-foods";
+import { getFormSubmissionStatus } from "@/lib/form-utils";
+import { Route as ProtectedRoute } from "@/routes/_protected/route";
+import LucideAlertTriangle from "~icons/lucide/alert-triangle";
+import LucidePlus from "~icons/lucide/plus?width=2em&height=2em";
 
 const createPollServerFn = createServerFn({ method: "POST" })
 	.inputValidator(zCreatePollCommandWritable)
@@ -87,86 +88,89 @@ const createPollServerFn = createServerFn({ method: "POST" })
 				scheduled_close_at: data.scheduled_close_at,
 				strategy: data.strategy,
 			},
-		})
+		});
 		if (result.error) {
-			throw result.error.errors?.at(0) || new Error("Failed to create poll")
+			throw result.error.errors?.at(0) || new Error("Failed to create poll");
 		}
-		return result.data
-	})
+		return result.data;
+	});
 
 type Props = {
-	userPoll?: GetTodayPollsQueryResponse
-}
+	userPoll?: GetTodayPollsQueryResponse;
+};
 
-const MINUTES_BEFORE_NEXT_HOUR = 45
-const TOMORROW_CLOSE_HOUR = 6
-const TOMORROW_CLOSE_MINUTE = 0
+const MINUTES_BEFORE_NEXT_HOUR = 45;
+const TOMORROW_CLOSE_HOUR = 6;
+const TOMORROW_CLOSE_MINUTE = 0;
 
 const CreatePollDialog = ({ userPoll }: Props) => {
-	const [open, setOpen] = useState(false)
-	const { user } = ProtectedRoute.useRouteContext()
-	const queryClient = useQueryClient()
-	const getFoodsServer = useServerFn(getFoodsServerFn)
-	const createPollServer = useServerFn(createPollServerFn)
+	const [open, setOpen] = useState(false);
+	const { user } = ProtectedRoute.useRouteContext();
+	const queryClient = useQueryClient();
+	const getFoodsServer = useServerFn(getFoodsServerFn);
+	const createPollServer = useServerFn(createPollServerFn);
 
-	const existed = !!userPoll
-	const disabled = userPoll && userPoll.closed_at !== null
+	const existed = !!userPoll;
+	const disabled = userPoll && userPoll.closed_at !== null;
 
 	const createPoll = useMutation({
 		mutationFn: createPollServer,
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: listPollsTodayQueryKey(),
-			})
-			toast.success("Poll created successfully")
-			setOpen(false)
+			});
+			toast.success("Poll created successfully");
+			setOpen(false);
 		},
 		onError: (error) => {
-			toast.error(error.message)
+			toast.error(error.message);
 		},
-	})
+	});
 	const { data: foods } = useQuery({
 		queryKey: listFoodsQueryKey({ query: { user_id: user.id } }),
 		queryFn: () => getFoodsServer({ data: { query: { user_id: user.id } } }),
-	})
+	});
 
 	const { orderDate, defaultCloseTime, timeSlots } = useMemo(() => {
-		const orderDate = new Date(add(Date.now(), { days: 1 }))
+		const orderDate = new Date(add(Date.now(), { days: 1 }));
 
 		// Calculate default close time (next hour from now)
-		const now = new Date()
-		let defaultCloseTime = startOfHour(addHours(now, 1))
+		const now = new Date();
+		let defaultCloseTime = startOfHour(addHours(now, 1));
 		if (getMinutes(now) > MINUTES_BEFORE_NEXT_HOUR) {
-			defaultCloseTime = addHours(defaultCloseTime, 1)
+			defaultCloseTime = addHours(defaultCloseTime, 1);
 		}
 
 		// Generate time slots
-		const slots = []
-		let currentSlot = startOfHour(addHours(now, 1))
+		const slots = [];
+		let currentSlot = startOfHour(addHours(now, 1));
 
 		if (getMinutes(now) > MINUTES_BEFORE_NEXT_HOUR) {
-			currentSlot = addHours(currentSlot, 1)
+			currentSlot = addHours(currentSlot, 1);
 		}
 
-		const tomorrow = addDays(now, 1)
-		const maxTime = setMinutes(setHours(tomorrow, TOMORROW_CLOSE_HOUR), TOMORROW_CLOSE_MINUTE)
+		const tomorrow = addDays(now, 1);
+		const maxTime = setMinutes(
+			setHours(tomorrow, TOMORROW_CLOSE_HOUR),
+			TOMORROW_CLOSE_MINUTE,
+		);
 
 		while (
 			isBefore(currentSlot, maxTime) ||
 			currentSlot.getTime() === maxTime.getTime()
 		) {
 			if (isAfter(currentSlot, now)) {
-				slots.push(new Date(currentSlot).toISOString())
+				slots.push(new Date(currentSlot).toISOString());
 			}
-			currentSlot = addHours(currentSlot, 1)
+			currentSlot = addHours(currentSlot, 1);
 		}
 
-		return { orderDate, defaultCloseTime, timeSlots: slots }
-	}, [])
+		return { orderDate, defaultCloseTime, timeSlots: slots };
+	}, []);
 
 	const form = useForm({
 		defaultValues: {
-			food_ids: Array<string>(),
+			food_ids: [] as string[],
 			order_date: orderDate.toISOString(),
 			scheduled_close_at: defaultCloseTime.toISOString(),
 			strategy: "ORDER_PERSONAL_CHOICE",
@@ -182,17 +186,17 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 				})
 				.catch(() => {
 					// Error is handled in useMutation onError
-				})
+				});
 		},
-	})
+	});
 
 	// Group slots into "Today" and "Tomorrow" for better UI
 	const todaySlots = timeSlots.filter(
 		(d) => new Date(d).getDate() === new Date().getDate(),
-	)
+	);
 	const tomorrowSlots = timeSlots.filter(
 		(d) => new Date(d).getDate() !== new Date().getDate(),
-	)
+	);
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
@@ -212,9 +216,9 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 				<form
 					id="create-poll-form"
 					onSubmit={(e) => {
-						e.preventDefault()
-						e.stopPropagation()
-						form.handleSubmit()
+						e.preventDefault();
+						e.stopPropagation();
+						form.handleSubmit();
 					}}
 				>
 					<div className="flex flex-col gap-1">
@@ -222,7 +226,7 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 							<form.Field name="food_ids">
 								{(field) => {
 									const isInvalid =
-										field.state.meta.isTouched && !field.state.meta.isValid
+										field.state.meta.isTouched && !field.state.meta.isValid;
 									return (
 										<Field data-invalid={isInvalid} className="grid gap-1">
 											<FieldLabel htmlFor={field.name}>Select Foods</FieldLabel>
@@ -249,14 +253,14 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 												<FieldError errors={field.state.meta.errors} />
 											)}
 										</Field>
-									)
+									);
 								}}
 							</form.Field>
 
 							<form.Field name="scheduled_close_at">
 								{(field) => {
 									const isInvalid =
-										field.state.meta.isTouched && !field.state.meta.isValid
+										field.state.meta.isTouched && !field.state.meta.isValid;
 									return (
 										<Field data-invalid={isInvalid} className="grid gap-1">
 											<FieldLabel htmlFor={field.name}>
@@ -299,14 +303,14 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 												<FieldError errors={field.state.meta.errors} />
 											)}
 										</Field>
-									)
+									);
 								}}
 							</form.Field>
 
 							<form.Field name="strategy">
 								{(field) => {
 									const isInvalid =
-										field.state.meta.isTouched && !field.state.meta.isValid
+										field.state.meta.isTouched && !field.state.meta.isValid;
 									return (
 										<Field data-invalid={isInvalid} className="grid gap-1">
 											<FieldLabel htmlFor={field.name}>Poll Type</FieldLabel>
@@ -348,7 +352,7 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 												<FieldError errors={field.state.meta.errors} />
 											)}
 										</Field>
-									)
+									);
 								}}
 							</form.Field>
 						</FieldGroup>
@@ -407,7 +411,7 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
-	)
-}
+	);
+};
 
-export default CreatePollDialog
+export default CreatePollDialog;
