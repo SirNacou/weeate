@@ -61,7 +61,6 @@ func TestMain(m *testing.M) {
 // cleanupTestData removes all test data from the database to prevent test pollution
 func cleanupTestData(t *testing.T) {
 	t.Helper()
-	
 	// Delete in order to respect foreign key constraints
 	if err := db.Exec("DELETE FROM votes").Error; err != nil {
 		t.Fatalf("failed to clean up votes: %v", err)
