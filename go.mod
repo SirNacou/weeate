@@ -16,9 +16,6 @@ require (
 	github.com/lestrrat-go/jwx/v3 v3.0.12
 	github.com/samber/lo v1.52.0
 	github.com/samber/slog-fiber v1.19.0
-	github.com/stretchr/testify v1.11.1
-	github.com/testcontainers/testcontainers-go v0.40.0
-	github.com/testcontainers/testcontainers-go/modules/postgres v0.40.0
 	google.golang.org/grpc v1.77.0
 	google.golang.org/protobuf v1.36.10
 	gorm.io/driver/postgres v1.6.0
