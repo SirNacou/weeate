@@ -61,6 +61,12 @@ func TestMain(m *testing.M) {
 func TestClosePollsSchedulerIntegration(t *testing.T) {
 	// Test implementation goes here
 	t.Run("scheduler closes polls when polls reach their end time", func(t *testing.T) {
+		// Clean up test data before this subtest
+		db.Exec("DELETE FROM votes")
+		db.Exec("DELETE FROM poll_options")
+		db.Exec("DELETE FROM polls")
+		db.Exec("DELETE FROM foods")
+
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
@@ -129,6 +135,12 @@ func TestClosePollsSchedulerIntegration(t *testing.T) {
 	})
 
 	t.Run("scheduler reacts to new poll creation", func(t *testing.T) {
+		// Clean up test data before this subtest
+		db.Exec("DELETE FROM votes")
+		db.Exec("DELETE FROM poll_options")
+		db.Exec("DELETE FROM polls")
+		db.Exec("DELETE FROM foods")
+
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
@@ -211,6 +223,12 @@ func TestClosePollsSchedulerIntegration(t *testing.T) {
 	})
 
 	t.Run("scheduler triggered by poll creation closes poll automatically", func(t *testing.T) {
+		// Clean up test data before this subtest
+		db.Exec("DELETE FROM votes")
+		db.Exec("DELETE FROM poll_options")
+		db.Exec("DELETE FROM polls")
+		db.Exec("DELETE FROM foods")
+
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		defer cancel()
 
