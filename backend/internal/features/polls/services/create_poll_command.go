@@ -108,7 +108,6 @@ func (h *CreatePollCommandHandler) Handle(ctx context.Context, req CreatePollCom
 	}
 
 	h.closePollScheduler.TriggerUpdate()
-	
 	_, err = h.centrifugo.PublishPublicPolls(ctx, &centrifugo.PublicPollsData{
 		Type: centrifugo.PollCreated,
 		Data: &struct {

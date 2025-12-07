@@ -36,7 +36,10 @@ func SetupGORM(ctx context.Context) (db *gorm.DB, cleanup func(), err error) {
 	}
 
 	// 2. Connect GORM
-	connStr, _ := pgContainer.ConnectionString(ctx, "sslmode=disable")
+	connStr, connErr := pgContainer.ConnectionString(ctx, "sslmode=disable")
+	if connErr != nil {
+		return nil, nil, fmt.Errorf("failed to get connection string: %w", connErr)
+	}
 	db, err = gorm.Open(postgresDriver.Open(connStr), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
