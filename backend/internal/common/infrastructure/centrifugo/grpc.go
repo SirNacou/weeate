@@ -5,15 +5,14 @@ import (
 	"fmt"
 
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/centrifugo/apiproto"
-	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/configs"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type channel string
+type Channel string
 
 const (
-	ChannelPublicPolls channel = channel("public:polls")
+	ChannelPublicPolls Channel = Channel("public:polls")
 )
 
 type CentrifugoClient struct {
@@ -21,8 +20,8 @@ type CentrifugoClient struct {
 	conn *grpc.ClientConn
 }
 
-func NewCentrifugoClient(env configs.Config) (*CentrifugoClient, error) {
-	conn, err := grpc.NewClient(fmt.Sprintf("%s:%v", env.CENTRIFUGO_GRPC_HOST, env.CENTRIFUGO_GRPC_PORT),
+func NewCentrifugoClient(host string, port int) (*CentrifugoClient, error) {
+	conn, err := grpc.NewClient(fmt.Sprintf("%s:%v", host, port),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -40,10 +39,15 @@ func (c *CentrifugoClient) Close() error {
 	return c.conn.Close()
 }
 
-func (c *CentrifugoClient) Publish(ctx context.Context, channel channel, data []byte) (*apiproto.PublishResponse, error) {
+func (c *CentrifugoClient) Publish(ctx context.Context, channel Channel, data []byte) (*apiproto.PublishResponse, error) {
 	resp, err := (*c.api).Publish(ctx, &apiproto.PublishRequest{
 		Channel: string(channel),
 		Data:    data,
 	})
 	return resp, err
+}
+
+type WebsocketClient interface {
+	Publish(ctx context.Context, channel Channel, data []byte) (*apiproto.PublishResponse, error)
+	PublishPublicPolls(ctx context.Context, data *PublicPollsData) (*apiproto.PublishResponse, error)
 }
