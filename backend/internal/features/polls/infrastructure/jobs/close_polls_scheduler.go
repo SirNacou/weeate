@@ -66,7 +66,7 @@ func (s *ClosePollScheduler) Start(ctx context.Context) {
 			s.closeDuePolls(workerCtx)
 			cancel()
 		case <-s.trigger:
-			fmt.Printf("ClosePollScheduler: Triggered by new poll creation, recalculating...\n")
+			slog.InfoContext(ctx, "ClosePollScheduler: Triggered by new poll creation, recalculating...")
 			slog.InfoContext(ctx, "New poll created! Recalculating schedule...")
 		case <-ctx.Done():
 			slog.InfoContext(ctx, "Stopping ClosePollScheduler...")
