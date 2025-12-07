@@ -10,6 +10,5 @@ export const createClientConfig: CreateClientConfig = (config) => {
   return ({
     ...config,
     baseURL: getBaseUrl(),
-    credentials: "include",
   })
 };

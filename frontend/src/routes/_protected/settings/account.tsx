@@ -10,25 +10,24 @@ import {
 import { useForm } from "@tanstack/react-form"
 import { createFileRoute } from "@tanstack/react-router"
 
-export const Route = createFileRoute("/_protected/_settings/account")({
+export const Route = createFileRoute("/_protected/settings/account")({
   component: RouteComponent,
   staticData: {
-    title: "Account Settings",
+    title: "Account",
   },
-});
+})
 
 function RouteComponent() {
   const form = useForm({
     defaultValues: {},
-  });
+  })
 
   return (
     <form>
       <Card>
         <CardHeader>
           <CardTitle>
-
-                <EditableAvatar alt="User" fallback={"US"} size={64} />
+            <EditableAvatar alt="User" fallback={"US"} size={64} />
           </CardTitle>
         </CardHeader>
         <CardContent></CardContent>
@@ -37,5 +36,5 @@ function RouteComponent() {
         </CardFooter>
       </Card>
     </form>
-  );
+  )
 }

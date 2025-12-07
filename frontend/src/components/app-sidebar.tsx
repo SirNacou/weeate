@@ -182,7 +182,7 @@ const AppSidebar = () => {
                 <DropdownMenuGroup>
                   <DropdownMenuItem>
                     <Link
-                      to="/account"
+                      to="/settings/account"
                       className="flex gap-2 items-center w-full"
                     >
                       <BadgeCheck />
@@ -191,7 +191,7 @@ const AppSidebar = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link
-                      to="/notifications"
+                      to="/settings/notifications"
                       className="flex gap-2 items-center w-full"
                     >
                       <Bell />
