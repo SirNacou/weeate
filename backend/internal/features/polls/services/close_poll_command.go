@@ -19,10 +19,10 @@ type ClosePollCommand struct {
 type ClosePollCommandHandler struct {
 	db         *gorm.DB
 	bus        *bus.Bus
-	centrifugo *centrifugo.CentrifugoClient
+	centrifugo centrifugo.WebsocketClient
 }
 
-func NewClosePollCommandHandler(db *gorm.DB, bus *bus.Bus, centrifugo *centrifugo.CentrifugoClient) *ClosePollCommandHandler {
+func NewClosePollCommandHandler(db *gorm.DB, bus *bus.Bus, centrifugo centrifugo.WebsocketClient) *ClosePollCommandHandler {
 	return &ClosePollCommandHandler{
 		db:         db,
 		bus:        bus,

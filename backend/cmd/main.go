@@ -64,7 +64,7 @@ func main() {
 	}
 
 	// Setup Centrifugo gRPC client
-	centrifugoClient, err := centrifugo.NewCentrifugoClient(config)
+	centrifugoClient, err := centrifugo.NewCentrifugoClient(config.CENTRIFUGO_GRPC_HOST, config.CENTRIFUGO_GRPC_PORT)
 	if err != nil {
 		slog.Error("Failed to create Centrifugo gRPC client", slog.String("error", err.Error()))
 		os.Exit(1)
