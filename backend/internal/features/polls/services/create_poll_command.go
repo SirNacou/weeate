@@ -26,14 +26,16 @@ type CreatePollResponse struct {
 }
 
 type CreatePollCommandHandler struct {
-	db         *gorm.DB
-	centrifugo *centrifugo.CentrifugoClient
+	db                 *gorm.DB
+	centrifugo         centrifugo.WebsocketClient
+	closePollScheduler domain.SchedulerTrigger
 }
 
-func NewCreatePollCommandHandler(db *gorm.DB, centrifugo *centrifugo.CentrifugoClient) *CreatePollCommandHandler {
+func NewCreatePollCommandHandler(db *gorm.DB, centrifugo centrifugo.WebsocketClient, closePollScheduler domain.SchedulerTrigger) *CreatePollCommandHandler {
 	return &CreatePollCommandHandler{
-		db:         db,
-		centrifugo: centrifugo,
+		db:                 db,
+		centrifugo:         centrifugo,
+		closePollScheduler: closePollScheduler,
 	}
 }
 
@@ -105,6 +107,7 @@ func (h *CreatePollCommandHandler) Handle(ctx context.Context, req CreatePollCom
 		return nil, err
 	}
 
+	h.closePollScheduler.TriggerUpdate()
 	_, err = h.centrifugo.PublishPublicPolls(ctx, &centrifugo.PublicPollsData{
 		Type: centrifugo.PollCreated,
 		Data: &struct {
