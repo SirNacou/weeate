@@ -14,6 +14,11 @@ import (
 	"gorm.io/gorm"
 )
 
+type SchedulerTrigger interface {
+	TriggerUpdate()
+}
+
+
 type CreatePollCommand struct {
 	OrderDate        time.Time `json:"order_date" format:"date-time" doc:"Date for which the poll is being created in RFC3339 format"`
 	ScheduledCloseAt time.Time `json:"scheduled_close_at" format:"date-time" doc:"Scheduled closing time for the poll in RFC3339 format"`
@@ -26,14 +31,16 @@ type CreatePollResponse struct {
 }
 
 type CreatePollCommandHandler struct {
-	db         *gorm.DB
-	centrifugo *centrifugo.CentrifugoClient
+	db                 *gorm.DB
+	centrifugo         centrifugo.WebsocketClient
+	closePollScheduler SchedulerTrigger
 }
 
-func NewCreatePollCommandHandler(db *gorm.DB, centrifugo *centrifugo.CentrifugoClient) *CreatePollCommandHandler {
+func NewCreatePollCommandHandler(db *gorm.DB, centrifugo centrifugo.WebsocketClient, closePollScheduler SchedulerTrigger) *CreatePollCommandHandler {
 	return &CreatePollCommandHandler{
-		db:         db,
-		centrifugo: centrifugo,
+		db:                 db,
+		centrifugo:         centrifugo,
+		closePollScheduler: closePollScheduler,
 	}
 }
 
@@ -105,6 +112,8 @@ func (h *CreatePollCommandHandler) Handle(ctx context.Context, req CreatePollCom
 		return nil, err
 	}
 
+	h.closePollScheduler.TriggerUpdate()
+	
 	_, err = h.centrifugo.PublishPublicPolls(ctx, &centrifugo.PublicPollsData{
 		Type: centrifugo.PollCreated,
 		Data: &struct {
