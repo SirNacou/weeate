@@ -91,9 +91,9 @@ func (s *Server) buildHandler(ctx context.Context) (http.Handler, []func(context
 	api := humafiber.New(app, huma.DefaultConfig("Weeate API", "v1.0.0"))
 	huma.DefaultArrayNullable = false
 
-	webhooks.RegisterImageKitWebhook(api, s.config.IMAGEKIT_WEBHOOK_KEY)
+	webhooks.RegisterImageKitWebhook(api, s.imagekitClient)
 
-	authModule := auth.NewAuthModule(s.config)
+	authModule := auth.NewAuthModule(s.config, s.imagekitClient)
 	authModule.RegisterAPI(api)
 
 	foodsModule := foods.NewFoodsModule(s.db, s.supabaseService)

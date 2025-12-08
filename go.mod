@@ -23,7 +23,8 @@ require (
 require (
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/imagekit-developer/imagekit-go/v2 v2.0.0 // indirect
+	github.com/lestrrat-go/dsig v1.0.0 // indirect
+	github.com/lestrrat-go/dsig-secp256k1 v1.0.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect

@@ -5,10 +5,10 @@ import (
 	"github.com/imagekit-developer/imagekit-go/v2/option"
 )
 
-func NewImageKitClient(privateKey string) *imagekit.Client {
+func NewImageKitClient(privateKey string, webhookSecret string) *imagekit.Client {
 	c := imagekit.NewClient(
 		option.WithPrivateKey(privateKey),
-		option.WithWebhookSecret(),
+		option.WithWebhookSecret(webhookSecret),
 	)
 
 	return &c

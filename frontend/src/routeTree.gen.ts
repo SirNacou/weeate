@@ -23,7 +23,6 @@ import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
 import { Route as ProtectedSettingsIndexRouteImport } from './routes/_protected/settings/index'
 import { Route as ProtectedFoodsIndexRouteImport } from './routes/_protected/foods/index'
-import { Route as ProtectedSettingsRoutesRouteImport } from './routes/_protected/settings/routes'
 import { Route as ProtectedPollsTodayIndexRouteImport } from './routes/_protected/polls/today/index'
 
 const HealthRoute = HealthRouteImport.update({
@@ -95,11 +94,6 @@ const ProtectedFoodsIndexRoute = ProtectedFoodsIndexRouteImport.update({
   path: '/foods/',
   getParentRoute: () => ProtectedRouteRoute,
 } as any)
-const ProtectedSettingsRoutesRoute = ProtectedSettingsRoutesRouteImport.update({
-  id: '/settings/routes',
-  path: '/settings/routes',
-  getParentRoute: () => ProtectedRouteRoute,
-} as any)
 const ProtectedPollsTodayIndexRoute =
   ProtectedPollsTodayIndexRouteImport.update({
     id: '/polls/today/',
@@ -119,7 +113,6 @@ export interface FileRoutesByFullPath {
   '/auth/error': typeof AuthErrorRoute
   '/auth/oauth': typeof AuthOauthRoute
   '/': typeof ProtectedIndexRoute
-  '/settings/routes': typeof ProtectedSettingsRoutesRoute
   '/foods': typeof ProtectedFoodsIndexRoute
   '/settings': typeof ProtectedSettingsIndexRoute
   '/polls/today': typeof ProtectedPollsTodayIndexRoute
@@ -136,7 +129,6 @@ export interface FileRoutesByTo {
   '/auth/error': typeof AuthErrorRoute
   '/auth/oauth': typeof AuthOauthRoute
   '/': typeof ProtectedIndexRoute
-  '/settings/routes': typeof ProtectedSettingsRoutesRoute
   '/foods': typeof ProtectedFoodsIndexRoute
   '/settings': typeof ProtectedSettingsIndexRoute
   '/polls/today': typeof ProtectedPollsTodayIndexRoute
@@ -155,7 +147,6 @@ export interface FileRoutesById {
   '/auth/error': typeof AuthErrorRoute
   '/auth/oauth': typeof AuthOauthRoute
   '/_protected/': typeof ProtectedIndexRoute
-  '/_protected/settings/routes': typeof ProtectedSettingsRoutesRoute
   '/_protected/foods/': typeof ProtectedFoodsIndexRoute
   '/_protected/settings/': typeof ProtectedSettingsIndexRoute
   '/_protected/polls/today/': typeof ProtectedPollsTodayIndexRoute
@@ -174,7 +165,6 @@ export interface FileRouteTypes {
     | '/auth/error'
     | '/auth/oauth'
     | '/'
-    | '/settings/routes'
     | '/foods'
     | '/settings'
     | '/polls/today'
@@ -191,7 +181,6 @@ export interface FileRouteTypes {
     | '/auth/error'
     | '/auth/oauth'
     | '/'
-    | '/settings/routes'
     | '/foods'
     | '/settings'
     | '/polls/today'
@@ -209,7 +198,6 @@ export interface FileRouteTypes {
     | '/auth/error'
     | '/auth/oauth'
     | '/_protected/'
-    | '/_protected/settings/routes'
     | '/_protected/foods/'
     | '/_protected/settings/'
     | '/_protected/polls/today/'
@@ -328,13 +316,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedFoodsIndexRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
-    '/_protected/settings/routes': {
-      id: '/_protected/settings/routes'
-      path: '/settings/routes'
-      fullPath: '/settings/routes'
-      preLoaderRoute: typeof ProtectedSettingsRoutesRouteImport
-      parentRoute: typeof ProtectedRouteRoute
-    }
     '/_protected/polls/today/': {
       id: '/_protected/polls/today/'
       path: '/polls/today'
@@ -348,7 +329,6 @@ declare module '@tanstack/react-router' {
 interface ProtectedRouteRouteChildren {
   ProtectedProtectedRoute: typeof ProtectedProtectedRoute
   ProtectedIndexRoute: typeof ProtectedIndexRoute
-  ProtectedSettingsRoutesRoute: typeof ProtectedSettingsRoutesRoute
   ProtectedFoodsIndexRoute: typeof ProtectedFoodsIndexRoute
   ProtectedSettingsIndexRoute: typeof ProtectedSettingsIndexRoute
   ProtectedPollsTodayIndexRoute: typeof ProtectedPollsTodayIndexRoute
@@ -357,7 +337,6 @@ interface ProtectedRouteRouteChildren {
 const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
   ProtectedProtectedRoute: ProtectedProtectedRoute,
   ProtectedIndexRoute: ProtectedIndexRoute,
-  ProtectedSettingsRoutesRoute: ProtectedSettingsRoutesRoute,
   ProtectedFoodsIndexRoute: ProtectedFoodsIndexRoute,
   ProtectedSettingsIndexRoute: ProtectedSettingsIndexRoute,
   ProtectedPollsTodayIndexRoute: ProtectedPollsTodayIndexRoute,

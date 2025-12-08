@@ -51,29 +51,6 @@ export const AddFoodResultSchema = {
 	type: "object",
 } as const;
 
-export const AppMetadataSchema = {
-	additionalProperties: false,
-	properties: {
-		avatar_url: {
-			type: "string",
-		},
-		display_name: {
-			type: "string",
-		},
-		provider: {
-			type: "string",
-		},
-		providers: {
-			items: {
-				type: "string",
-			},
-			type: "array",
-		},
-	},
-	required: ["avatar_url", "display_name", "provider", "providers"],
-	type: "object",
-} as const;
-
 export const CreatePollCommandSchema = {
 	additionalProperties: false,
 	properties: {
@@ -381,68 +358,24 @@ export const GetTodayPollsQueryResponseSchema = {
 	type: "object",
 } as const;
 
-export const IdentitySchema = {
+export const ImageKitAuthParametersResponseSchema = {
 	additionalProperties: false,
 	properties: {
-		created_at: {
+		$schema: {
+			description: "A URL to the JSON Schema for this object.",
+			examples: [
+				"https://example.com/schemas/ImageKitAuthParametersResponse.json",
+			],
+			format: "uri",
+			readOnly: true,
 			type: "string",
 		},
-		email: {
-			type: "string",
-		},
-		id: {
-			type: "string",
-		},
-		identity_data: {
-			$ref: "#/components/schemas/IdentityData",
-		},
-		identity_id: {
-			type: "string",
-		},
-		last_sign_in_at: {
-			type: "string",
-		},
-		provider: {
-			type: "string",
-		},
-		updated_at: {
-			type: "string",
-		},
-		user_id: {
+		token: {
+			description: "The generated JWT token for ImageKit authentication",
 			type: "string",
 		},
 	},
-	required: [
-		"identity_id",
-		"id",
-		"user_id",
-		"identity_data",
-		"provider",
-		"last_sign_in_at",
-		"created_at",
-		"updated_at",
-		"email",
-	],
-	type: "object",
-} as const;
-
-export const IdentityDataSchema = {
-	additionalProperties: false,
-	properties: {
-		email: {
-			type: "string",
-		},
-		email_verified: {
-			type: "boolean",
-		},
-		phone_verified: {
-			type: "boolean",
-		},
-		sub: {
-			type: "string",
-		},
-	},
-	required: ["email", "email_verified", "phone_verified", "sub"],
+	required: ["token"],
 	type: "object",
 } as const;
 
@@ -638,17 +571,6 @@ export const ShoppingItemSchema = {
 		"total_price",
 		"users",
 	],
-	type: "object",
-} as const;
-
-export const UserMetadataSchema = {
-	additionalProperties: false,
-	properties: {
-		email_verified: {
-			type: "boolean",
-		},
-	},
-	required: ["email_verified"],
 	type: "object",
 } as const;
 
@@ -852,6 +774,18 @@ export const GetShoppingOrderResponseWritableSchema = {
 		},
 	},
 	required: ["items", "total_price"],
+	type: "object",
+} as const;
+
+export const ImageKitAuthParametersResponseWritableSchema = {
+	additionalProperties: false,
+	properties: {
+		token: {
+			description: "The generated JWT token for ImageKit authentication",
+			type: "string",
+		},
+	},
+	required: ["token"],
 	type: "object",
 } as const;
 

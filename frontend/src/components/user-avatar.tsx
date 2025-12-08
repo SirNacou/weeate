@@ -3,17 +3,8 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar" // Your Shadcn imports
-import { getImageUrl as getImageAttributes } from "@/lib/image-utils"
-
-// 1. Re-use the helper logic
-const isAbsoluteUrl = (urlString: string) => {
-  try {
-    new URL(urlString)
-    return true
-  } catch (e) {
-    return false
-  }
-}
+import { getImageUrl as getImageAttributes, isStandardImageSrc } from "@/lib/image-utils"
+import { useMemo } from "react"
 
 interface Props {
   src: string
@@ -22,7 +13,7 @@ interface Props {
 }
 
 export function UserAvatar({ src, fallback = "CN", className }: Props) {
-  const isOidc = isAbsoluteUrl(src)
+  const isNormalImageSrc = useMemo(() => isStandardImageSrc(src), [src])
   const imageAttributes = getImageAttributes({
     src: src,
     width: 100,
@@ -31,7 +22,7 @@ export function UserAvatar({ src, fallback = "CN", className }: Props) {
 
   return (
     <Avatar className={className}>
-      {isOidc ? (
+      {isNormalImageSrc ? (
         // CASE A: Standard OIDC URL
         // Use default Shadcn behavior
         <AvatarImage src={src} alt="User Avatar" />

@@ -1,6 +1,17 @@
 import { env } from "@/env/client"
 import { getResponsiveImageAttributes, ResponsiveImageAttributes, Transformation } from "@imagekit/react"
 
+/**
+ * Check if src is a standard image URL that doesn't need ImageKit processing
+ * Returns true for absolute URLs (http/https), blob URLs, and data URLs
+ */
+export const isStandardImageSrc = (src: string): boolean => {
+  return src.startsWith("http://") || 
+         src.startsWith("https://") || 
+         src.startsWith("blob:") || 
+         src.startsWith("data:")
+}
+
 export const getImageUrl = ({src, 
   width = 100,
   sizes = "100vw",
@@ -13,8 +24,8 @@ export const getImageUrl = ({src,
   transformation?: Transformation
 }): ResponsiveImageAttributes | null => {
   if (!src) return null;
-  // If the path is already a full URL, return it as is
-  if (src.startsWith("http://") || src.startsWith("https://")) {
+  // If the path is already a standard image source (URL, blob, or data), return it as is
+  if (isStandardImageSrc(src)) {
     return {
       src: src,
     }

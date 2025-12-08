@@ -1,3 +1,5 @@
+import { getAuthImagekitToken } from '@/api'
+import { getAuthImagekitTokenQueryKey } from '@/client/@tanstack/react-query.gen'
 import AvatarUpload from '@/components/avatar-upload'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
@@ -9,7 +11,7 @@ import { getFormSubmissionStatus } from '@/lib/form-utils'
 import { createSupabaseClient } from '@/lib/supabase'
 import { fetchUser as fetchUserServerFn } from '@/lib/supabase/fetch-user-server-fn'
 import { useForm } from '@tanstack/react-form'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { toast } from 'sonner'
@@ -48,6 +50,15 @@ const updateUserProfileServerFn = createServerFn({ method: 'POST' })
     return res.status === 200
   })
 
+const getImageKitTokenServerFn = createServerFn({ method: 'GET' })
+  .handler(async () => {
+    const res = await getAuthImagekitToken()
+    if (res.error) {
+      throw res.error
+    }
+    return res.data
+  })
+
 
 function RouteComponent() {
   const router = useRouter()
@@ -58,6 +69,10 @@ function RouteComponent() {
       router.invalidate()
       toast.success('Profile updated successfully')
     }
+  })
+  const { refetch } = useQuery({
+    queryKey: getAuthImagekitTokenQueryKey(),
+    queryFn: getImageKitTokenServerFn,
   })
 
   const form = useForm({
@@ -73,7 +88,15 @@ function RouteComponent() {
     })
   })
 
-  function onAvatarSave(croppedImage: string): void {
+  async function onAvatarSave(croppedImage: string): Promise<void> {
+    const { data } = await refetch()
+
+    if (!data) {
+      toast.error('Failed to get upload token')
+      return
+    }
+
+    console.log('Uploading avatar with token:', data)
   }
 
   return <div className='flex flex-col gap-6'>

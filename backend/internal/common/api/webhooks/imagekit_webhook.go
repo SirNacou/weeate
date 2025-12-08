@@ -2,9 +2,8 @@ package webhooks
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 	"net/http"
-	"os"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/imagekit-developer/imagekit-go/v2"
@@ -37,50 +36,48 @@ func (h *ImageKitWebhookHandler) Handle(ctx context.Context, req *struct {
 	// Verify and unwrap webhook payload
 	event, err := h.client.Webhooks.Unwrap(req.RawBody, req.Header)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Invalid webhook signature or malformed payload: %v\n", err)
-		w.WriteHeader(http.StatusUnauthorized)
-		return
+		slog.ErrorContext(ctx, "Invalid webhook signature or malformed payload: %v", "error", err)
+		return nil, huma.Error401Unauthorized("Invalid webhook signature or malformed payload")
 	}
 
-	fmt.Printf("Verified webhook event: %s\n", event.Type)
+	slog.InfoContext(ctx, "Verified webhook event: %s", "type", event.Type)
 
 	// Handle different event types with full type safety
 	switch event.Type {
 	case "video.transformation.accepted":
 		videoEvent := event.AsVideoTransformationAcceptedEvent()
-		fmt.Printf("Video transformation accepted: %s\n", videoEvent.Data.Asset.URL)
+		slog.InfoContext(ctx, "Video transformation accepted: %s", "url", videoEvent.Data.Asset.URL)
 		// Debugging: Track transformation requests
 		// handleVideoTransformationAccepted(videoEvent)
 
 	case "video.transformation.ready":
 		videoEvent := event.AsVideoTransformationReadyEvent()
-		fmt.Printf("Video transformation ready: %s\n", videoEvent.Data.Transformation.Output.URL)
+		slog.InfoContext(ctx, "Video transformation ready: %s", "url", videoEvent.Data.Transformation.Output.URL)
 		// Update your database/CMS to show the transformed video
 		// handleVideoTransformationReady(videoEvent)
 
 	case "video.transformation.error":
 		videoEvent := event.AsVideoTransformationErrorEvent()
-		fmt.Printf("Video transformation error: %s\n", videoEvent.Data.Transformation.Error.Reason)
+		slog.InfoContext(ctx, "Video transformation error: %s", "reason", videoEvent.Data.Transformation.Error.Reason)
 		// Log error and check your origin/URL endpoint settings
 		// handleVideoTransformationError(videoEvent)
 
 	case "upload.pre-transform.success":
 		uploadEvent := event.AsUploadPreTransformSuccessEvent()
-		fmt.Printf("Pre-transform success: %s\n", uploadEvent.Data.FileID)
+		slog.InfoContext(ctx, "Pre-transform success: %s", "file_id", uploadEvent.Data.FileID)
 		// File uploaded and pre-transformation completed
 		// handleUploadPreTransformSuccess(uploadEvent)
 
 	case "upload.post-transform.success":
 		postEvent := event.AsUploadPostTransformSuccessEvent()
-		fmt.Printf("Post-transform success: %s\n", postEvent.Data.Name)
+		slog.InfoContext(ctx, "Post-transform success: %s", "name", postEvent.Data.Name)
 		// Additional transformation completed
 		// handleUploadPostTransformSuccess(postEvent)
 
 	// Handle other event types as needed
 	default:
-		fmt.Printf("Unhandled event type: %s\n", event.Type)
+		slog.InfoContext(ctx, "Unhandled event type: %s", "type", event.Type)
 	}
 
-	w.WriteHeader(http.StatusOK)
-	return nil, nil
+	return &struct{}{}, nil
 }

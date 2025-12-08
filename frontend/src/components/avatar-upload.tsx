@@ -1,7 +1,8 @@
 import { Image as ImageIcon, Pencil, Upload } from "lucide-react"
 import { useCallback, useState } from "react"
-import { useDropzone } from "react-dropzone"
+import { FileRejection, useDropzone } from "react-dropzone"
 import Cropper, { Area } from "react-easy-crop"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -45,10 +46,28 @@ export default function AvatarUpload({ initialImage, onSave }: AvatarUploadProps
     }
   }, [])
 
+  // Handle rejected files
+  const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
+    if (fileRejections && fileRejections.length > 0) {
+      const rejection = fileRejections[0]
+      const error = rejection.errors[0]
+
+      if (error.code === "file-too-large") {
+        toast.error("File is too large. Maximum size is 5MB.")
+      } else if (error.code === "file-invalid-type") {
+        toast.error("Invalid file type. Please upload an image.")
+      } else {
+        toast.error(error.message || "Failed to upload file.")
+      }
+    }
+  }, [])
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected,
     accept: { "image/*": [] },
     multiple: false,
+    maxSize: 5 * 1024 * 1024, // 5MB limit
   })
 
   // 2. Handle Crop Completion
