@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	auth_domain "github.com/SirNacou/weeate/backend/internal/features/auth/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/foods/domain"
 	"github.com/gofrs/uuid/v5"
 	"gorm.io/gorm"
@@ -32,7 +32,7 @@ func NewAddFoodCommandHandler(db *gorm.DB) *AddFoodCommandHandler {
 }
 
 func (h *AddFoodCommandHandler) Handle(ctx context.Context, command AddFoodCommand) (*AddFoodResult, error) {
-	user, ok := auth.UserFromContext(ctx)
+	user, ok := auth_domain.UserFromContext(ctx)
 	if !ok {
 		return nil, fmt.Errorf("user not found in context")
 	}

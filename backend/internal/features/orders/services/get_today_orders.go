@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	auth_domain "github.com/SirNacou/weeate/backend/internal/features/auth/domain"
 	domain_food "github.com/SirNacou/weeate/backend/internal/features/foods/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/orders/domain"
 	"github.com/gofrs/uuid/v5"
@@ -14,7 +15,7 @@ import (
 type (
 	GetTodayOrdersResponse struct {
 		PollID     uuid.UUID        `json:"poll_id"`
-		Buyer      auth.UserProfile `json:"buyer"`
+		Buyer      auth_domain.UserProfile `json:"buyer"`
 		TotalPrice int64            `json:"total_price"`
 		OrderItems []OrderItem      `json:"order_items"`
 	}
@@ -26,7 +27,7 @@ type (
 	}
 
 	OrderItemDetail struct {
-		User     auth.UserProfile `json:"user"`
+		User     auth_domain.UserProfile `json:"user"`
 		Quantity int64            `json:"quantity"`
 	}
 
@@ -91,12 +92,12 @@ func collectIDs(orders []domain.Order) (userIDs []string, foodIDs []uuid.UUID) {
 	return userIDs, foodIDs
 }
 
-func (h *GetTodayOrdersQueryHandler) fetchData(ctx context.Context, userIDs []string, foodIDs []uuid.UUID) (map[string]auth.UserProfile, map[uuid.UUID]domain_food.Food, error) {
+func (h *GetTodayOrdersQueryHandler) fetchData(ctx context.Context, userIDs []string, foodIDs []uuid.UUID) (map[string]auth_domain.UserProfile, map[uuid.UUID]domain_food.Food, error) {
 	users, err := h.supabaseService.GetUserProfilesByIDs(userIDs...)
 	if err != nil {
 		return nil, nil, err
 	}
-	userProfileMap := make(map[string]auth.UserProfile, len(users))
+	userProfileMap := make(map[string]auth_domain.UserProfile, len(users))
 	for _, user := range users {
 		userProfileMap[user.ID.String()] = user
 	}
@@ -113,7 +114,7 @@ func (h *GetTodayOrdersQueryHandler) fetchData(ctx context.Context, userIDs []st
 	return userProfileMap, foodMap, nil
 }
 
-func buildResponse(ctx context.Context, orders []domain.Order, userProfileMap map[string]auth.UserProfile, foodMap map[uuid.UUID]domain_food.Food) []GetTodayOrdersResponse {
+func buildResponse(ctx context.Context, orders []domain.Order, userProfileMap map[string]auth_domain.UserProfile, foodMap map[uuid.UUID]domain_food.Food) []GetTodayOrdersResponse {
 	var response []GetTodayOrdersResponse
 	for _, order := range orders {
 		buyerProfile, ok := userProfileMap[order.BuyerUserID]

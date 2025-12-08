@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/SirNacou/weeate/backend/internal/features/auth/domain"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/lestrrat-go/httprc/v3"
@@ -68,7 +69,7 @@ func AuthMiddleware(ctx context.Context, authUrl, cookieName string) (fiber.Hand
 			}
 		}
 
-		var session SupabaseSession
+		var session domain.SupabaseSession
 		if err = json.Unmarshal(jsonBytes, &session); err != nil {
 			return c.Status(http.StatusUnauthorized).SendString(err.Error())
 		}
@@ -119,10 +120,10 @@ func AuthMiddleware(ctx context.Context, authUrl, cookieName string) (fiber.Hand
 		}
 
 		ctx := c.UserContext()
-		ctx = WithUser(ctx, &session.User)
+		ctx = domain.WithUser(ctx, &session.User)
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			ctx = WithUserClaims(ctx, claims)
+			ctx = domain.WithUserClaims(ctx, claims)
 		} else {
 			slog.Warn("user claims not found")
 		}

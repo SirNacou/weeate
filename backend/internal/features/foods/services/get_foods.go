@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	auth_domain "github.com/SirNacou/weeate/backend/internal/features/auth/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/foods/domain"
 	"github.com/gofrs/uuid/v5"
 	"github.com/samber/lo"
@@ -16,12 +17,12 @@ type GetFoodsQuery struct {
 }
 
 type GetFoodsQueryResponse struct {
-	ID          uuid.UUID        `json:"id"`
-	Name        string           `json:"name"`
-	ImageURL    *string          `json:"image_url"`
-	Description string           `json:"description"`
-	Price       int64            `json:"price"`
-	User        auth.UserProfile `json:"user"`
+	ID          uuid.UUID               `json:"id"`
+	Name        string                  `json:"name"`
+	ImageURL    *string                 `json:"image_url"`
+	Description string                  `json:"description"`
+	Price       int64                   `json:"price"`
+	User        auth_domain.UserProfile `json:"user"`
 }
 
 type GetFoodsQueryHandler struct {
@@ -54,7 +55,7 @@ func (h *GetFoodsQueryHandler) Handle(ctx context.Context, query GetFoodsQuery) 
 	}))
 
 	// 2. Fetch user profiles from Supabase.
-	userProfiles := []auth.UserProfile{}
+	userProfiles := []auth_domain.UserProfile{}
 	if len(uniqueUserIDs) > 0 {
 		profiles, err := h.supabaseService.GetUserProfilesByIDs(uniqueUserIDs...)
 		if err != nil {
@@ -66,7 +67,7 @@ func (h *GetFoodsQueryHandler) Handle(ctx context.Context, query GetFoodsQuery) 
 	}
 
 	// 3. Create a map for efficient O(1) user profile lookups.
-	userProfileMap := lo.KeyBy(userProfiles, func(p auth.UserProfile) uuid.UUID {
+	userProfileMap := lo.KeyBy(userProfiles, func(p auth_domain.UserProfile) uuid.UUID {
 		return p.ID
 	})
 
@@ -85,7 +86,7 @@ func (h *GetFoodsQueryHandler) Handle(ctx context.Context, query GetFoodsQuery) 
 		if profile, ok := userProfileMap[food.UserID]; ok {
 			result.User = profile
 		} else {
-			result.User = auth.UserProfile{ID: food.UserID}
+			result.User = auth_domain.UserProfile{ID: food.UserID}
 		}
 
 		results = append(results, result)

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/centrifugo"
-	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	auth_domain "github.com/SirNacou/weeate/backend/internal/features/auth/domain"
 	food_domain "github.com/SirNacou/weeate/backend/internal/features/foods/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 	"github.com/gofrs/uuid/v5"
@@ -38,9 +38,9 @@ func NewCreatePollCommandHandler(db *gorm.DB, centrifugo *centrifugo.CentrifugoC
 }
 
 func (h *CreatePollCommandHandler) Handle(ctx context.Context, req CreatePollCommand) (*CreatePollResponse, error) {
-	user, ok := auth.UserFromContext(ctx)
+	user, ok := auth_domain.UserFromContext(ctx)
 	if !ok {
-		return nil, auth.ErrUserNotFoundInContext
+		return nil, auth_domain.ErrUserNotFoundInContext
 	}
 
 	foods, err := gorm.G[food_domain.Food](h.db).
