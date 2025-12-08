@@ -18,7 +18,7 @@ type CreatePollCommand struct {
 	OrderDate        time.Time `json:"order_date" format:"date-time" doc:"Date for which the poll is being created in RFC3339 format"`
 	ScheduledCloseAt time.Time `json:"scheduled_close_at" format:"date-time" doc:"Scheduled closing time for the poll in RFC3339 format"`
 	FoodIDs          []string  `json:"food_ids" minItems:"1" doc:"List of food IDs to include in the poll"`
-	Strategy         string    `json:"strategy" enum:"ORDER_PERSONAL_CHOICE,ORDER_CONSENSUS_ITEM" doc:"Polling strategy to be used"`
+	Strategy         string    `json:"strategy" enum:"ORDER_MULTIPLE_ITEMS,ORDER_CONSENSUS_ITEM" doc:"Polling strategy to be used"`
 }
 
 type CreatePollResponse struct {
@@ -26,16 +26,14 @@ type CreatePollResponse struct {
 }
 
 type CreatePollCommandHandler struct {
-	db                 *gorm.DB
-	centrifugo         centrifugo.WebsocketClient
-	closePollScheduler domain.SchedulerTrigger
+	db         *gorm.DB
+	centrifugo *centrifugo.CentrifugoClient
 }
 
-func NewCreatePollCommandHandler(db *gorm.DB, centrifugo centrifugo.WebsocketClient, closePollScheduler domain.SchedulerTrigger) *CreatePollCommandHandler {
+func NewCreatePollCommandHandler(db *gorm.DB, centrifugo *centrifugo.CentrifugoClient) *CreatePollCommandHandler {
 	return &CreatePollCommandHandler{
-		db:                 db,
-		centrifugo:         centrifugo,
-		closePollScheduler: closePollScheduler,
+		db:         db,
+		centrifugo: centrifugo,
 	}
 }
 
@@ -107,7 +105,6 @@ func (h *CreatePollCommandHandler) Handle(ctx context.Context, req CreatePollCom
 		return nil, err
 	}
 
-	h.closePollScheduler.TriggerUpdate()
 	_, err = h.centrifugo.PublishPublicPolls(ctx, &centrifugo.PublicPollsData{
 		Type: centrifugo.PollCreated,
 		Data: &struct {

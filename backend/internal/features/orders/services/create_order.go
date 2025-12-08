@@ -73,10 +73,10 @@ func (h *CreateOrderCommandHandler) Handle(ctx context.Context, req *CreateOrder
 	}
 
 	if r > 0 {
-		slog.WarnContext(ctx, "order already exists for buyer on given date, skipping creation",
+		slog.WarnContext(ctx, "order already exists for buyer on given date",
 			"buyerID", req.BuyerID,
 			"orderDate", req.OrderDate)
-		return nil // Return nil to ack the message - order already exists, no need to retry
+		return domain.ErrOrderAlreadyExists
 	}
 
 	if req.Strategy == polls_domain.OrderConsensus {
@@ -133,21 +133,6 @@ func (h *CreateOrderCommandHandler) Handle(ctx context.Context, req *CreateOrder
 	}
 
 	err = gorm.G[domain.Order](h.db).Create(ctx, order)
-	if err != nil {
-		slog.ErrorContext(ctx, "failed to create order",
-			"pollID", req.PollID,
-			"buyerID", req.BuyerID,
-			"orderDate", req.OrderDate,
-			"error", err)
-		return err
-	}
 
-	slog.InfoContext(ctx, "order created successfully",
-		"orderID", order.ID,
-		"pollID", req.PollID,
-		"buyerID", req.BuyerID,
-		"orderDate", req.OrderDate,
-		"itemCount", len(order.OrderItems))
-
-	return nil
+	return err
 }

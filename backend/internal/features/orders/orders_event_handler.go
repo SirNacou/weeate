@@ -2,7 +2,6 @@ package orders
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/SirNacou/weeate/backend/internal/common/events"
 	"github.com/SirNacou/weeate/backend/internal/features/orders/services"
@@ -23,14 +22,8 @@ func NewOrdersEventHandler(
 }
 
 func (h *OrdersEventHandler) onPollClosed(ctx context.Context, event *events.PollClosedEvent) error {
-	slog.InfoContext(ctx, "received PollClosedEvent, processing order creation",
-		"pollID", event.PollID,
-		"buyerID", event.BuyerID,
-		"orderDate", event.OrderDate,
-		"strategy", event.Strategy,
-		"optionCount", len(event.Results))
-
-	err := h.createOrderHandler.Handle(ctx, &services.CreateOrderCommand{
+	// Register the CreateOrderOnPollClosedHandler for PollClosedEvent
+	return h.createOrderHandler.Handle(ctx, &services.CreateOrderCommand{
 		PollID:    event.PollID,
 		BuyerID:   event.BuyerID,
 		OrderDate: event.OrderDate,
@@ -49,13 +42,4 @@ func (h *OrdersEventHandler) onPollClosed(ctx context.Context, event *events.Pol
 			}
 		}),
 	})
-
-	if err != nil {
-		slog.ErrorContext(ctx, "failed to process PollClosedEvent",
-			"pollID", event.PollID,
-			"buyerID", event.BuyerID,
-			"error", err)
-	}
-
-	return err
 }

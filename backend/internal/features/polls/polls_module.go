@@ -9,7 +9,6 @@ import (
 	"github.com/SirNacou/weeate/backend/internal/features/polls/infrastructure/jobs"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/services"
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/jonboulle/clockwork"
 	"gorm.io/gorm"
 )
 
@@ -19,13 +18,12 @@ type PollsModule struct {
 }
 
 func NewPollsModule(b *bus.Bus, db *gorm.DB, supabaseService *auth.SupabaseService, centrifugo *centrifugo.CentrifugoClient) *PollsModule {
-	closePollHandler := services.NewClosePollCommandHandler(db, b, centrifugo)
-
-	closePollScheduler := jobs.NewClosePollScheduler(closePollHandler, db, clockwork.NewRealClock())
-
 	getTodayPollsHandler := services.NewGetTodayPollsQueryHandler(db, supabaseService)
-	createPollHandler := services.NewCreatePollCommandHandler(db, centrifugo, closePollScheduler)
+	createPollHandler := services.NewCreatePollCommandHandler(db, centrifugo)
+	closePollHandler := services.NewClosePollCommandHandler(db, b, centrifugo)
 	castVoteHandler := services.NewCastVoteCommandHandler(db, centrifugo)
+
+	closePollScheduler := jobs.NewClosePollScheduler(closePollHandler, db)
 
 	pollsEndpoint := NewPollsEndpoint(
 		getTodayPollsHandler,

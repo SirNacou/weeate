@@ -1,19 +1,15 @@
-import {
-	type QueryClient,
-	useQuery,
-	useQueryClient,
-} from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { toast } from "sonner";
-import type { GetTodayPollsQueryResponse, Vote } from "@/api";
-import { listPollsTodayQueryKey } from "@/client/@tanstack/react-query.gen";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { listPollsTodayServerFn } from "@/features/polls/api/get-today-polls";
-import CreatePollDialog from "@/features/polls/components/create-poll-dialog";
-import PollCard from "@/features/polls/components/poll-card";
-import { CentrifugoProvider } from "@/lib/centrifugo/centrifugo-context";
-import { useSubscription } from "@/lib/centrifugo/use-subscription";
+import { GetTodayPollsQueryResponse, Vote } from "@/api"
+import { listPollsTodayQueryKey } from "@/client/@tanstack/react-query.gen"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { listPollsTodayServerFn } from "@/features/polls/api/get-today-polls"
+import CreatePollDialog from "@/features/polls/components/create-poll-dialog"
+import PollCard from "@/features/polls/components/poll-card"
+import { CentrifugoProvider } from "@/lib/centrifugo/centrifugo-context"
+import { useSubscription } from "@/lib/centrifugo/use-subscription"
+import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query"
+import { createFileRoute } from "@tanstack/react-router"
+import { useServerFn } from "@tanstack/react-start"
+import { toast } from "sonner"
 
 export const Route = createFileRoute("/_protected/polls/today/")({
 	component: RouteComponent,

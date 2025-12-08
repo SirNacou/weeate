@@ -1,3 +1,5 @@
+import { env } from "@/env/client";
+import { getCentrifugoTokenServerFn } from "@/lib/centrifugo/get-centrifugo-token-server-fn";
 import { useServerFn } from "@tanstack/react-start";
 import {
 	Centrifuge,
@@ -14,8 +16,6 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { env } from "@/env/client";
-import { getCentrifugoTokenServerFn } from "@/lib/centrifugo/get-centrifugo-token-server-fn";
 import type { Channel } from "./channel";
 
 // Type for the data callback

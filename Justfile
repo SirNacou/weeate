@@ -29,6 +29,3 @@ docker-down *ARGS:
 
 docker-restart *ARGS:
   docker compose restart {{ARGS}}
-
-go-integration-test *ARGS:
-  go test -tags=integration ./backend/tests/integration/... {{ARGS}}
