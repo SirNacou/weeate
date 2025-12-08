@@ -24,8 +24,6 @@ import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-p
 import { Route as ProtectedSettingsIndexRouteImport } from './routes/_protected/settings/index'
 import { Route as ProtectedFoodsIndexRouteImport } from './routes/_protected/foods/index'
 import { Route as ProtectedSettingsRoutesRouteImport } from './routes/_protected/settings/routes'
-import { Route as ProtectedSettingsNotificationsRouteImport } from './routes/_protected/settings/notifications'
-import { Route as ProtectedSettingsAccountRouteImport } from './routes/_protected/settings/account'
 import { Route as ProtectedPollsTodayIndexRouteImport } from './routes/_protected/polls/today/index'
 
 const HealthRoute = HealthRouteImport.update({
@@ -102,18 +100,6 @@ const ProtectedSettingsRoutesRoute = ProtectedSettingsRoutesRouteImport.update({
   path: '/settings/routes',
   getParentRoute: () => ProtectedRouteRoute,
 } as any)
-const ProtectedSettingsNotificationsRoute =
-  ProtectedSettingsNotificationsRouteImport.update({
-    id: '/settings/notifications',
-    path: '/settings/notifications',
-    getParentRoute: () => ProtectedRouteRoute,
-  } as any)
-const ProtectedSettingsAccountRoute =
-  ProtectedSettingsAccountRouteImport.update({
-    id: '/settings/account',
-    path: '/settings/account',
-    getParentRoute: () => ProtectedRouteRoute,
-  } as any)
 const ProtectedPollsTodayIndexRoute =
   ProtectedPollsTodayIndexRouteImport.update({
     id: '/polls/today/',
@@ -133,8 +119,6 @@ export interface FileRoutesByFullPath {
   '/auth/error': typeof AuthErrorRoute
   '/auth/oauth': typeof AuthOauthRoute
   '/': typeof ProtectedIndexRoute
-  '/settings/account': typeof ProtectedSettingsAccountRoute
-  '/settings/notifications': typeof ProtectedSettingsNotificationsRoute
   '/settings/routes': typeof ProtectedSettingsRoutesRoute
   '/foods': typeof ProtectedFoodsIndexRoute
   '/settings': typeof ProtectedSettingsIndexRoute
@@ -152,8 +136,6 @@ export interface FileRoutesByTo {
   '/auth/error': typeof AuthErrorRoute
   '/auth/oauth': typeof AuthOauthRoute
   '/': typeof ProtectedIndexRoute
-  '/settings/account': typeof ProtectedSettingsAccountRoute
-  '/settings/notifications': typeof ProtectedSettingsNotificationsRoute
   '/settings/routes': typeof ProtectedSettingsRoutesRoute
   '/foods': typeof ProtectedFoodsIndexRoute
   '/settings': typeof ProtectedSettingsIndexRoute
@@ -173,8 +155,6 @@ export interface FileRoutesById {
   '/auth/error': typeof AuthErrorRoute
   '/auth/oauth': typeof AuthOauthRoute
   '/_protected/': typeof ProtectedIndexRoute
-  '/_protected/settings/account': typeof ProtectedSettingsAccountRoute
-  '/_protected/settings/notifications': typeof ProtectedSettingsNotificationsRoute
   '/_protected/settings/routes': typeof ProtectedSettingsRoutesRoute
   '/_protected/foods/': typeof ProtectedFoodsIndexRoute
   '/_protected/settings/': typeof ProtectedSettingsIndexRoute
@@ -194,8 +174,6 @@ export interface FileRouteTypes {
     | '/auth/error'
     | '/auth/oauth'
     | '/'
-    | '/settings/account'
-    | '/settings/notifications'
     | '/settings/routes'
     | '/foods'
     | '/settings'
@@ -213,8 +191,6 @@ export interface FileRouteTypes {
     | '/auth/error'
     | '/auth/oauth'
     | '/'
-    | '/settings/account'
-    | '/settings/notifications'
     | '/settings/routes'
     | '/foods'
     | '/settings'
@@ -233,8 +209,6 @@ export interface FileRouteTypes {
     | '/auth/error'
     | '/auth/oauth'
     | '/_protected/'
-    | '/_protected/settings/account'
-    | '/_protected/settings/notifications'
     | '/_protected/settings/routes'
     | '/_protected/foods/'
     | '/_protected/settings/'
@@ -361,20 +335,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedSettingsRoutesRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
-    '/_protected/settings/notifications': {
-      id: '/_protected/settings/notifications'
-      path: '/settings/notifications'
-      fullPath: '/settings/notifications'
-      preLoaderRoute: typeof ProtectedSettingsNotificationsRouteImport
-      parentRoute: typeof ProtectedRouteRoute
-    }
-    '/_protected/settings/account': {
-      id: '/_protected/settings/account'
-      path: '/settings/account'
-      fullPath: '/settings/account'
-      preLoaderRoute: typeof ProtectedSettingsAccountRouteImport
-      parentRoute: typeof ProtectedRouteRoute
-    }
     '/_protected/polls/today/': {
       id: '/_protected/polls/today/'
       path: '/polls/today'
@@ -388,8 +348,6 @@ declare module '@tanstack/react-router' {
 interface ProtectedRouteRouteChildren {
   ProtectedProtectedRoute: typeof ProtectedProtectedRoute
   ProtectedIndexRoute: typeof ProtectedIndexRoute
-  ProtectedSettingsAccountRoute: typeof ProtectedSettingsAccountRoute
-  ProtectedSettingsNotificationsRoute: typeof ProtectedSettingsNotificationsRoute
   ProtectedSettingsRoutesRoute: typeof ProtectedSettingsRoutesRoute
   ProtectedFoodsIndexRoute: typeof ProtectedFoodsIndexRoute
   ProtectedSettingsIndexRoute: typeof ProtectedSettingsIndexRoute
@@ -399,8 +357,6 @@ interface ProtectedRouteRouteChildren {
 const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
   ProtectedProtectedRoute: ProtectedProtectedRoute,
   ProtectedIndexRoute: ProtectedIndexRoute,
-  ProtectedSettingsAccountRoute: ProtectedSettingsAccountRoute,
-  ProtectedSettingsNotificationsRoute: ProtectedSettingsNotificationsRoute,
   ProtectedSettingsRoutesRoute: ProtectedSettingsRoutesRoute,
   ProtectedFoodsIndexRoute: ProtectedFoodsIndexRoute,
   ProtectedSettingsIndexRoute: ProtectedSettingsIndexRoute,

@@ -7,10 +7,12 @@ import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
 import { getFormSubmissionStatus } from '@/lib/form-utils'
 import { createSupabaseClient } from '@/lib/supabase'
-import { fetchUser } from '@/lib/supabase/fetch-user-server-fn'
+import { fetchUser as fetchUserServerFn } from '@/lib/supabase/fetch-user-server-fn'
 import { useForm } from '@tanstack/react-form'
-import { createFileRoute } from '@tanstack/react-router'
+import { useMutation } from '@tanstack/react-query'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { toast } from 'sonner'
 import z from 'zod'
 
 export const Route = createFileRoute('/_protected/settings/')({
@@ -26,24 +28,38 @@ const FormSchema = z.object({
     .max(30, 'Display name must be at most 30 characters long'),
 })
 
-const updateUserProfileServerFn = createServerFn({ method: 'POST' }).inputValidator(FormSchema)
+const updateUserProfileServerFn = createServerFn({ method: 'POST' })
+  .inputValidator(FormSchema)
   .handler(async ({ data }) => {
     const supabase = await createSupabaseClient()
-    const user = await fetchUser()
-    const res = await supabase.from('user_profiles').update({
-      display_name: data.displayName
-    }, { count: 'exact' }).eq('id', user?.id)
+    const user = await fetchUserServerFn()
+    const res = await supabase.from('user_profiles')
+      .update({
+        display_name: data.displayName
+      })
+      .eq('id', user?.id)
+      .select()
 
     if (res.error) {
       throw new Error(res.error.message)
     }
+    console.log('User profile updated:', res)
 
-    return res.count
+    return res.status === 200
   })
 
 
 function RouteComponent() {
+  const router = useRouter()
   const { user } = Route.useRouteContext()
+  const updateUserProfileMutation = useMutation({
+    mutationFn: (data: z.infer<typeof FormSchema>) => updateUserProfileServerFn({ data }),
+    onSuccess: async () => {
+      router.invalidate()
+      toast.success('Profile updated successfully')
+    }
+  })
+
   const form = useForm({
     defaultValues: {
       displayName: user.app_metadata.display_name,
@@ -52,14 +68,9 @@ function RouteComponent() {
       onMount: FormSchema,
       onChange: FormSchema,
     },
-    onSubmit: async ({ value }) => {
-      return new Promise<void>((resolve) => {
-        setTimeout(() => {
-          console.log('Form submitted with values:', value)
-          resolve()
-        }, 1500)
-      })
-    }
+    onSubmit: ({ value }) => updateUserProfileMutation.mutateAsync({
+      displayName: value.displayName
+    })
   })
 
   return <div className='flex flex-col gap-6'>
