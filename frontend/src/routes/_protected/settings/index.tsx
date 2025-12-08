@@ -73,8 +73,14 @@ function RouteComponent() {
     })
   })
 
+  function onAvatarSave(croppedImage: string): void {
+  }
+
   return <div className='flex flex-col gap-6'>
-    <AvatarUpload initialImage={user.app_metadata.avatar_url} />
+    <AvatarUpload
+      initialImage={user.app_metadata.avatar_url}
+      onSave={onAvatarSave}
+    />
 
     <form onSubmit={(e) => {
       e.preventDefault()

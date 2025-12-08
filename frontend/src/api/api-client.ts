@@ -2,18 +2,15 @@ import { client } from "@/client/client.gen"
 import { clientEnv } from "@/env"
 import { createSupabaseClient } from "@/lib/supabase"
 import { createClient } from "@/lib/supabase/client"
-import { getRequestHeader } from "@tanstack/react-start/server"
 
 client.interceptors.request.use(async (request) => {
   const supabase = await createSupabaseClient()
   const accessToken = (await supabase.auth.getSession()).data.session?.access_token.replace("base64-", "")
   console.log("Retrieved access token", accessToken)
   if (accessToken) {
-    console.log("Setting Authorization header with access token", accessToken)
     request.headers.set("Authorization", `Bearer ${accessToken}`)
   }
-  // Forward cookies from the incoming request to the API
-  request.headers.set("Cookie", getRequestHeader("Cookie") || "");
+  console.log("Outgoing request:", request.headers.get("Cookie"))
   return request;
 });
 

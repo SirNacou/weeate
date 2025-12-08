@@ -11,6 +11,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/SirNacou/weeate/backend/internal/common/api"
+	"github.com/SirNacou/weeate/backend/internal/common/api/webhooks"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/bus"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/centrifugo"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/configs"
@@ -89,6 +90,8 @@ func (s *Server) buildHandler(ctx context.Context) (http.Handler, []func(context
 
 	api := humafiber.New(app, huma.DefaultConfig("Weeate API", "v1.0.0"))
 	huma.DefaultArrayNullable = false
+
+	webhooks.RegisterImageKitWebhook(api, s.config.IMAGEKIT_WEBHOOK_KEY)
 
 	authModule := auth.NewAuthModule(s.config)
 	authModule.RegisterAPI(api)

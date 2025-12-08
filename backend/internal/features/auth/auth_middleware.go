@@ -40,6 +40,10 @@ func AuthMiddleware(ctx context.Context, authUrl, cookieName string) (fiber.Hand
 			return c.Next()
 		}
 
+		if strings.Contains(c.Path(), "/ik-webhook") {
+			return c.Next()
+		}
+
 		authCookie := ""
 		for k, v := range c.Request().Header.Cookies() {
 			if strings.Contains(string(k), cookieName) {

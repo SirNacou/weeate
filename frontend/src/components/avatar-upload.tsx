@@ -3,7 +3,6 @@ import { useCallback, useState } from "react"
 import { useDropzone } from "react-dropzone"
 import Cropper, { Area } from "react-easy-crop"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -14,6 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import { Slider } from "@/components/ui/slider"
 import { getCroppedImg } from '@/utils/canvasUtil'
+import { UserAvatar } from "./user-avatar"
 
 interface AvatarUploadProps {
   initialImage?: string
@@ -85,12 +85,15 @@ export default function AvatarUpload({ initialImage, onSave }: AvatarUploadProps
           ${isDragActive ? "ring-4 ring-primary/30" : "hover:ring-4 hover:ring-muted"}`}
       >
         <input {...getInputProps()} />
-        <Avatar className="h-32 w-32 border-2 border-border shadow-sm">
+        <UserAvatar src={croppedImage || "/miku monitoring_EbEgOC38U"}
+          className="h-32 w-32 border-2 border-border shadow-sm"
+          fallback={<ImageIcon className="h-10 w-10 opacity-50" />} />
+        {/* <Avatar className="h-32 w-32 border-2 border-border shadow-sm">
           <AvatarImage src={croppedImage || ""} className="object-cover" />
           <AvatarFallback className="bg-muted text-muted-foreground">
             <ImageIcon className="h-10 w-10 opacity-50" />
           </AvatarFallback>
-        </Avatar>
+        </Avatar> */}
 
         {/* Hover Overlay */}
         <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
