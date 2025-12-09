@@ -276,7 +276,7 @@ export function SimpleTimePicker({
         }
       }
       if (max) {
-        let newTime = buildTime({
+        const newTime = buildTime({
           use12HourFormat,
           value,
           formatStr,

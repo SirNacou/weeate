@@ -131,7 +131,7 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 		defaultValues: {
 			food_ids: [] as CreatePollCommand["food_ids"],
 			order_date: orderDate.toISOString(),
-			scheduled_close_at: new Date(Date.now()).toISOString(),
+			scheduled_close_at: new Date(add(Date.now(), { hours: 1 })).toISOString(),
 			strategy: "ORDER_MULTIPLE_ITEMS" as CreatePollCommand["strategy"],
 		},
 		validators: {
