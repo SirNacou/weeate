@@ -252,56 +252,46 @@ export function SimpleTimePicker({
 		[setMinute, use12HourFormat, value, formatStr, hour, second, ampm],
 	);
 
-	const onAmpmChange = useCallback(
-		(v: SimpleTimeOption) => {
-			if (min) {
-				const newTime = buildTime({
-					use12HourFormat,
-					value,
-					formatStr,
-					hour,
-					minute,
-					second,
-					ampm: v.value,
-				});
-				if (newTime < min) {
-					const minH = min.getHours() % 12;
-					setHour(minH === 0 ? 12 : minH);
-					setMinute(min.getMinutes());
-					setSecond(min.getSeconds());
-				}
-			}
-			if (max) {
-				const newTime = buildTime({
-					use12HourFormat,
-					value,
-					formatStr,
-					hour,
-					minute,
-					second,
-					ampm: v.value,
-				});
-				if (newTime > max) {
-					const maxH = max.getHours() % 12;
-					setHour(maxH === 0 ? 12 : maxH);
-					setMinute(max.getMinutes());
-					setSecond(max.getSeconds());
-				}
-			}
-			setAmpm(v.value);
-		},
-		[
-			setAmpm,
-			use12HourFormat,
-			value,
-			formatStr,
-			hour,
-			minute,
-			second,
-			min,
-			max,
-		],
-	);
+  const onAmpmChange = useCallback(
+    (v: SimpleTimeOption) => {
+      if (min) {
+        let newTime = buildTime({
+          use12HourFormat,
+          value,
+          formatStr,
+          hour,
+          minute,
+          second,
+          ampm: v.value,
+        });
+        if (newTime < min) {
+          const minH = min.getHours() % 12;
+          setHour(minH === 0 ? 12 : minH);
+          setMinute(min.getMinutes());
+          setSecond(min.getSeconds());
+        }
+      }
+      if (max) {
+        const newTime = buildTime({
+          use12HourFormat,
+          value,
+          formatStr,
+          hour,
+          minute,
+          second,
+          ampm: v.value,
+        });
+        if (newTime > max) {
+          const maxH = max.getHours() % 12;
+          setHour(maxH === 0 ? 12 : maxH);
+          setMinute(max.getMinutes());
+          setSecond(max.getSeconds());
+        }
+      }
+      setAmpm(v.value);
+    },
+    [setAmpm, use12HourFormat, value, formatStr, hour, minute, second, min, max]
+  );
 
 	const display = useMemo(() => {
 		return format(value, use12HourFormat ? "hh:mm:ss a" : "HH:mm:ss");

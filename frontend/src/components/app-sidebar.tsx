@@ -1,14 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
-import { Link, type LinkOptions, useNavigate } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-react";
-import type React from "react";
-import useIsMobile from "@/hooks/use-is-mobile";
-import { createSupabaseClient } from "@/lib/supabase";
-import { fetchUser } from "@/lib/supabase/fetch-user-server-fn";
-import FluentFood32Filled from "~icons/fluent/food-32-filled";
-import FluentHome32Filled from "~icons/fluent/home-32-filled";
-import LucideVote from "~icons/lucide/vote?width=2em&height=2em";
+import useIsMobile from "@/hooks/use-is-mobile"
+import { createSupabaseClient } from "@/lib/supabase"
+import { fetchUser } from "@/lib/supabase/fetch-user-server-fn"
+import { useQuery } from "@tanstack/react-query"
+import { Link, type LinkOptions, useNavigate } from "@tanstack/react-router"
+import { useServerFn } from "@tanstack/react-start"
+import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-react"
+import type React from "react"
+import FluentFood32Filled from "~icons/fluent/food-32-filled"
+import FluentHome32Filled from "~icons/fluent/home-32-filled"
+import LucideVote from "~icons/lucide/vote?width=2em&height=2em"
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -17,7 +17,7 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from "./animate-ui/components/radix/dropdown-menu";
+} from "./animate-ui/components/radix/dropdown-menu"
 import {
 	Sidebar,
 	SidebarContent,
@@ -28,14 +28,14 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 	SidebarRail,
-} from "./animate-ui/components/radix/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+} from "./animate-ui/components/radix/sidebar"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 
 type NavData = {
-	linkOptions: LinkOptions;
-	label: string;
-	icon: React.FC<React.SVGProps<SVGSVGElement>>;
-};
+	linkOptions: LinkOptions
+	label: string
+	icon: React.FC<React.SVGProps<SVGSVGElement>>
+}
 
 const DATA: NavData[] = [
 	{
@@ -59,25 +59,25 @@ const DATA: NavData[] = [
 		label: "Foods",
 		icon: FluentFood32Filled,
 	},
-];
+]
 
 const AppSidebar = () => {
-	const { isMobile } = useIsMobile();
-	const getUser = useServerFn(fetchUser);
-	const navigate = useNavigate();
+	const { isMobile } = useIsMobile()
+	const getUser = useServerFn(fetchUser)
+	const navigate = useNavigate()
 
 	const logOut: React.MouseEventHandler<HTMLDivElement> = async (e) => {
-		e.preventDefault();
-		const supabase = await createSupabaseClient();
+		e.preventDefault()
+		const supabase = await createSupabaseClient()
 		supabase.auth.signOut().then(() => {
-			navigate({ to: "/login" });
-		});
-	};
+			navigate({ to: "/login" })
+		})
+	}
 
 	const { data: user } = useQuery({
 		queryKey: ["user"],
 		queryFn: getUser,
-	});
+	})
 
 	return (
 		<Sidebar>
@@ -182,7 +182,7 @@ const AppSidebar = () => {
 								<DropdownMenuGroup>
 									<DropdownMenuItem>
 										<Link
-											to="/account"
+											to="/settings/account"
 											className="flex gap-2 items-center w-full"
 										>
 											<BadgeCheck />
@@ -191,7 +191,7 @@ const AppSidebar = () => {
 									</DropdownMenuItem>
 									<DropdownMenuItem>
 										<Link
-											to="/notifications"
+											to="/settings/notifications"
 											className="flex gap-2 items-center w-full"
 										>
 											<Bell />
@@ -212,7 +212,7 @@ const AppSidebar = () => {
 			</SidebarFooter>
 			<SidebarRail />
 		</Sidebar>
-	);
-};
+	)
+}
 
-export default AppSidebar;
+export default AppSidebar

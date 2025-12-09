@@ -94,7 +94,7 @@ const PollCard = ({ poll }: Props) => {
     defaultValues: {
       selectedOption: {
         id: initialSelectedOption?.id || "",
-        isSelected: initialSelectedOption ? true : false,
+        isSelected: !!initialSelectedOption,
       },
     },
     validators: {
