@@ -5,8 +5,8 @@ import { queryOptions, type UseMutationOptions } from "@tanstack/react-query";
 import { client } from "../client.gen";
 import {
 	deleteFoodsById,
-	get,
 	getAuthCentrifugoToken,
+	getAuthImagekitToken,
 	getOrderedItems,
 	getShoppingOrder,
 	listFoods,
@@ -14,6 +14,7 @@ import {
 	listPollsToday,
 	type Options,
 	postFoods,
+	postIkWebhook,
 	postPolls,
 	postPollsByIdClose,
 	postPollsByIdVote,
@@ -26,12 +27,12 @@ import type {
 	GetAuthCentrifugoTokenData,
 	GetAuthCentrifugoTokenError,
 	GetAuthCentrifugoTokenResponse,
-	GetData,
-	GetError,
+	GetAuthImagekitTokenData,
+	GetAuthImagekitTokenError,
+	GetAuthImagekitTokenResponse,
 	GetOrderedItemsData,
 	GetOrderedItemsError,
 	GetOrderedItemsResponse2,
-	GetResponse,
 	GetShoppingOrderData,
 	GetShoppingOrderError,
 	GetShoppingOrderResponse2,
@@ -47,6 +48,9 @@ import type {
 	PostFoodsData,
 	PostFoodsError,
 	PostFoodsResponse,
+	PostIkWebhookData,
+	PostIkWebhookError,
+	PostIkWebhookResponse,
 	PostPollsByIdCloseData,
 	PostPollsByIdCloseError,
 	PostPollsByIdCloseResponse,
@@ -101,31 +105,6 @@ const createQueryKey = <TOptions extends Options>(
 	return [params];
 };
 
-export const getQueryKey = (options?: Options<GetData>) =>
-	createQueryKey("get", options);
-
-/**
- * Get
- */
-export const getOptions = (options?: Options<GetData>) =>
-	queryOptions<
-		GetResponse,
-		GetError,
-		GetResponse,
-		ReturnType<typeof getQueryKey>
-	>({
-		queryFn: async ({ queryKey, signal }) => {
-			const { data } = await get({
-				...options,
-				...queryKey[0],
-				signal,
-				throwOnError: true,
-			});
-			return data;
-		},
-		queryKey: getQueryKey(options),
-	});
-
 export const getAuthCentrifugoTokenQueryKey = (
 	options?: Options<GetAuthCentrifugoTokenData>,
 ) => createQueryKey("getAuthCentrifugoToken", options);
@@ -152,6 +131,34 @@ export const getAuthCentrifugoTokenOptions = (
 			return data;
 		},
 		queryKey: getAuthCentrifugoTokenQueryKey(options),
+	});
+
+export const getAuthImagekitTokenQueryKey = (
+	options?: Options<GetAuthImagekitTokenData>,
+) => createQueryKey("getAuthImagekitToken", options);
+
+/**
+ * Get auth imagekit token
+ */
+export const getAuthImagekitTokenOptions = (
+	options?: Options<GetAuthImagekitTokenData>,
+) =>
+	queryOptions<
+		GetAuthImagekitTokenResponse,
+		GetAuthImagekitTokenError,
+		GetAuthImagekitTokenResponse,
+		ReturnType<typeof getAuthImagekitTokenQueryKey>
+	>({
+		queryFn: async ({ queryKey, signal }) => {
+			const { data } = await getAuthImagekitToken({
+				...options,
+				...queryKey[0],
+				signal,
+				throwOnError: true,
+			});
+			return data;
+		},
+		queryKey: getAuthImagekitTokenQueryKey(options),
 	});
 
 export const listFoodsQueryKey = (options?: Options<ListFoodsData>) =>
@@ -250,6 +257,35 @@ export const putFoodsByIdMutation = (
 	> = {
 		mutationFn: async (fnOptions) => {
 			const { data } = await putFoodsById({
+				...options,
+				...fnOptions,
+				throwOnError: true,
+			});
+			return data;
+		},
+	};
+	return mutationOptions;
+};
+
+/**
+ * ImageKit Webhook Handler
+ *
+ * Handle ImageKit webhooks for video transformations and uploads.
+ */
+export const postIkWebhookMutation = (
+	options?: Partial<Options<PostIkWebhookData>>,
+): UseMutationOptions<
+	PostIkWebhookResponse,
+	PostIkWebhookError,
+	Options<PostIkWebhookData>
+> => {
+	const mutationOptions: UseMutationOptions<
+		PostIkWebhookResponse,
+		PostIkWebhookError,
+		Options<PostIkWebhookData>
+	> = {
+		mutationFn: async (fnOptions) => {
+			const { data } = await postIkWebhook({
 				...options,
 				...fnOptions,
 				throwOnError: true,

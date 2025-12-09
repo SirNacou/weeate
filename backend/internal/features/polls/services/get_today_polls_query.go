@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	auth_domain "github.com/SirNacou/weeate/backend/internal/features/auth/domain"
 	food_domain "github.com/SirNacou/weeate/backend/internal/features/foods/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/infrastructure/data"
@@ -16,13 +17,13 @@ import (
 type (
 	GetTodayPollsQuery         struct{}
 	GetTodayPollsQueryResponse struct {
-		ID                string              `json:"id"`
-		Creator           auth.UserProfile    `json:"creator"`
-		ScheduledClosesAt time.Time           `json:"scheduled_closes_at"`
-		Strategy          domain.PollStrategy `json:"strategy" enum:"ORDER_CONSENSUS_ITEM,ORDER_PERSONAL_CHOICE"`
-		ClosedAt          *time.Time          `json:"closed_at"`
-		PollOptions       []PollOption        `json:"poll_options"`
-		OrderDate         time.Time           `json:"order_date" format:"date-time"`
+		ID                string                  `json:"id"`
+		Creator           auth_domain.UserProfile `json:"creator"`
+		ScheduledClosesAt time.Time               `json:"scheduled_closes_at"`
+		Strategy          domain.PollStrategy     `json:"strategy" enum:"ORDER_CONSENSUS_ITEM,ORDER_PERSONAL_CHOICE"`
+		ClosedAt          *time.Time              `json:"closed_at"`
+		PollOptions       []PollOption            `json:"poll_options"`
+		OrderDate         time.Time               `json:"order_date" format:"date-time"`
 	}
 
 	PollOption struct {
@@ -39,7 +40,7 @@ type (
 	}
 
 	Vote struct {
-		Voter auth.UserProfile `json:"voter"`
+		Voter auth_domain.UserProfile `json:"voter"`
 	}
 )
 
@@ -95,7 +96,7 @@ func (h *GetTodayPollsQueryHandler) Handle(ctx context.Context, query GetTodayPo
 		}
 	}
 
-	var userProfiles []auth.UserProfile
+	var userProfiles []auth_domain.UserProfile
 	if len(uniqueUserIDs) > 0 {
 		profiles, err := h.supabaseService.GetUserProfilesByIDs(uniqueUserIDs...)
 		if err != nil {
@@ -106,7 +107,7 @@ func (h *GetTodayPollsQueryHandler) Handle(ctx context.Context, query GetTodayPo
 
 	// 3. Create maps for efficient O(1) lookups.
 	foodMap := lo.KeyBy(foods, func(f food_domain.Food) string { return f.ID.String() })
-	userProfileMap := lo.KeyBy(userProfiles, func(up auth.UserProfile) string { return up.ID.String() })
+	userProfileMap := lo.KeyBy(userProfiles, func(up auth_domain.UserProfile) string { return up.ID.String() })
 
 	// 4. Assemble the response DTO using the maps for fast data retrieval.
 	res := make([]GetTodayPollsQueryResponse, 0, len(polls))

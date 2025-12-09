@@ -9,12 +9,12 @@ import type {
 	GetAuthCentrifugoTokenData,
 	GetAuthCentrifugoTokenErrors,
 	GetAuthCentrifugoTokenResponses,
-	GetData,
-	GetErrors,
+	GetAuthImagekitTokenData,
+	GetAuthImagekitTokenErrors,
+	GetAuthImagekitTokenResponses,
 	GetOrderedItemsData,
 	GetOrderedItemsErrors,
 	GetOrderedItemsResponses,
-	GetResponses,
 	GetShoppingOrderData,
 	GetShoppingOrderErrors,
 	GetShoppingOrderResponses,
@@ -30,6 +30,9 @@ import type {
 	PostFoodsData,
 	PostFoodsErrors,
 	PostFoodsResponses,
+	PostIkWebhookData,
+	PostIkWebhookErrors,
+	PostIkWebhookResponses,
 	PostPollsByIdCloseData,
 	PostPollsByIdCloseErrors,
 	PostPollsByIdCloseResponses,
@@ -48,10 +51,10 @@ import {
 	zDeleteFoodsByIdResponse,
 	zGetAuthCentrifugoTokenData,
 	zGetAuthCentrifugoTokenResponse,
-	zGetData,
+	zGetAuthImagekitTokenData,
+	zGetAuthImagekitTokenResponse,
 	zGetOrderedItemsData,
 	zGetOrderedItemsResponse2,
-	zGetResponse,
 	zGetShoppingOrderData,
 	zGetShoppingOrderResponse2,
 	zListFoodsData,
@@ -62,6 +65,8 @@ import {
 	zListPollsTodayResponse,
 	zPostFoodsData,
 	zPostFoodsResponse,
+	zPostIkWebhookData,
+	zPostIkWebhookResponse,
 	zPostPollsByIdCloseData,
 	zPostPollsByIdCloseResponse,
 	zPostPollsByIdVoteData,
@@ -90,19 +95,6 @@ export type Options<
 };
 
 /**
- * Get
- */
-export const get = <ThrowOnError extends boolean = false>(
-	options?: Options<GetData, ThrowOnError>,
-) =>
-	(options?.client ?? client).get<GetResponses, GetErrors, ThrowOnError>({
-		requestValidator: async (data) => await zGetData.parseAsync(data),
-		responseValidator: async (data) => await zGetResponse.parseAsync(data),
-		url: "/",
-		...options,
-	});
-
-/**
  * Get auth centrifugo token
  */
 export const getAuthCentrifugoToken = <ThrowOnError extends boolean = false>(
@@ -118,6 +110,25 @@ export const getAuthCentrifugoToken = <ThrowOnError extends boolean = false>(
 		responseValidator: async (data) =>
 			await zGetAuthCentrifugoTokenResponse.parseAsync(data),
 		url: "/auth/centrifugo/token",
+		...options,
+	});
+
+/**
+ * Get auth imagekit token
+ */
+export const getAuthImagekitToken = <ThrowOnError extends boolean = false>(
+	options?: Options<GetAuthImagekitTokenData, ThrowOnError>,
+) =>
+	(options?.client ?? client).get<
+		GetAuthImagekitTokenResponses,
+		GetAuthImagekitTokenErrors,
+		ThrowOnError
+	>({
+		requestValidator: async (data) =>
+			await zGetAuthImagekitTokenData.parseAsync(data),
+		responseValidator: async (data) =>
+			await zGetAuthImagekitTokenResponse.parseAsync(data),
+		url: "/auth/imagekit/token",
 		...options,
 	});
 
@@ -198,6 +209,31 @@ export const putFoodsById = <ThrowOnError extends boolean = false>(
 		...options,
 		headers: {
 			"Content-Type": "application/json",
+			...options.headers,
+		},
+	});
+
+/**
+ * ImageKit Webhook Handler
+ *
+ * Handle ImageKit webhooks for video transformations and uploads.
+ */
+export const postIkWebhook = <ThrowOnError extends boolean = false>(
+	options: Options<PostIkWebhookData, ThrowOnError>,
+) =>
+	(options.client ?? client).post<
+		PostIkWebhookResponses,
+		PostIkWebhookErrors,
+		ThrowOnError
+	>({
+		bodySerializer: null,
+		requestValidator: async (data) => await zPostIkWebhookData.parseAsync(data),
+		responseValidator: async (data) =>
+			await zPostIkWebhookResponse.parseAsync(data),
+		url: "/ik-webhook",
+		...options,
+		headers: {
+			"Content-Type": "application/octet-stream",
 			...options.headers,
 		},
 	});

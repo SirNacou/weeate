@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	auth_domain "github.com/SirNacou/weeate/backend/internal/features/auth/domain"
 	food_domain "github.com/SirNacou/weeate/backend/internal/features/foods/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/orders/domain"
 	"github.com/samber/lo"
@@ -22,12 +23,12 @@ type GetShoppingOrderResponse struct {
 }
 
 type ShoppingItem struct {
-	FoodID     string             `json:"food_id"`
-	FoodName   string             `json:"food_name"`
-	Quantity   int64              `json:"quantity"`
-	UnitPrice  int64              `json:"unit_price"`
-	TotalPrice int64              `json:"total_price"`
-	Users      []auth.UserProfile `json:"users" nullable:"false" minItems:"1"`
+	FoodID     string                    `json:"food_id"`
+	FoodName   string                    `json:"food_name"`
+	Quantity   int64                     `json:"quantity"`
+	UnitPrice  int64                     `json:"unit_price"`
+	TotalPrice int64                     `json:"total_price"`
+	Users      []auth_domain.UserProfile `json:"users" nullable:"false" minItems:"1"`
 }
 
 type GetShoppingOrderQueryHandler struct {
@@ -43,9 +44,9 @@ func NewGetShoppingOrderQueryHandler(db *gorm.DB, supabaseService *auth.Supabase
 }
 
 func (h *GetShoppingOrderQueryHandler) Handle(ctx context.Context, query *GetShoppingOrderQuery) (*GetShoppingOrderResponse, error) {
-	user, ok := auth.UserFromContext(ctx)
+	user, ok := auth_domain.UserFromContext(ctx)
 	if !ok {
-		return nil, auth.ErrUserNotFoundInContext
+		return nil, auth_domain.ErrUserNotFoundInContext
 	}
 
 	order, err := gorm.G[domain.Order](h.db).
@@ -86,7 +87,7 @@ func (h *GetShoppingOrderQueryHandler) Handle(ctx context.Context, query *GetSho
 	if err != nil {
 		return nil, err
 	}
-	userProfileMap := lo.KeyBy(userProfiles, func(profile auth.UserProfile) string {
+	userProfileMap := lo.KeyBy(userProfiles, func(profile auth_domain.UserProfile) string {
 		return profile.ID.String()
 	})
 
@@ -101,7 +102,7 @@ func (h *GetShoppingOrderQueryHandler) Handle(ctx context.Context, query *GetSho
 				Quantity:   quantity,
 				UnitPrice:  item.PriceAtOrder,
 				TotalPrice: item.PriceAtOrder * quantity,
-				Users: lo.Map(item.Details, func(detail domain.OrderItemDetail, _ int) auth.UserProfile {
+				Users: lo.Map(item.Details, func(detail domain.OrderItemDetail, _ int) auth_domain.UserProfile {
 					return userProfileMap[detail.UserID]
 				}),
 			}

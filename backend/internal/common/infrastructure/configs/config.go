@@ -23,6 +23,8 @@ type Config struct {
 	GO_ENV                    string `env:"GO_ENV" envDefault:"development"`
 	IMAGE_KIT_API_KEY         string `env:"IMAGE_KIT_API_KEY" required:"true"`
 	IMAGEKIT_URL              string `env:"IMAGEKIT_URL" required:"true"`
+	IMAGEKIT_WEBHOOK_KEY      string `env:"IMAGEKIT_WEBHOOK_KEY" required:"true"`
+	IMAGEKIT_PUBLIC_KEY       string `env:"IMAGEKIT_PUBLIC_KEY" required:"true"`
 	CENTRIFUGO_HMAC_SECRET    string `env:"CENTRI_HMAC_SECRET" required:"true"`
 	CENTRIFUGO_GRPC_PORT      int    `env:"CENTRI_GRPC_API_PORT" envDefault:"10000"`
 	CENTRIFUGO_GRPC_HOST      string `env:"CENTRI_GRPC_API_HOST" envDefault:"centrifugo"`

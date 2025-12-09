@@ -15,13 +15,6 @@ export const zAddFoodResult = z.object({
 	food_id: z.string(),
 });
 
-export const zAppMetadata = z.object({
-	avatar_url: z.string(),
-	display_name: z.string(),
-	provider: z.string(),
-	providers: z.array(z.string()),
-});
-
 export const zCreatePollCommand = z.object({
 	$schema: z.optional(z.url().readonly()),
 	food_ids: z.array(z.string()).min(1),
@@ -62,23 +55,9 @@ export const zGetCentrifugoJwtResponse = z.object({
 	token: z.string(),
 });
 
-export const zIdentityData = z.object({
-	email: z.string(),
-	email_verified: z.boolean(),
-	phone_verified: z.boolean(),
-	sub: z.string(),
-});
-
-export const zIdentity = z.object({
-	created_at: z.string(),
-	email: z.string(),
-	id: z.string(),
-	identity_data: zIdentityData,
-	identity_id: z.string(),
-	last_sign_in_at: z.string(),
-	provider: z.string(),
-	updated_at: z.string(),
-	user_id: z.string(),
+export const zImageKitAuthParametersResponse = z.object({
+	$schema: z.optional(z.url().readonly()),
+	token: z.string(),
 });
 
 export const zPostByIdVoteRequest = z.object({
@@ -92,10 +71,6 @@ export const zPutByIdRequest = z.object({
 	image_file_id: z.optional(z.string()),
 	name: z.string(),
 	price: z.coerce.bigint(),
-});
-
-export const zUserMetadata = z.object({
-	email_verified: z.boolean(),
 });
 
 export const zUserProfile = z.object({
@@ -228,6 +203,10 @@ export const zGetShoppingOrderResponseWritable = z.object({
 	total_price: z.coerce.bigint(),
 });
 
+export const zImageKitAuthParametersResponseWritable = z.object({
+	token: z.string(),
+});
+
 export const zPostByIdVoteRequestWritable = z.object({
 	poll_option_id: z.uuid(),
 });
@@ -239,17 +218,6 @@ export const zPutByIdRequestWritable = z.object({
 	price: z.coerce.bigint(),
 });
 
-export const zGetData = z.object({
-	body: z.optional(z.never()),
-	path: z.optional(z.never()),
-	query: z.optional(z.never()),
-});
-
-/**
- * No Content
- */
-export const zGetResponse = z.void();
-
 export const zGetAuthCentrifugoTokenData = z.object({
 	body: z.optional(z.never()),
 	path: z.optional(z.never()),
@@ -260,6 +228,17 @@ export const zGetAuthCentrifugoTokenData = z.object({
  * OK
  */
 export const zGetAuthCentrifugoTokenResponse = zGetCentrifugoJwtResponse;
+
+export const zGetAuthImagekitTokenData = z.object({
+	body: z.optional(z.never()),
+	path: z.optional(z.never()),
+	query: z.optional(z.never()),
+});
+
+/**
+ * OK
+ */
+export const zGetAuthImagekitTokenResponse = zImageKitAuthParametersResponse;
 
 export const zListFoodsData = z.object({
 	body: z.optional(z.never()),
@@ -312,6 +291,17 @@ export const zPutFoodsByIdData = z.object({
  * No Content
  */
 export const zPutFoodsByIdResponse = z.void();
+
+export const zPostIkWebhookData = z.object({
+	body: z.string(),
+	path: z.optional(z.never()),
+	query: z.optional(z.never()),
+});
+
+/**
+ * No Content
+ */
+export const zPostIkWebhookResponse = z.void();
 
 export const zGetOrderedItemsData = z.object({
 	body: z.optional(z.never()),

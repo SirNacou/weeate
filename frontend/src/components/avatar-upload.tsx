@@ -1,9 +1,9 @@
 import { Image as ImageIcon, Pencil, Upload } from "lucide-react"
 import { useCallback, useState } from "react"
-import { useDropzone } from "react-dropzone"
+import { FileRejection, useDropzone } from "react-dropzone"
 import Cropper, { Area } from "react-easy-crop"
+import { toast } from "sonner"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { Slider } from "@/components/ui/slider"
 import { getCroppedImg } from '@/utils/canvasUtil'
+import { UserAvatar } from "./user-avatar"
 
 interface AvatarUploadProps {
   initialImage?: string
@@ -45,10 +46,28 @@ export default function AvatarUpload({ initialImage, onSave }: AvatarUploadProps
     }
   }, [])
 
+  // Handle rejected files
+  const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
+    if (fileRejections && fileRejections.length > 0) {
+      const rejection = fileRejections[0]
+      const error = rejection.errors[0]
+
+      if (error.code === "file-too-large") {
+        toast.error("File is too large. Maximum size is 5MB.")
+      } else if (error.code === "file-invalid-type") {
+        toast.error("Invalid file type. Please upload an image.")
+      } else {
+        toast.error(error.message || "Failed to upload file.")
+      }
+    }
+  }, [])
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected,
     accept: { "image/*": [] },
     multiple: false,
+    maxSize: 5 * 1024 * 1024, // 5MB limit
   })
 
   // 2. Handle Crop Completion
@@ -85,12 +104,15 @@ export default function AvatarUpload({ initialImage, onSave }: AvatarUploadProps
           ${isDragActive ? "ring-4 ring-primary/30" : "hover:ring-4 hover:ring-muted"}`}
       >
         <input {...getInputProps()} />
-        <Avatar className="h-32 w-32 border-2 border-border shadow-sm">
+        <UserAvatar src={croppedImage || "/miku monitoring_EbEgOC38U"}
+          className="h-32 w-32 border-2 border-border shadow-sm"
+          fallback={<ImageIcon className="h-10 w-10 opacity-50" />} />
+        {/* <Avatar className="h-32 w-32 border-2 border-border shadow-sm">
           <AvatarImage src={croppedImage || ""} className="object-cover" />
           <AvatarFallback className="bg-muted text-muted-foreground">
             <ImageIcon className="h-10 w-10 opacity-50" />
           </AvatarFallback>
-        </Avatar>
+        </Avatar> */}
 
         {/* Hover Overlay */}
         <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">

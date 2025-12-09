@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/centrifugo"
-	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	auth_domain "github.com/SirNacou/weeate/backend/internal/features/auth/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 	"github.com/gofrs/uuid/v5"
 	"gorm.io/gorm"
@@ -27,9 +27,9 @@ func NewCastVoteCommandHandler(db *gorm.DB, centrifugo *centrifugo.CentrifugoCli
 }
 
 func (h *CastVoteCommandHandler) Handle(ctx context.Context, req CastVoteCommand) error {
-	user, ok := auth.UserFromContext(ctx)
+	user, ok := auth_domain.UserFromContext(ctx)
 	if !ok {
-		return auth.ErrUserNotFoundInContext
+		return auth_domain.ErrUserNotFoundInContext
 	}
 
 	poll, err := gorm.G[domain.Poll](h.db).
@@ -90,7 +90,7 @@ func (h *CastVoteCommandHandler) Handle(ctx context.Context, req CastVoteCommand
 
 func publishToWebsocket(ctx context.Context,
 	cent *centrifugo.CentrifugoClient,
-	user *auth.User,
+	user *auth_domain.User,
 	result domain.CastVoteResult,
 ) {
 	var voteEvent *centrifugo.PublicPollsData

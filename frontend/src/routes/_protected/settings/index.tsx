@@ -1,3 +1,5 @@
+import { getAuthImagekitToken } from '@/api'
+import { getAuthImagekitTokenQueryKey } from '@/client/@tanstack/react-query.gen'
 import AvatarUpload from '@/components/avatar-upload'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
@@ -7,10 +9,12 @@ import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
 import { getFormSubmissionStatus } from '@/lib/form-utils'
 import { createSupabaseClient } from '@/lib/supabase'
-import { fetchUser } from '@/lib/supabase/fetch-user-server-fn'
+import { fetchUser as fetchUserServerFn } from '@/lib/supabase/fetch-user-server-fn'
 import { useForm } from '@tanstack/react-form'
-import { createFileRoute } from '@tanstack/react-router'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { toast } from 'sonner'
 import z from 'zod'
 
 export const Route = createFileRoute('/_protected/settings/')({
@@ -26,24 +30,51 @@ const FormSchema = z.object({
     .max(30, 'Display name must be at most 30 characters long'),
 })
 
-const updateUserProfileServerFn = createServerFn({ method: 'POST' }).inputValidator(FormSchema)
+const updateUserProfileServerFn = createServerFn({ method: 'POST' })
+  .inputValidator(FormSchema)
   .handler(async ({ data }) => {
     const supabase = await createSupabaseClient()
-    const user = await fetchUser()
-    const res = await supabase.from('user_profiles').update({
-      display_name: data.displayName
-    }, { count: 'exact' }).eq('id', user?.id)
+    const user = await fetchUserServerFn()
+    const res = await supabase.from('user_profiles')
+      .update({
+        display_name: data.displayName
+      })
+      .eq('id', user?.id)
+      .select()
 
     if (res.error) {
       throw new Error(res.error.message)
     }
+    console.log('User profile updated:', res)
 
-    return res.count
+    return res.status === 200
+  })
+
+const getImageKitTokenServerFn = createServerFn({ method: 'GET' })
+  .handler(async () => {
+    const res = await getAuthImagekitToken()
+    if (res.error) {
+      throw res.error
+    }
+    return res.data
   })
 
 
 function RouteComponent() {
+  const router = useRouter()
   const { user } = Route.useRouteContext()
+  const updateUserProfileMutation = useMutation({
+    mutationFn: (data: z.infer<typeof FormSchema>) => updateUserProfileServerFn({ data }),
+    onSuccess: async () => {
+      router.invalidate()
+      toast.success('Profile updated successfully')
+    }
+  })
+  const { refetch } = useQuery({
+    queryKey: getAuthImagekitTokenQueryKey(),
+    queryFn: getImageKitTokenServerFn,
+  })
+
   const form = useForm({
     defaultValues: {
       displayName: user.app_metadata.display_name,
@@ -52,18 +83,27 @@ function RouteComponent() {
       onMount: FormSchema,
       onChange: FormSchema,
     },
-    onSubmit: async ({ value }) => {
-      try {
-        await updateUserProfileServerFn({ displayName: value.displayName })
-      } catch (err) {
-        // Optionally, you can return or throw the error for the form to display
-        throw err
-      }
-    }
+    onSubmit: ({ value }) => updateUserProfileMutation.mutateAsync({
+      displayName: value.displayName
+    })
   })
 
+  async function onAvatarSave(croppedImage: string): Promise<void> {
+    const { data } = await refetch()
+
+    if (!data) {
+      toast.error('Failed to get upload token')
+      return
+    }
+
+    console.log('Uploading avatar with token:', data)
+  }
+
   return <div className='flex flex-col gap-6'>
-    <AvatarUpload initialImage={user.app_metadata.avatar_url} />
+    <AvatarUpload
+      initialImage={user.app_metadata.avatar_url}
+      onSave={onAvatarSave}
+    />
 
     <form onSubmit={(e) => {
       e.preventDefault()

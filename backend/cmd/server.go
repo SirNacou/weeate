@@ -11,6 +11,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/SirNacou/weeate/backend/internal/common/api"
+	"github.com/SirNacou/weeate/backend/internal/common/api/webhooks"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/bus"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/centrifugo"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/configs"
@@ -23,6 +24,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/imagekit-developer/imagekit-go/v2"
 	slogfiber "github.com/samber/slog-fiber"
 	"gorm.io/gorm"
 )
@@ -33,6 +35,7 @@ type Server struct {
 	supabaseService  *auth.SupabaseService
 	bus              *bus.Bus
 	centrifugoClient *centrifugo.CentrifugoClient
+	imagekitClient   *imagekit.Client
 }
 
 func NewServer(
@@ -41,6 +44,7 @@ func NewServer(
 	supabaseService *auth.SupabaseService,
 	bus *bus.Bus,
 	centrifugoClient *centrifugo.CentrifugoClient,
+	imagekitClient *imagekit.Client,
 ) *Server {
 	return &Server{
 		config:           config,
@@ -48,6 +52,7 @@ func NewServer(
 		supabaseService:  supabaseService,
 		bus:              bus,
 		centrifugoClient: centrifugoClient,
+		imagekitClient:   imagekitClient,
 	}
 }
 
@@ -90,7 +95,9 @@ func (s *Server) buildHandler(ctx context.Context) (http.Handler, []func(context
 	api := humafiber.New(app, huma.DefaultConfig("Weeate API", "v1.0.0"))
 	huma.DefaultArrayNullable = false
 
-	authModule := auth.NewAuthModule(s.config)
+	webhooks.RegisterImageKitWebhook(api, s.imagekitClient)
+
+	authModule := auth.NewAuthModule(s.config, s.imagekitClient)
 	authModule.RegisterAPI(api)
 
 	foodsModule := foods.NewFoodsModule(s.db, s.supabaseService)
@@ -101,14 +108,6 @@ func (s *Server) buildHandler(ctx context.Context) (http.Handler, []func(context
 
 	ordersModule := orders.NewOrdersModule(s.bus, s.db, s.supabaseService)
 	ordersModule.RegisterAPI(api)
-
-	huma.Get(api, "/", func(ctx context.Context, i *struct{}) (*auth.User, error) {
-		user, ok := auth.UserFromContext(ctx)
-		if !ok {
-			return nil, huma.Error401Unauthorized("Unauthorized", fmt.Errorf("user not found in context"))
-		}
-		return user, nil
-	})
 
 	jobs := []func(context.Context){}
 	jobs = append(jobs, authModule.Jobs()...)

@@ -85,7 +85,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ImageKitProvider
-          urlEndpoint={env.VITE_IMAGEKIT_PUBLIC_KEY}
+          urlEndpoint={env.VITE_IMAGEKIT_URL}
           transformationPosition="query"
         >
           <MotionConfig reducedMotion="user">

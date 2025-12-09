@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	auth_domain "github.com/SirNacou/weeate/backend/internal/features/auth/domain"
 	"github.com/gofrs/uuid/v5"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
@@ -19,13 +20,13 @@ type GetOrderedItemsResponse struct {
 }
 
 type OrderedItem struct {
-	FoodID     string           `json:"food_id"`
-	FoodName   string           `json:"food_name"`
-	FoodURL    string           `json:"food_url"`
-	Quantity   int64            `json:"quantity"`
-	UnitPrice  int64            `json:"unit_price"`
-	TotalPrice int64            `json:"total_price"`
-	Buyer      auth.UserProfile `json:"buyer"`
+	FoodID     string                  `json:"food_id"`
+	FoodName   string                  `json:"food_name"`
+	FoodURL    string                  `json:"food_url"`
+	Quantity   int64                   `json:"quantity"`
+	UnitPrice  int64                   `json:"unit_price"`
+	TotalPrice int64                   `json:"total_price"`
+	Buyer      auth_domain.UserProfile `json:"buyer"`
 }
 
 type GetOrderedItemsQueryHandler struct {
@@ -38,9 +39,9 @@ func NewGetOrderedItemsQueryHandler(db *gorm.DB, supabaseService *auth.SupabaseS
 }
 
 func (h *GetOrderedItemsQueryHandler) Handle(ctx context.Context, query *GetOrderedItemsQuery) (*GetOrderedItemsResponse, error) {
-	user, ok := auth.UserFromContext(ctx)
+	user, ok := auth_domain.UserFromContext(ctx)
 	if !ok {
-		return nil, auth.ErrUserNotFoundInContext
+		return nil, auth_domain.ErrUserNotFoundInContext
 	}
 
 	type OrderItemRow struct {
@@ -82,7 +83,7 @@ func (h *GetOrderedItemsQueryHandler) Handle(ctx context.Context, query *GetOrde
 	if err != nil {
 		return nil, err
 	}
-	buyersMap := lo.KeyBy(buyers, func(buyer auth.UserProfile) string { return buyer.ID.String() })
+	buyersMap := lo.KeyBy(buyers, func(buyer auth_domain.UserProfile) string { return buyer.ID.String() })
 
 	return &GetOrderedItemsResponse{
 		Items: lo.Map(rows, func(row OrderItemRow, _ int) OrderedItem {

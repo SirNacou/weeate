@@ -38,13 +38,6 @@ export type AddFoodResult = {
 	food_id: string;
 };
 
-export type AppMetadata = {
-	avatar_url: string;
-	display_name: string;
-	provider: string;
-	providers: Array<string>;
-};
-
 export type CreatePollCommand = {
 	/**
 	 * A URL to the JSON Schema for this object.
@@ -185,23 +178,15 @@ export type GetTodayPollsQueryResponse = {
 	strategy: "ORDER_CONSENSUS_ITEM" | "ORDER_PERSONAL_CHOICE";
 };
 
-export type Identity = {
-	created_at: string;
-	email: string;
-	id: string;
-	identity_data: IdentityData;
-	identity_id: string;
-	last_sign_in_at: string;
-	provider: string;
-	updated_at: string;
-	user_id: string;
-};
-
-export type IdentityData = {
-	email: string;
-	email_verified: boolean;
-	phone_verified: boolean;
-	sub: string;
+export type ImageKitAuthParametersResponse = {
+	/**
+	 * A URL to the JSON Schema for this object.
+	 */
+	readonly $schema?: string;
+	/**
+	 * The generated JWT token for ImageKit authentication
+	 */
+	token: string;
 };
 
 export type OrderItem = {
@@ -274,10 +259,6 @@ export type ShoppingItem = {
 	total_price: number;
 	unit_price: number;
 	users: Array<UserProfile>;
-};
-
-export type UserMetadata = {
-	email_verified: boolean;
 };
 
 export type UserProfile = {
@@ -386,6 +367,13 @@ export type GetShoppingOrderResponseWritable = {
 	total_price: number;
 };
 
+export type ImageKitAuthParametersResponseWritable = {
+	/**
+	 * The generated JWT token for ImageKit authentication
+	 */
+	token: string;
+};
+
 export type PostByIdVoteRequestWritable = {
 	/**
 	 * The ID of the poll option to vote for
@@ -411,31 +399,6 @@ export type PutByIdRequestWritable = {
 	 */
 	price: number;
 };
-
-export type GetData = {
-	body?: never;
-	path?: never;
-	query?: never;
-	url: "/";
-};
-
-export type GetErrors = {
-	/**
-	 * Error
-	 */
-	default: ErrorModel;
-};
-
-export type GetError = GetErrors[keyof GetErrors];
-
-export type GetResponses = {
-	/**
-	 * No Content
-	 */
-	204: void;
-};
-
-export type GetResponse = GetResponses[keyof GetResponses];
 
 export type GetAuthCentrifugoTokenData = {
 	body?: never;
@@ -463,6 +426,33 @@ export type GetAuthCentrifugoTokenResponses = {
 
 export type GetAuthCentrifugoTokenResponse =
 	GetAuthCentrifugoTokenResponses[keyof GetAuthCentrifugoTokenResponses];
+
+export type GetAuthImagekitTokenData = {
+	body?: never;
+	path?: never;
+	query?: never;
+	url: "/auth/imagekit/token";
+};
+
+export type GetAuthImagekitTokenErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type GetAuthImagekitTokenError =
+	GetAuthImagekitTokenErrors[keyof GetAuthImagekitTokenErrors];
+
+export type GetAuthImagekitTokenResponses = {
+	/**
+	 * OK
+	 */
+	200: ImageKitAuthParametersResponse;
+};
+
+export type GetAuthImagekitTokenResponse =
+	GetAuthImagekitTokenResponses[keyof GetAuthImagekitTokenResponses];
 
 export type ListFoodsData = {
 	body?: never;
@@ -581,6 +571,32 @@ export type PutFoodsByIdResponses = {
 
 export type PutFoodsByIdResponse =
 	PutFoodsByIdResponses[keyof PutFoodsByIdResponses];
+
+export type PostIkWebhookData = {
+	body: Blob | File;
+	path?: never;
+	query?: never;
+	url: "/ik-webhook";
+};
+
+export type PostIkWebhookErrors = {
+	/**
+	 * Error
+	 */
+	default: ErrorModel;
+};
+
+export type PostIkWebhookError = PostIkWebhookErrors[keyof PostIkWebhookErrors];
+
+export type PostIkWebhookResponses = {
+	/**
+	 * No Content
+	 */
+	204: void;
+};
+
+export type PostIkWebhookResponse =
+	PostIkWebhookResponses[keyof PostIkWebhookResponses];
 
 export type GetOrderedItemsData = {
 	body?: never;

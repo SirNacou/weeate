@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/SirNacou/weeate/backend/internal/features/auth/domain"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/lestrrat-go/httprc/v3"

@@ -11,8 +11,8 @@ import (
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/centrifugo"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/configs"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/data"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/imagekit"
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
-	"github.com/supabase-community/supabase-go"
 )
 
 func main() {
@@ -50,11 +50,13 @@ func main() {
 	}
 
 	// Setup Supabase auth
-	supabaseClient, err := supabase.NewClient(config.SUPABASE_URL, config.SUPABASE_API_KEY, &supabase.ClientOptions{})
+	supabaseService, err := auth.NewSupabaseService(config.SUPABASE_URL, config.SUPABASE_API_KEY)
 	if err != nil {
 		slog.Error("Failed to initalize the client: ", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
-	supabaseService := auth.NewSupabaseService(supabaseClient)
+
+	imagekitClient := imagekit.NewImageKitClient(config.IMAGE_KIT_API_KEY, config.IMAGEKIT_WEBHOOK_KEY)
 
 	// Setup Bus
 	bus, err := bus.NewBus(sqlDB, logger)
@@ -72,7 +74,7 @@ func main() {
 	defer centrifugoClient.Close()
 
 	// Run server
-	srv := NewServer(config, db, supabaseService, bus, centrifugoClient)
+	srv := NewServer(config, db, supabaseService, bus, centrifugoClient, imagekitClient)
 	if err := srv.Run(ctx); err != nil {
 		logger.Error("Failed to run server", slog.String("error", err.Error()))
 		os.Exit(1)
