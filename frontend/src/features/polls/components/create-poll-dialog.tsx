@@ -105,13 +105,14 @@ const TOMORROW_CLOSE_MINUTE = 0;
 
 /**
  * Calculate the next available time slot based on current time.
- * If current minutes exceed the threshold, move to the next hour.
+ * Returns the start of the next hour, or the hour after that if current minutes exceed the threshold.
  */
-const getNextAvailableSlot = (baseTime: Date, now: Date): Date => {
+const getNextAvailableSlot = (now: Date): Date => {
+	const nextHour = startOfHour(addHours(now, 1));
 	if (getMinutes(now) > MINUTES_BEFORE_NEXT_HOUR) {
-		return addHours(baseTime, 1);
+		return addHours(nextHour, 1);
 	}
-	return baseTime;
+	return nextHour;
 };
 
 const CreatePollDialog = ({ userPoll }: Props) => {
