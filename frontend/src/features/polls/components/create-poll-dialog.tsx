@@ -103,6 +103,18 @@ const MINUTES_BEFORE_NEXT_HOUR = 45;
 const TOMORROW_CLOSE_HOUR = 6;
 const TOMORROW_CLOSE_MINUTE = 0;
 
+/**
+ * Calculate the next available time slot based on current time.
+ * Returns the start of the next hour, or the hour after that if current minutes exceed the threshold.
+ */
+const getNextAvailableSlot = (now: Date): Date => {
+	const nextHour = startOfHour(addHours(now, 1));
+	if (getMinutes(now) > MINUTES_BEFORE_NEXT_HOUR) {
+		return addHours(nextHour, 1);
+	}
+	return nextHour;
+};
+
 const CreatePollDialog = ({ userPoll }: Props) => {
 	const [open, setOpen] = useState(false);
 	const { user } = ProtectedRoute.useRouteContext();
@@ -136,18 +148,14 @@ const CreatePollDialog = ({ userPoll }: Props) => {
 
 		// Calculate default close time (next hour from now)
 		const now = new Date();
-		let defaultCloseTime = startOfHour(addHours(now, 1));
-		if (getMinutes(now) > MINUTES_BEFORE_NEXT_HOUR) {
-			defaultCloseTime = addHours(defaultCloseTime, 1);
-		}
+		const defaultCloseTime = getNextAvailableSlot(
+			startOfHour(addHours(now, 1)),
+			now,
+		);
 
 		// Generate time slots
 		const slots = [];
-		let currentSlot = startOfHour(addHours(now, 1));
-
-		if (getMinutes(now) > MINUTES_BEFORE_NEXT_HOUR) {
-			currentSlot = addHours(currentSlot, 1);
-		}
+		let currentSlot = getNextAvailableSlot(startOfHour(addHours(now, 1)), now);
 
 		const tomorrow = addDays(now, 1);
 		const maxTime = setMinutes(
