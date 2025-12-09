@@ -3,36 +3,34 @@ package jobs
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"time"
 
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/clock"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/services"
-	"github.com/jonboulle/clockwork"
 	"gorm.io/gorm"
 )
 
 type ClosePollScheduler struct {
 	db        *gorm.DB
-	trigger   chan struct{} // A channel to "wake up" the sleeper
+	trigger   chan bool // A channel to "wake up" the sleeper
 	closePoll *services.ClosePollCommandHandler
-	clock     clockwork.Clock
+	clock     clock.Clock
 }
 
-func NewClosePollScheduler(closePollHandler *services.ClosePollCommandHandler, db *gorm.DB, clock clockwork.Clock) *ClosePollScheduler {
+func NewClosePollScheduler(closePollHandler *services.ClosePollCommandHandler, db *gorm.DB) *ClosePollScheduler {
 	return &ClosePollScheduler{
 		closePoll: closePollHandler,
-		trigger:   make(chan struct{}, 1),
+		trigger:   make(chan bool, 1),
 		db:        db,
-		clock:     clock,
+		clock:     clock.NewRealClock(),
 	}
 }
 
 // Call this when your app starts (in a goroutine)
 func (s *ClosePollScheduler) Start(ctx context.Context) {
 	for {
-		fmt.Printf("ClosePollScheduler: Calculating next poll to close... %v\n", s.clock.Now())
 		// 1. Find the next closest poll time
 		var nextPoll domain.Poll
 		var err error
@@ -54,19 +52,20 @@ func (s *ClosePollScheduler) Start(ctx context.Context) {
 		if err != nil {
 			duration = 1 * time.Hour
 		} else {
-			duration = max(s.clock.Until(nextPoll.ScheduledClosesAt), 0)
+			duration = time.Until(nextPoll.ScheduledClosesAt)
+			if duration < 0 {
+				duration = 0
+			}
 		}
 
 		slog.InfoContext(ctx, "Sleeping for %v...\n", "duration", duration.String())
 
 		select {
 		case <-s.clock.After(duration):
-			fmt.Printf("ClosePollScheduler: Timer expired, closing due polls...\n")
 			workerCtx, cancel := context.WithTimeout(ctx, time.Second*30)
 			s.closeDuePolls(workerCtx)
 			cancel()
 		case <-s.trigger:
-			slog.InfoContext(ctx, "ClosePollScheduler: Triggered by new poll creation, recalculating...")
 			slog.InfoContext(ctx, "New poll created! Recalculating schedule...")
 		case <-ctx.Done():
 			slog.InfoContext(ctx, "Stopping ClosePollScheduler...")
@@ -79,7 +78,7 @@ func (s *ClosePollScheduler) Start(ctx context.Context) {
 func (s *ClosePollScheduler) TriggerUpdate() {
 	// Non-blocking send
 	select {
-	case s.trigger <- struct{}{}:
+	case s.trigger <- true:
 	default:
 	}
 }
@@ -87,7 +86,7 @@ func (s *ClosePollScheduler) TriggerUpdate() {
 func (s *ClosePollScheduler) closeDuePolls(ctx context.Context) {
 	duePolls, err := gorm.G[domain.Poll](s.db).
 		Where("closed_at IS NULL").
-		Where("scheduled_closes_at <= ?", s.clock.Now()).
+		Where("scheduled_closes_at <= ?", time.Now()).
 		Find(ctx)
 	if err != nil {
 		slog.ErrorContext(ctx, "Failed to fetch due polls", "error", err)

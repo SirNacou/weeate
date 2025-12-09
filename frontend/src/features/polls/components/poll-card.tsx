@@ -1,8 +1,4 @@
-import {
-  type GetTodayPollsQueryResponse,
-  postPollsByIdVote,
-  serverClient,
-} from "@/api"
+import { GetTodayPollsQueryResponse, postPollsByIdVote, serverClient } from "@/api"
 import { listPollsTodayQueryKey } from "@/client/@tanstack/react-query.gen"
 import { zPostPollsByIdVoteData } from "@/client/zod.gen"
 import CloseTimer from "@/components/close-timer"
@@ -33,21 +29,21 @@ const castVoteServerFn = createServerFn({ method: "POST" })
       client: serverClient,
       path: data.path,
       body: data.body,
-    })
+    });
     if (res.error) {
-      console.error(`Failed to cast vote:`, res.error)
-      throw new Error("Failed to cast vote")
+      console.error(`Failed to cast vote:`, res.error);
+      throw new Error("Failed to cast vote");
     }
 
-    return res.data
-  })
+    return res.data;
+  });
 
 type Props = {
-  poll: GetTodayPollsQueryResponse
-}
+  poll: GetTodayPollsQueryResponse;
+};
 
 const PollCard = ({ poll }: Props) => {
-  const { user } = Route.useRouteContext()
+  const { user } = Route.useRouteContext();
   const {
     id,
     creator: { display_name: buyerName, avatar_url: avatarUrl },
@@ -55,13 +51,13 @@ const PollCard = ({ poll }: Props) => {
     closed_at,
     strategy,
     poll_options,
-  } = poll
+  } = poll;
 
   const initialSelectedOption = poll_options?.find((option) =>
-    option.votes?.some((vote) => vote.voter?.id === user.id),
-  )
+    option.votes?.some((vote) => vote.voter?.id === user.id)
+  );
 
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const validator = useMemo(() => {
     return z.object({
@@ -74,27 +70,27 @@ const PollCard = ({ poll }: Props) => {
           }),
         isSelected: z.boolean(),
       }),
-    })
-  }, [poll_options])
+    });
+  }, [poll_options]);
 
   const castVoteMutation = useMutation({
     mutationFn: castVoteServerFn,
     onSuccess: () => {
-      toast.success("Your vote has been submitted!")
+      toast.success("Your vote has been submitted!");
       queryClient.invalidateQueries({
         queryKey: listPollsTodayQueryKey(),
-      })
+      });
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to cast vote. Please try again.")
+      toast.error(error.message || "Failed to cast vote. Please try again.");
     },
-  })
+  });
 
   const form = useForm({
     defaultValues: {
       selectedOption: {
         id: initialSelectedOption?.id || "",
-        isSelected: initialSelectedOption ? true : false,
+        isSelected: !!initialSelectedOption,
       },
     },
     validators: {
@@ -104,7 +100,7 @@ const PollCard = ({ poll }: Props) => {
     listeners: {
       onChangeDebounceMs: 500,
       onChange(props) {
-        props.formApi.handleSubmit()
+        props.formApi.handleSubmit();
       },
     },
     onSubmit: async ({ value }) => {
@@ -119,17 +115,17 @@ const PollCard = ({ poll }: Props) => {
             },
           },
         })
-        .catch(() => { })
+        .catch(() => {});
     },
-  })
-  useEffect(() => { }, [form.state.values.selectedOption])
+  });
+  useEffect(() => {}, [form.state.values.selectedOption]);
 
   return (
     <form
       onSubmit={(e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        form.handleSubmit()
+        e.preventDefault();
+        e.stopPropagation();
+        form.handleSubmit();
       }}
     >
       <Card>
@@ -149,7 +145,7 @@ const PollCard = ({ poll }: Props) => {
               </h3>
             </div>
           </CardTitle>
-          <CardDescription className="mt-1 flex flex-row flex-wrap items-center gap-3 justify-between text-sm sm:text-base">
+          <CardDescription className="mt-1 flex items-center justify-between text-sm sm:text-base">
             <CloseTimer
               className="text-sm sm:text-base shrink-0"
               closesAt={closed_at || scheduled_closes_at}
@@ -180,16 +176,16 @@ const PollCard = ({ poll }: Props) => {
                             field.handleChange({
                               id,
                               isSelected: !field.state.value.isSelected,
-                            })
+                            });
                           } else {
                             // Selecting a new option
-                            field.handleChange({ id, isSelected: true })
+                            field.handleChange({ id, isSelected: true });
                           }
                         }}
                       />
                     ))}
                   </div>
-                )
+                );
               }}
             />
           </FieldGroup>
@@ -205,15 +201,15 @@ const PollCard = ({ poll }: Props) => {
                 poll_options.reduce(
                   (acc, option) =>
                     acc + option.price_at_creation * (option.votes.length || 0),
-                  0,
-                ),
+                  0
+                )
               )}
             </span>
           </div>
         </CardFooter>
       </Card>
     </form>
-  )
-}
+  );
+};
 
-export default PollCard
+export default PollCard;

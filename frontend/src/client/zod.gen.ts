@@ -27,7 +27,7 @@ export const zCreatePollCommand = z.object({
 	food_ids: z.array(z.string()).min(1),
 	order_date: z.iso.datetime({ offset: true }),
 	scheduled_close_at: z.iso.datetime({ offset: true }),
-	strategy: z.enum(["ORDER_PERSONAL_CHOICE", "ORDER_CONSENSUS_ITEM"]),
+	strategy: z.enum(["ORDER_MULTIPLE_ITEMS", "ORDER_CONSENSUS_ITEM"]),
 });
 
 export const zCreatePollResponse = z.object({
@@ -199,7 +199,7 @@ export const zCreatePollCommandWritable = z.object({
 	food_ids: z.array(z.string()).min(1),
 	order_date: z.iso.datetime({ offset: true }),
 	scheduled_close_at: z.iso.datetime({ offset: true }),
-	strategy: z.enum(["ORDER_PERSONAL_CHOICE", "ORDER_CONSENSUS_ITEM"]),
+	strategy: z.enum(["ORDER_MULTIPLE_ITEMS", "ORDER_CONSENSUS_ITEM"]),
 });
 
 export const zCreatePollResponseWritable = z.object({
