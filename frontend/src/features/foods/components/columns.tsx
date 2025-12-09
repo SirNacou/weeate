@@ -1,8 +1,8 @@
-import { GetFoodsQueryResponse } from "@/api"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Image } from "@imagekit/react"
-import { ColumnDef } from "@tanstack/react-table"
-import TableActionMenuDialog from "./table-action-menu-dialog"
+import { Image } from "@imagekit/react";
+import type { ColumnDef } from "@tanstack/react-table";
+import type { GetFoodsQueryResponse } from "@/api";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import TableActionMenuDialog from "./table-action-menu-dialog";
 
 export const createColumns = (
 	currentUserId?: string,

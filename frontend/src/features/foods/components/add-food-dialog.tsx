@@ -1,11 +1,16 @@
-import { postFoods } from "@/api"
+import { useForm } from "@tanstack/react-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createServerFn, useServerFn } from "@tanstack/react-start";
+import { useCallback, useState } from "react";
+import * as z from "zod";
+import { postFoods } from "@/api";
 import {
 	listFoodsQueryKey,
 	postFoodsMutation,
-} from "@/client/@tanstack/react-query.gen"
-import { zPostFoodsData } from "@/client/zod.gen"
-import ImageUpload from "@/components/image-upload"
-import { Button } from "@/components/ui/button"
+} from "@/client/@tanstack/react-query.gen";
+import { zPostFoodsData } from "@/client/zod.gen";
+import ImageUpload from "@/components/image-upload";
+import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogClose,
@@ -14,22 +19,17 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
 	Field,
 	FieldError,
 	FieldGroup,
 	FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Spinner } from "@/components/ui/spinner"
-import type { FileWithPreview } from "@/hooks/use-file-upload"
-import { useForm } from "@tanstack/react-form"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { createServerFn, useServerFn } from "@tanstack/react-start"
-import { useCallback, useState } from "react"
-import * as z from "zod"
-import FluentAdd32Filled from "~icons/fluent/add-32-filled"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import type { FileWithPreview } from "@/hooks/use-file-upload";
+import FluentAdd32Filled from "~icons/fluent/add-32-filled";
 
 const addFoodServerFn = createServerFn({ method: "POST" })
 	.inputValidator(zPostFoodsData)
@@ -38,34 +38,34 @@ const addFoodServerFn = createServerFn({ method: "POST" })
 			body: {
 				...data.body,
 				price: Number(data.body.price),
-			}
-		})
+			},
+		});
 		if (res.error) {
-			throw new Error(res.error.errors?.at(0)?.message || "Failed to add food")
+			throw new Error(res.error.errors?.at(0)?.message || "Failed to add food");
 		}
-		return res.data
-	})
+		return res.data;
+	});
 const foodSchema = z.object({
 	name: z.string().nonempty("Name is required"),
 	price: z.number().min(0, "Price must be non-negative").multipleOf(1000),
 	description: z.string(),
 	imageFileId: z.string(),
-})
+});
 
 const AddFoodDialog = () => {
-	const [open, setOpen] = useState(false)
-	const queryClient = useQueryClient()
-	const addFoodServer = useServerFn(addFoodServerFn)
+	const [open, setOpen] = useState(false);
+	const queryClient = useQueryClient();
+	const addFoodServer = useServerFn(addFoodServerFn);
 
 	const addFood = useMutation({
 		...postFoodsMutation(),
 		mutationFn: ({ body }) => addFoodServer({ data: { body: body } }),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: listFoodsQueryKey() })
-			setOpen(false)
-			form.reset()
+			queryClient.invalidateQueries({ queryKey: listFoodsQueryKey() });
+			setOpen(false);
+			form.reset();
 		},
-	})
+	});
 	const form = useForm({
 		defaultValues: {
 			name: "",
@@ -77,7 +77,7 @@ const AddFoodDialog = () => {
 			onChange: foodSchema,
 		},
 		onSubmit: async ({ value }) => {
-			console.log("Submitting form with value:", value)
+			console.log("Submitting form with value:", value);
 			await addFood.mutateAsync({
 				body: {
 					name: value.name,
@@ -85,22 +85,22 @@ const AddFoodDialog = () => {
 					description: value.description,
 					image_file_id: value.imageFileId,
 				},
-			})
+			});
 		},
-	})
+	});
 
 	const handleFileChange = useCallback(
 		(files: FileWithPreview[]) => {
-			const file = files.at(0)
+			const file = files.at(0);
 			if (file?.file instanceof File) {
 				// Update the imageFile field
 				setTimeout(() => {
-					form.setFieldValue("imageFileId", file.file.name)
-				}, 5000)
+					form.setFieldValue("imageFileId", file.file.name);
+				}, 5000);
 			}
 		},
 		[form],
-	)
+	);
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
@@ -114,9 +114,9 @@ const AddFoodDialog = () => {
 				<form
 					className="grid gap-4"
 					onSubmit={(e) => {
-						e.preventDefault()
-						e.stopPropagation()
-						form.handleSubmit()
+						e.preventDefault();
+						e.stopPropagation();
+						form.handleSubmit();
 					}}
 				>
 					<DialogHeader>
@@ -127,7 +127,7 @@ const AddFoodDialog = () => {
 							<form.Field name="name">
 								{(field) => {
 									const isInvalid =
-										field.state.meta.isTouched && !field.state.meta.isValid
+										field.state.meta.isTouched && !field.state.meta.isValid;
 									return (
 										<Field data-invalid={isInvalid}>
 											<FieldLabel htmlFor={field.name}>Name</FieldLabel>
@@ -142,14 +142,14 @@ const AddFoodDialog = () => {
 												<FieldError errors={field.state.meta.errors} />
 											)}
 										</Field>
-									)
+									);
 								}}
 							</form.Field>
 
 							<form.Field name="price">
 								{(field) => {
 									const isInvalid =
-										field.state.meta.isTouched && !field.state.meta.isValid
+										field.state.meta.isTouched && !field.state.meta.isValid;
 									return (
 										<Field data-invalid={isInvalid}>
 											<FieldLabel htmlFor={field.name}>Price</FieldLabel>
@@ -167,14 +167,14 @@ const AddFoodDialog = () => {
 												<FieldError errors={field.state.meta.errors} />
 											)}
 										</Field>
-									)
+									);
 								}}
 							</form.Field>
 
 							<form.Field name="description">
 								{(field) => {
 									const isInvalid =
-										field.state.meta.isTouched && !field.state.meta.isValid
+										field.state.meta.isTouched && !field.state.meta.isValid;
 									return (
 										<Field data-invalid={isInvalid}>
 											<FieldLabel htmlFor={field.name}>Description</FieldLabel>
@@ -190,14 +190,14 @@ const AddFoodDialog = () => {
 												<FieldError errors={field.state.meta.errors} />
 											)}
 										</Field>
-									)
+									);
 								}}
 							</form.Field>
 
 							<form.Field name="imageFileId">
 								{(field) => {
 									const isInvalid =
-										field.state.meta.isTouched && !field.state.meta.isValid
+										field.state.meta.isTouched && !field.state.meta.isValid;
 
 									return (
 										<Field data-invalid={isInvalid}>
@@ -219,7 +219,7 @@ const AddFoodDialog = () => {
 												<FieldError errors={field.state.meta.errors} />
 											)}
 										</Field>
-									)
+									);
 								}}
 							</form.Field>
 						</FieldGroup>
@@ -255,7 +255,7 @@ const AddFoodDialog = () => {
 				</form>
 			</DialogContent>
 		</Dialog>
-	)
-}
+	);
+};
 
-export default AddFoodDialog
+export default AddFoodDialog;

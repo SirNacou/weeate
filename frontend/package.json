@@ -8,9 +8,9 @@
     "serve": "bun --bun vite preview",
     "start": "bun run server.ts",
     "test": "vitest run",
-    "format": "biome format",
-    "lint": "biome lint",
-    "check": "biome check",
+    "format": "biome format --write",
+    "lint": "biome lint --write",
+    "check": "biome check --write",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "openapi-ts": "openapi-ts -w"

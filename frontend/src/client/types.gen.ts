@@ -58,7 +58,7 @@ export type CreatePollCommand = {
 	/**
 	 * Polling strategy to be used
 	 */
-	strategy: "ORDER_MULTIPLE_ITEMS" | "ORDER_CONSENSUS_ITEM";
+	strategy: "ORDER_PERSONAL_CHOICE" | "ORDER_CONSENSUS_ITEM";
 };
 
 export type CreatePollResponse = {
@@ -314,7 +314,7 @@ export type CreatePollCommandWritable = {
 	/**
 	 * Polling strategy to be used
 	 */
-	strategy: "ORDER_MULTIPLE_ITEMS" | "ORDER_CONSENSUS_ITEM";
+	strategy: "ORDER_PERSONAL_CHOICE" | "ORDER_CONSENSUS_ITEM";
 };
 
 export type CreatePollResponseWritable = {

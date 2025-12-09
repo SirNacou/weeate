@@ -1,6 +1,6 @@
-import { AnyFormState } from "@tanstack/react-form"
+import type { AnyFormState } from "@tanstack/react-form";
 
 export const getFormSubmissionStatus = (state: AnyFormState) => ({
-  canSubmit: state.isValid && !state.isPristine && state.canSubmit,
-  isSubmitting: state.isSubmitting,
+	canSubmit: state.isValid && !state.isPristine && state.canSubmit,
+	isSubmitting: state.isSubmitting,
 });

@@ -81,7 +81,7 @@ export const CreatePollCommandSchema = {
 		},
 		strategy: {
 			description: "Polling strategy to be used",
-			enum: ["ORDER_MULTIPLE_ITEMS", "ORDER_CONSENSUS_ITEM"],
+			enum: ["ORDER_PERSONAL_CHOICE", "ORDER_CONSENSUS_ITEM"],
 			type: "string",
 		},
 	},
@@ -666,7 +666,7 @@ export const CreatePollCommandWritableSchema = {
 		},
 		strategy: {
 			description: "Polling strategy to be used",
-			enum: ["ORDER_MULTIPLE_ITEMS", "ORDER_CONSENSUS_ITEM"],
+			enum: ["ORDER_PERSONAL_CHOICE", "ORDER_CONSENSUS_ITEM"],
 			type: "string",
 		},
 	},

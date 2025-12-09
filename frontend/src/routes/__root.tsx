@@ -1,24 +1,21 @@
-import { TanStackDevtools } from "@tanstack/react-devtools"
-import { FormDevtoolsPanel } from "@tanstack/react-form-devtools"
-import {
-  ClientOnly,
-  HeadContent,
-  Scripts,
-  createRootRouteWithContext,
-  useRouterState,
-} from "@tanstack/react-router"
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
-
-
-import appCss from "../styles.css?url"
-
 import { Toaster } from "@/components/ui/sonner"
 import { env } from "@/env/client"
 import useIsMobile from "@/hooks/use-is-mobile"
 import { ImageKitProvider } from "@imagekit/react"
+import { TanStackDevtools } from "@tanstack/react-devtools"
+import { FormDevtoolsPanel } from "@tanstack/react-form-devtools"
 import type { QueryClient } from "@tanstack/react-query"
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools"
+import {
+  ClientOnly,
+  createRootRouteWithContext,
+  HeadContent,
+  Scripts,
+  useRouterState,
+} from "@tanstack/react-router"
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 import { MotionConfig } from "motion/react"
+import appCss from "../styles.css?url"
 
 export interface MyRouterContext {
   queryClient: QueryClient
@@ -120,7 +117,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             {
               name: "Tanstack Form",
               render: <FormDevtoolsPanel />,
-            }
+            },
           ]}
         />
         <Scripts />

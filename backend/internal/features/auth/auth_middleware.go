@@ -3,8 +3,6 @@ package auth
 import (
 	"context"
 	"crypto/ecdsa"
-	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -41,40 +39,15 @@ func AuthMiddleware(ctx context.Context, authUrl, cookieName string) (fiber.Hand
 			return c.Next()
 		}
 
-		if strings.Contains(c.Path(), "/ik-webhook") {
-			return c.Next()
-		}
-
-		authCookie := ""
-		for k, v := range c.Request().Header.Cookies() {
-			if strings.Contains(string(k), cookieName) {
-				authCookie += string(v)
-			}
-		}
-
-		slog.Info("log auth cookie", "auth cookie", c.GetReqHeaders()["Authorization"])
-
-		if !strings.HasPrefix(authCookie, "base64-") {
+		authorizationHeader := c.GetReqHeaders()["Authorization"]
+		if len(authorizationHeader) < 1 ||
+			!strings.HasPrefix(authorizationHeader[0], "Bearer ") {
+			slog.ErrorContext(ctx, "invalid authorization header")
 			return c.SendStatus(http.StatusUnauthorized)
 		}
-		b64String := strings.TrimPrefix(authCookie, "base64-")
+		accessToken := strings.SplitN(authorizationHeader[0], " ", 2)[1]
 
-		// Handle URL-safe base64 with or without padding
-		jsonBytes, err := base64.RawURLEncoding.DecodeString(b64String)
-		if err != nil {
-			// Fallback to standard URL encoding if raw decoding fails
-			jsonBytes, err = base64.URLEncoding.DecodeString(b64String)
-			if err != nil {
-				return c.Status(http.StatusUnauthorized).SendString(err.Error())
-			}
-		}
-
-		var session domain.SupabaseSession
-		if err = json.Unmarshal(jsonBytes, &session); err != nil {
-			return c.Status(http.StatusUnauthorized).SendString(err.Error())
-		}
-
-		token, err := jwt.Parse(session.AccessToken, func(t *jwt.Token) (any, error) {
+		token, err := jwt.Parse(accessToken, func(t *jwt.Token) (any, error) {
 			ctx := context.Background()
 			iss, err := t.Claims.GetIssuer()
 			if err != nil {
@@ -120,10 +93,18 @@ func AuthMiddleware(ctx context.Context, authUrl, cookieName string) (fiber.Hand
 		}
 
 		ctx := c.UserContext()
-		ctx = domain.WithUser(ctx, &session.User)
 
+		// Extract user info from JWT claims
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			ctx = domain.WithUserClaims(ctx, claims)
+			user := &User{
+				ID:    claims["sub"].(string),
+				Email: claims["email"].(string),
+			}
+			if role, ok := claims["role"].(string); ok {
+				user.Role = role
+			}
+			ctx = WithUser(ctx, user)
+			ctx = WithUserClaims(ctx, claims)
 		} else {
 			slog.Warn("user claims not found")
 		}
