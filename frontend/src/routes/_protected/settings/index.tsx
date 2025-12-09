@@ -53,12 +53,12 @@ function RouteComponent() {
       onChange: FormSchema,
     },
     onSubmit: async ({ value }) => {
-      return new Promise<void>((resolve) => {
-        setTimeout(() => {
-          console.log('Form submitted with values:', value)
-          resolve()
-        }, 1500)
-      })
+      try {
+        await updateUserProfileServerFn({ displayName: value.displayName })
+      } catch (err) {
+        // Optionally, you can return or throw the error for the form to display
+        throw err
+      }
     }
   })
 
