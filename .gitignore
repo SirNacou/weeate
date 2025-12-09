@@ -35,6 +35,11 @@ logs
 node_modules
 bower_components
 
+# Vite
+.vite
+dist
+dist-ssr
+
 *.sublime*
 
 psd
