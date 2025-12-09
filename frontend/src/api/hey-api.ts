@@ -7,9 +7,8 @@ export const getBaseUrl = createIsomorphicFn()
 	.client(() => clientEnv.VITE_BACKEND_URL);
 
 export const createClientConfig: CreateClientConfig = (config) => {
-	return {
-		...config,
-		baseURL: getBaseUrl(),
-		credentials: "include",
-	};
+  return ({
+    ...config,
+    baseURL: getBaseUrl(),
+  })
 };

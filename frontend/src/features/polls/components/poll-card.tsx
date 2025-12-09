@@ -90,39 +90,39 @@ const PollCard = ({ poll }: Props) => {
 		},
 	});
 
-	const form = useForm({
-		defaultValues: {
-			selectedOption: {
-				id: initialSelectedOption?.id || "",
-				isSelected: initialSelectedOption ? true : false,
-			},
-		},
-		validators: {
-			onChange: validator,
-			onMount: validator,
-		},
-		listeners: {
-			onChangeDebounceMs: 500,
-			onChange(props) {
-				props.formApi.handleSubmit();
-			},
-		},
-		onSubmit: async ({ value }) => {
-			await castVoteMutation
-				.mutateAsync({
-					data: {
-						path: {
-							id,
-						},
-						body: {
-							poll_option_id: value.selectedOption.id,
-						},
-					},
-				})
-				.catch(() => {});
-		},
-	});
-	useEffect(() => {}, [form.state.values.selectedOption]);
+  const form = useForm({
+    defaultValues: {
+      selectedOption: {
+        id: initialSelectedOption?.id || "",
+        isSelected: !!initialSelectedOption,
+      },
+    },
+    validators: {
+      onChange: validator,
+      onMount: validator,
+    },
+    listeners: {
+      onChangeDebounceMs: 500,
+      onChange(props) {
+        props.formApi.handleSubmit()
+      },
+    },
+    onSubmit: async ({ value }) => {
+      await castVoteMutation
+        .mutateAsync({
+          data: {
+            path: {
+              id,
+            },
+            body: {
+              poll_option_id: value.selectedOption.id,
+            },
+          },
+        })
+        .catch(() => { })
+    },
+  })
+  useEffect(() => { }, [form.state.values.selectedOption])
 
 	return (
 		<form

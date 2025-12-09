@@ -13,4 +13,4 @@ COPY ./backend ./backend
 
 EXPOSE 8080 40000
 
-CMD ["sh", "-c", "wgo -file .go go build -gcflags 'all=-N -l' -o main ./backend/cmd/ :: dlv exec --headless --listen=:40000 --api-version=2 --accept-multiclient --continue ./main"]
+CMD ["sh", "-c", "wgo -file .go -dir . go build -gcflags 'all=-N -l' -o main ./backend/cmd/ :: dlv exec --headless --listen=:40000 --api-version=2 --accept-multiclient --continue ./main"]
