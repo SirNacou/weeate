@@ -8,5 +8,5 @@ export const Route = createFileRoute("/_protected/settings/notifications")({
 });
 
 function RouteComponent() {
-  return <div>Hello "/_settings/notifications"!</div>;
+	return <div>Hello "/_settings/notifications"!</div>;
 }

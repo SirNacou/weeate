@@ -1,14 +1,14 @@
-import { Button } from "@/components/animate-ui/components/buttons/button"
-import EditableAvatar from "@/components/editable-avatar"
+import { useForm } from "@tanstack/react-form";
+import { createFileRoute } from "@tanstack/react-router";
+import { Button } from "@/components/animate-ui/components/buttons/button";
+import EditableAvatar from "@/components/editable-avatar";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { useForm } from "@tanstack/react-form"
-import { createFileRoute } from "@tanstack/react-router"
+	Card,
+	CardContent,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 
 export const Route = createFileRoute("/_protected/settings/account")({
   component: RouteComponent,

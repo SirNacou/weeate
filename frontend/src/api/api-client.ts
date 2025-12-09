@@ -89,4 +89,4 @@ client.interceptors.error.use(async (error) => {
 	return error
 })
 
-export { client }
+export { client };
