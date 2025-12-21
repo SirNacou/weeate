@@ -96,15 +96,15 @@ func AuthMiddleware(ctx context.Context, authUrl, cookieName string) (fiber.Hand
 
 		// Extract user info from JWT claims
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			user := &User{
+			user := &domain.User{
 				ID:    claims["sub"].(string),
 				Email: claims["email"].(string),
 			}
 			if role, ok := claims["role"].(string); ok {
 				user.Role = role
 			}
-			ctx = WithUser(ctx, user)
-			ctx = WithUserClaims(ctx, claims)
+			ctx = domain.WithUser(ctx, user)
+			ctx = domain.WithUserClaims(ctx, claims)
 		} else {
 			slog.Warn("user claims not found")
 		}

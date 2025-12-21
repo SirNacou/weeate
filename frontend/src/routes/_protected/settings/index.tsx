@@ -83,7 +83,6 @@ function RouteComponent() {
       onMount: FormSchema,
       onChange: FormSchema,
     },
-<<<<<<< ours
     onSubmit: async ({ value }) => {
       try {
         await updateUserProfileServerFn({ data: { displayName: value.displayName } })
@@ -92,20 +91,6 @@ function RouteComponent() {
         throw err
       }
     }
-||||||| ancestor
-    onSubmit: async ({ value }) => {
-      try {
-        await updateUserProfileServerFn({ displayName: value.displayName })
-      } catch (err) {
-        // Optionally, you can return or throw the error for the form to display
-        throw err
-      }
-    }
-=======
-    onSubmit: ({ value }) => updateUserProfileMutation.mutateAsync({
-      displayName: value.displayName
-    })
->>>>>>> theirs
   })
 
   async function onAvatarSave(croppedImage: string): Promise<void> {
