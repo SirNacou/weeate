@@ -20,6 +20,13 @@ import (
 	"github.com/lestrrat-go/jwx/v3/jwk"
 )
 
+func getString(m map[string]interface{}, key string) string {
+	if val, ok := m[key].(string); ok {
+		return val
+	}
+	return ""
+}
+
 func AuthMiddleware(ctx context.Context, authUrl, cookieName string) (fiber.Handler, error) {
 	jwkCache, err := jwk.NewCache(ctx, httprc.NewClient(
 		httprc.WithErrorSink(errsink.NewSlog(slog.Default())),
@@ -97,14 +104,47 @@ func AuthMiddleware(ctx context.Context, authUrl, cookieName string) (fiber.Hand
 		// Extract user info from JWT claims
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
 			user := &domain.User{
-				ID:    claims["sub"].(string),
-				Email: claims["email"].(string),
+				ID:    getString(claims, "sub"),
+				Email: getString(claims, "email"),
+				Role:  getString(claims, "role"),
 			}
-			if role, ok := claims["role"].(string); ok {
-				user.Role = role
+
+			// Extract app_metadata
+			if appMeta, ok := claims["app_metadata"].(map[string]interface{}); ok {
+				user.AppMetadata = domain.AppMetadata{
+					AvatarURL:   getString(appMeta, "avatar_url"),
+					DisplayName: getString(appMeta, "display_name"),
+					Provider:    getString(appMeta, "provider"),
+				}
+				if providers, ok := appMeta["providers"].([]interface{}); ok {
+					for _, p := range providers {
+						if ps, ok := p.(string); ok {
+							user.AppMetadata.Providers = append(user.AppMetadata.Providers, ps)
+						}
+					}
+				}
 			}
+
+			// Extract user_metadata
+			if userMeta, ok := claims["user_metadata"].(map[string]interface{}); ok {
+				if emailVerified, ok := userMeta["email_verified"].(bool); ok {
+					user.UserMetadata.EmailVerified = emailVerified
+				}
+			}
+
+			// Extract other fields
+			user.Audience = getString(claims, "aud")
+			user.Phone = getString(claims, "phone")
+			user.EmailConfirmedAt = getString(claims, "email_confirmed_at")
+			user.ConfirmedAt = getString(claims, "confirmed_at")
+			user.LastSignInAt = getString(claims, "last_sign_in_at")
+			user.CreatedAt = getString(claims, "created_at")
+			user.UpdatedAt = getString(claims, "updated_at")
+			if isAnon, ok := claims["is_anonymous"].(bool); ok {
+				user.IsAnonymous = isAnon
+			}
+
 			ctx = domain.WithUser(ctx, user)
-			ctx = domain.WithUserClaims(ctx, claims)
 		} else {
 			slog.Warn("user claims not found")
 		}

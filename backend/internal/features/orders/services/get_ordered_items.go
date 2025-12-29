@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/supabase"
 	auth_domain "github.com/SirNacou/weeate/backend/internal/features/auth/domain"
 	"github.com/gofrs/uuid/v5"
 	"github.com/samber/lo"
@@ -31,10 +31,10 @@ type OrderedItem struct {
 
 type GetOrderedItemsQueryHandler struct {
 	db              *gorm.DB
-	supabaseService *auth.SupabaseService
+	supabaseService *supabase.SupabaseService
 }
 
-func NewGetOrderedItemsQueryHandler(db *gorm.DB, supabaseService *auth.SupabaseService) *GetOrderedItemsQueryHandler {
+func NewGetOrderedItemsQueryHandler(db *gorm.DB, supabaseService *supabase.SupabaseService) *GetOrderedItemsQueryHandler {
 	return &GetOrderedItemsQueryHandler{db: db, supabaseService: supabaseService}
 }
 

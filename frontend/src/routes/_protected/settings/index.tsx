@@ -1,4 +1,4 @@
-import { getAuthImagekitToken } from '@/api'
+import { getAuthImagekitToken, postAuthImagekitAvatar } from '@/api'
 import { getAuthImagekitTokenQueryKey } from '@/client/@tanstack/react-query.gen'
 import AvatarUpload from '@/components/avatar-upload'
 import { Button } from '@/components/ui/button'
@@ -50,6 +50,19 @@ const updateUserProfileServerFn = createServerFn({ method: 'POST' })
     return res.status === 200
   })
 
+const avatarUrlSchema = z.object({
+  avatarUrl: z.url(),
+})
+const setAvatarServerFn = createServerFn({ method: 'POST' })
+  .inputValidator(avatarUrlSchema)
+  .handler(async ({ data }) => {
+    const res = await postAuthImagekitAvatar({ body: { avatarUrl: data.avatarUrl } })
+    if (res.error) {
+      throw res.error
+    }
+    return res.data
+  })
+
 const getImageKitTokenServerFn = createServerFn({ method: 'GET' })
   .handler(async () => {
     const res = await getAuthImagekitToken()
@@ -68,6 +81,17 @@ function RouteComponent() {
     onSuccess: async () => {
       router.invalidate()
       toast.success('Profile updated successfully')
+    }
+  })
+
+  const setAvatarMutation = useMutation({
+    mutationFn: (data: z.infer<typeof avatarUrlSchema>) => {
+      const res = setAvatarServerFn({ data })
+      return res
+    },
+    onSuccess: async () => {
+      router.invalidate()
+      toast.success('Avatar updated successfully')
     }
   })
   const { refetch } = useQuery({
@@ -93,15 +117,53 @@ function RouteComponent() {
     }
   })
 
-  async function onAvatarSave(croppedImage: string): Promise<void> {
-    const { data } = await refetch()
+  async function onAvatarSave(blob: Blob): Promise<void> {
+    try {
+      // Get upload token from backend
+      const { data } = await refetch()
 
-    if (!data) {
-      toast.error('Failed to get upload token')
-      return
+      if (!data) {
+        toast.error('Failed to get upload token')
+        return
+      }
+
+      // Decode JWT token to extract upload parameters
+      const tokenPayload = JSON.parse(atob(data.token.split('.')[1]))
+
+      console.log('Uploading avatar with payload:', tokenPayload)
+
+      // Create form data for ImageKit upload
+      const formData = new FormData()
+      formData.append('file', blob, `${tokenPayload.fileName}.png`)
+      formData.append('token', data.token)
+
+      // Add fields from token payload
+      if (tokenPayload.fileName) formData.append('fileName', tokenPayload.fileName)
+      if (tokenPayload.tags) formData.append('tags', tokenPayload.tags)
+      if (tokenPayload.folder) formData.append('folder', tokenPayload.folder)
+      if (tokenPayload.useUniqueFileName) formData.append('useUniqueFileName', tokenPayload.useUniqueFileName)
+      if (tokenPayload.isPrivateFile) formData.append('isPrivateFile', tokenPayload.isPrivateFile)
+
+      // Upload to ImageKit v2
+      const uploadResponse = await fetch('https://upload.imagekit.io/api/v2/files/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json()
+        toast.error(`Upload failed: ${errorData.message || 'Unknown error'}`)
+        return
+      }
+
+      const uploadResult = await uploadResponse.json()
+
+      // Set avatar URL in backend
+      await setAvatarMutation.mutateAsync({ avatarUrl: uploadResult.url })
+    } catch (error) {
+      console.error('Avatar upload error:', error)
+      toast.error('Failed to upload avatar')
     }
-
-    console.log('Uploading avatar with token:', data)
   }
 
   return <div className='flex flex-col gap-6'>

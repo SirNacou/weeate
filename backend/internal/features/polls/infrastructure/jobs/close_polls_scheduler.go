@@ -6,9 +6,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/clock"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/services"
+	"github.com/jonboulle/clockwork"
 	"gorm.io/gorm"
 )
 
@@ -16,15 +16,15 @@ type ClosePollScheduler struct {
 	db        *gorm.DB
 	trigger   chan bool // A channel to "wake up" the sleeper
 	closePoll *services.ClosePollCommandHandler
-	clock     clock.Clock
+	clock     clockwork.Clock
 }
 
-func NewClosePollScheduler(closePollHandler *services.ClosePollCommandHandler, db *gorm.DB) *ClosePollScheduler {
+func NewClosePollScheduler(closePollHandler *services.ClosePollCommandHandler, db *gorm.DB, clock clockwork.Clock) *ClosePollScheduler {
 	return &ClosePollScheduler{
 		closePoll: closePollHandler,
 		trigger:   make(chan bool, 1),
 		db:        db,
-		clock:     clock.NewRealClock(),
+		clock:     clock,
 	}
 }
 

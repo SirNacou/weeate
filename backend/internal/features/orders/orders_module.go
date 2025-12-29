@@ -5,7 +5,7 @@ import (
 
 	"github.com/SirNacou/weeate/backend/internal/common/api/http"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/bus"
-	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/supabase"
 	"github.com/SirNacou/weeate/backend/internal/features/orders/services"
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/danielgtaylor/huma/v2"
@@ -18,7 +18,7 @@ type OrdersModule struct {
 	bus          *bus.Bus
 }
 
-func NewOrdersModule(bus *bus.Bus, db *gorm.DB, supabaseService *auth.SupabaseService) *OrdersModule {
+func NewOrdersModule(bus *bus.Bus, db *gorm.DB, supabaseService *supabase.SupabaseService) *OrdersModule {
 	getTodayOrderHandler := services.NewGetTodayOrdersQueryHandler(db, supabaseService)
 	getOrderedItemsHandler := services.NewGetOrderedItemsQueryHandler(db, supabaseService)
 	getShoppingOrderHandler := services.NewGetShoppingOrderQueryHandler(db, supabaseService)

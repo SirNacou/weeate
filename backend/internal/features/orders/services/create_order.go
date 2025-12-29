@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/supabase"
 	"github.com/SirNacou/weeate/backend/internal/features/orders/domain"
 	polls_domain "github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 	"github.com/gofrs/uuid/v5"
@@ -35,10 +35,10 @@ type CreateOrderCommand struct {
 
 type CreateOrderCommandHandler struct {
 	db              *gorm.DB
-	supabaseService *auth.SupabaseService
+	supabaseService *supabase.SupabaseService
 }
 
-func NewCreateOrderCommandHandler(db *gorm.DB, supabaseService *auth.SupabaseService) *CreateOrderCommandHandler {
+func NewCreateOrderCommandHandler(db *gorm.DB, supabaseService *supabase.SupabaseService) *CreateOrderCommandHandler {
 	return &CreateOrderCommandHandler{
 		db:              db,
 		supabaseService: supabaseService,

@@ -13,12 +13,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Slider } from "@/components/ui/slider"
-import { getCroppedImg } from '@/utils/canvasUtil'
+import { getCroppedImgAsBlob } from '@/utils/canvasUtil'
 import { UserAvatar } from "./user-avatar"
 
 interface AvatarUploadProps {
   initialImage?: string
-  onSave?: (croppedImage: string) => void
+  onSave?: (croppedImageBlob: Blob) => void | Promise<void>
 }
 
 export default function AvatarUpload({ initialImage, onSave }: AvatarUploadProps) {
@@ -79,15 +79,17 @@ export default function AvatarUpload({ initialImage, onSave }: AvatarUploadProps
   const handleSave = async () => {
     try {
       if (imageSrc && croppedAreaPixels) {
-        const croppedImageBase64 = await getCroppedImg(imageSrc, croppedAreaPixels)
-        if (croppedImageBase64) {
-          setCroppedImage(croppedImageBase64)
+        const croppedImageBlob = await getCroppedImgAsBlob(imageSrc, croppedAreaPixels)
+        if (croppedImageBlob) {
+          // Create preview URL for display
+          const previewUrl = URL.createObjectURL(croppedImageBlob)
+          setCroppedImage(previewUrl)
           setIsDialogOpen(false)
           // Clean up local state
           setZoom(1)
           setCrop({ x: 0, y: 0 })
-          // Trigger parent callback
-          if (onSave) onSave(croppedImageBase64)
+          // Trigger parent callback with blob
+          if (onSave) await onSave(croppedImageBlob)
         }
       }
     } catch (e) {

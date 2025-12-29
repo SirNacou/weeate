@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/supabase"
 	auth_domain "github.com/SirNacou/weeate/backend/internal/features/auth/domain"
 	domain_food "github.com/SirNacou/weeate/backend/internal/features/foods/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/orders/domain"
@@ -33,11 +33,11 @@ type (
 
 	GetTodayOrdersQueryHandler struct {
 		db              *gorm.DB
-		supabaseService *auth.SupabaseService
+		supabaseService *supabase.SupabaseService
 	}
 )
 
-func NewGetTodayOrdersQueryHandler(db *gorm.DB, supabaseService *auth.SupabaseService) *GetTodayOrdersQueryHandler {
+func NewGetTodayOrdersQueryHandler(db *gorm.DB, supabaseService *supabase.SupabaseService) *GetTodayOrdersQueryHandler {
 	return &GetTodayOrdersQueryHandler{
 		db:              db,
 		supabaseService: supabaseService,

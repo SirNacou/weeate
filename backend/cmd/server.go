@@ -15,6 +15,7 @@ import (
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/bus"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/centrifugo"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/configs"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/supabase"
 	"github.com/SirNacou/weeate/backend/internal/features/auth"
 	"github.com/SirNacou/weeate/backend/internal/features/foods"
 	"github.com/SirNacou/weeate/backend/internal/features/orders"
@@ -32,7 +33,7 @@ import (
 type Server struct {
 	config           configs.Config
 	db               *gorm.DB
-	supabaseService  *auth.SupabaseService
+	supabaseService  *supabase.SupabaseService
 	bus              *bus.Bus
 	centrifugoClient *centrifugo.CentrifugoClient
 	imagekitClient   *imagekit.Client
@@ -41,7 +42,7 @@ type Server struct {
 func NewServer(
 	config configs.Config,
 	db *gorm.DB,
-	supabaseService *auth.SupabaseService,
+	supabaseService *supabase.SupabaseService,
 	bus *bus.Bus,
 	centrifugoClient *centrifugo.CentrifugoClient,
 	imagekitClient *imagekit.Client,
@@ -97,7 +98,7 @@ func (s *Server) buildHandler(ctx context.Context) (http.Handler, []func(context
 
 	webhooks.RegisterImageKitWebhook(api, s.imagekitClient)
 
-	authModule := auth.NewAuthModule(s.config, s.imagekitClient)
+	authModule := auth.NewAuthModule(s.config, s.imagekitClient, s.supabaseService)
 	authModule.RegisterAPI(api)
 
 	foodsModule := foods.NewFoodsModule(s.db, s.supabaseService)

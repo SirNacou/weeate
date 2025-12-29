@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/supabase"
 	auth_domain "github.com/SirNacou/weeate/backend/internal/features/auth/domain"
 	food_domain "github.com/SirNacou/weeate/backend/internal/features/foods/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/orders/domain"
@@ -33,10 +33,10 @@ type ShoppingItem struct {
 
 type GetShoppingOrderQueryHandler struct {
 	db              *gorm.DB
-	supabaseService *auth.SupabaseService
+	supabaseService *supabase.SupabaseService
 }
 
-func NewGetShoppingOrderQueryHandler(db *gorm.DB, supabaseService *auth.SupabaseService) *GetShoppingOrderQueryHandler {
+func NewGetShoppingOrderQueryHandler(db *gorm.DB, supabaseService *supabase.SupabaseService) *GetShoppingOrderQueryHandler {
 	return &GetShoppingOrderQueryHandler{
 		db:              db,
 		supabaseService: supabaseService,
