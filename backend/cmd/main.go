@@ -12,7 +12,7 @@ import (
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/configs"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/data"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/imagekit"
-	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/supabase"
 )
 
 func main() {
@@ -50,7 +50,7 @@ func main() {
 	}
 
 	// Setup Supabase auth
-	supabaseService, err := auth.NewSupabaseService(config.SUPABASE_URL, config.SUPABASE_API_KEY)
+	supabaseService, err := supabase.NewSupabaseService(config.SUPABASE_URL, config.SUPABASE_API_KEY)
 	if err != nil {
 		slog.Error("Failed to initalize the client: ", slog.String("error", err.Error()))
 		os.Exit(1)
@@ -66,7 +66,7 @@ func main() {
 	}
 
 	// Setup Centrifugo gRPC client
-	centrifugoClient, err := centrifugo.NewCentrifugoClient(config)
+	centrifugoClient, err := centrifugo.NewCentrifugoClient(config.CENTRIFUGO_GRPC_HOST, config.CENTRIFUGO_GRPC_PORT)
 	if err != nil {
 		slog.Error("Failed to create Centrifugo gRPC client", slog.String("error", err.Error()))
 		os.Exit(1)

@@ -3,7 +3,7 @@ package foods
 import (
 	"context"
 
-	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/supabase"
 	"github.com/SirNacou/weeate/backend/internal/features/foods/services"
 	"github.com/danielgtaylor/huma/v2"
 	"gorm.io/gorm"
@@ -13,7 +13,7 @@ type FoodsModule struct {
 	endpoint *FoodsEndpoint
 }
 
-func NewFoodsModule(db *gorm.DB, supabaseService *auth.SupabaseService) *FoodsModule {
+func NewFoodsModule(db *gorm.DB, supabaseService *supabase.SupabaseService) *FoodsModule {
 	getFoodHdl := services.NewGetFoodsQueryHandler(db, supabaseService)
 	addFoodHdl := services.NewAddFoodCommandHandler(db)
 	updateFoodHdl := services.NewUpdateFoodCommandHandler(db)

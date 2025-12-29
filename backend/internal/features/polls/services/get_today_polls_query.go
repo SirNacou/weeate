@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/supabase"
 	auth_domain "github.com/SirNacou/weeate/backend/internal/features/auth/domain"
 	food_domain "github.com/SirNacou/weeate/backend/internal/features/foods/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/domain"
@@ -47,10 +47,10 @@ type (
 type GetTodayPollsQueryHandler struct {
 	// Add necessary dependencies here, e.g., database connection
 	db              *gorm.DB
-	supabaseService *auth.SupabaseService
+	supabaseService *supabase.SupabaseService
 }
 
-func NewGetTodayPollsQueryHandler(db *gorm.DB, s *auth.SupabaseService) *GetTodayPollsQueryHandler {
+func NewGetTodayPollsQueryHandler(db *gorm.DB, s *supabase.SupabaseService) *GetTodayPollsQueryHandler {
 	return &GetTodayPollsQueryHandler{
 		db:              db,
 		supabaseService: s,

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/supabase"
 	auth_domain "github.com/SirNacou/weeate/backend/internal/features/auth/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/foods/domain"
 	"github.com/gofrs/uuid/v5"
@@ -27,10 +27,10 @@ type GetFoodsQueryResponse struct {
 
 type GetFoodsQueryHandler struct {
 	db              *gorm.DB
-	supabaseService *auth.SupabaseService
+	supabaseService *supabase.SupabaseService
 }
 
-func NewGetFoodsQueryHandler(db *gorm.DB, s *auth.SupabaseService) *GetFoodsQueryHandler {
+func NewGetFoodsQueryHandler(db *gorm.DB, s *supabase.SupabaseService) *GetFoodsQueryHandler {
 	return &GetFoodsQueryHandler{
 		db:              db,
 		supabaseService: s,

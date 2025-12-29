@@ -12,7 +12,7 @@ import (
 
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/bus"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/centrifugo"
-	"github.com/SirNacou/weeate/backend/internal/features/auth"
+	auth_domain "github.com/SirNacou/weeate/backend/internal/features/auth/domain"
 	food_domain "github.com/SirNacou/weeate/backend/internal/features/foods/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/infrastructure/jobs"
@@ -303,7 +303,7 @@ func TestClosePollsSchedulerIntegration(t *testing.T) {
 			FoodIDs:          []string{food.ID.String()},
 		}
 
-		userCtx := auth.WithUser(ctx, &auth.User{
+		userCtx := auth_domain.WithUser(ctx, &auth_domain.User{
 			ID: userID.String(),
 		})
 		res, err := createCmd.Handle(userCtx, req)

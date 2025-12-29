@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@tanstack/devtools-vite": "^0.3.11",
-    "@tanstack/react-devtools": "^0.8.2"
-  }
-}

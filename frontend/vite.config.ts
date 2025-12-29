@@ -1,4 +1,4 @@
-import "@/env/index"
+import "./src/env"
 import tailwindcss from "@tailwindcss/vite"
 import { devtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from "@tanstack/react-start/plugin/vite"
@@ -33,6 +33,6 @@ const config = defineConfig({
       jsx: "react",
     }),
   ],
-});
+})
 
-export default config;
+export default config

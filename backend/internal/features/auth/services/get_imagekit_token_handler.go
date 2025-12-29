@@ -22,13 +22,13 @@ type ImageKitAuthParametersResponse struct {
 	Token string `json:"token" doc:"The generated JWT token for ImageKit authentication"`
 }
 
-type ImageKitHandler struct {
+type GetIKTokenQueryHandler struct {
 	privateKey string
 	publicKey  string
 }
 
-func GetIKTokenQueryHandler(privateKey string, publicKey string) *ImageKitHandler {
-	return &ImageKitHandler{
+func NewGetIKTokenQueryHandler(privateKey string, publicKey string) *GetIKTokenQueryHandler {
+	return &GetIKTokenQueryHandler{
 		privateKey: privateKey,
 		publicKey:  publicKey,
 	}
@@ -39,7 +39,7 @@ type ImageKitClaims struct {
 	UploadPayload
 }
 
-func (h *ImageKitHandler) Handle(ctx context.Context, _ *struct{}) (*ImageKitAuthParametersResponse, error) {
+func (h *GetIKTokenQueryHandler) Handle(ctx context.Context, _ *struct{}) (*ImageKitAuthParametersResponse, error) {
 	user, ok := domain.UserFromContext(ctx)
 	if !ok {
 		return nil, domain.ErrUserNotFoundInContext
@@ -54,13 +54,13 @@ func (h *ImageKitHandler) Handle(ctx context.Context, _ *struct{}) (*ImageKitAut
 			ExpiresAt: jwt.NewNumericDate(exp),
 		},
 		UploadPayload{
-			FileName: fmt.Sprintf("avatar-%s", user.AppMetadata.DisplayName),
-			Tags:     "avatar",
-			Folder:   fmt.Sprintf("/%s/%s/%s/avatars", "weeate", "users", user.ID),
+			FileName:      fmt.Sprintf("avatar-%s", user.AppMetadata.DisplayName),
+			Tags:          "avatar",
+			Folder:        fmt.Sprintf("/%s/%s/%s/avatars", "weeate", "users", user.ID),
+			IsPrivateFile: "false",
 		},
-	}, func(t *jwt.Token) {
-		t.Header["kid"] = h.publicKey
 	})
+	token.Header["kid"] = h.publicKey
 
 	signedToken, err := token.SignedString([]byte(h.privateKey))
 	if err != nil {

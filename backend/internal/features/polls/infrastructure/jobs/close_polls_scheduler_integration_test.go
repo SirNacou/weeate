@@ -10,12 +10,12 @@ import (
 
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/bus"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/centrifugo"
-	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/clock"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/configs"
 	"github.com/SirNacou/weeate/backend/internal/common/infrastructure/data"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/domain"
 	"github.com/SirNacou/weeate/backend/internal/features/polls/services"
 	"github.com/gofrs/uuid/v5"
+	"github.com/jonboulle/clockwork"
 	"gorm.io/gorm"
 )
 
@@ -108,7 +108,7 @@ func setupTestDependencies(t *testing.T, db *gorm.DB) (*services.ClosePollComman
 		CENTRIFUGO_GRPC_HOST: "localhost",
 		CENTRIFUGO_GRPC_PORT: 10000,
 	}
-	testCentrifugo, err := centrifugo.NewCentrifugoClient(testConfig)
+	testCentrifugo, err := centrifugo.NewCentrifugoClient(testConfig.CENTRIFUGO_GRPC_HOST, testConfig.CENTRIFUGO_GRPC_PORT)
 	if err != nil {
 		// For integration tests, we can skip if centrifugo is not available
 		t.Logf("Warning: Could not create Centrifugo client: %v", err)
@@ -168,7 +168,7 @@ func TestClosePollScheduler_Integration_CloseDuePolls(t *testing.T) {
 	poll2 := createTestPoll(t, db, futureTime, "buyer2")
 
 	// Create scheduler
-	scheduler := NewClosePollScheduler(closePollHandler, db)
+	scheduler := NewClosePollScheduler(closePollHandler, db, clockwork.NewRealClock())
 
 	// Call closeDuePolls directly
 	ctx := context.Background()
@@ -211,13 +211,12 @@ func TestClosePollScheduler_Integration_StartAndTrigger(t *testing.T) {
 		return
 	}
 
-	// Create scheduler with mock clock
-	scheduler := NewClosePollScheduler(closePollHandler, db)
-	mockClock := clock.NewMockClock(time.Now().UTC())
-	scheduler.clock = mockClock
+	// Create scheduler with fake clock
+	fakeClock := clockwork.NewFakeClock()
+	scheduler := NewClosePollScheduler(closePollHandler, db, fakeClock)
 
 	// Create a poll that will close in 5 seconds
-	scheduledTime := mockClock.Now().Add(5 * time.Second)
+	scheduledTime := fakeClock.Now().Add(5 * time.Second)
 	poll := createTestPoll(t, db, scheduledTime, "buyer1")
 
 	// Start scheduler in a goroutine
@@ -229,8 +228,8 @@ func TestClosePollScheduler_Integration_StartAndTrigger(t *testing.T) {
 	// Wait a bit for scheduler to start
 	time.Sleep(100 * time.Millisecond)
 
-	// Advance the mock clock by 6 seconds to trigger the poll closure
-	mockClock.Advance(6 * time.Second)
+	// Advance the fake clock by 6 seconds to trigger the poll closure
+	fakeClock.Advance(6 * time.Second)
 
 	// Wait for the poll to be processed
 	time.Sleep(500 * time.Millisecond)
@@ -262,7 +261,7 @@ func TestClosePollScheduler_Integration_TriggerUpdate(t *testing.T) {
 	}
 
 	// Create scheduler
-	scheduler := NewClosePollScheduler(closePollHandler, db)
+	scheduler := NewClosePollScheduler(closePollHandler, db, clockwork.NewRealClock())
 
 	// Start scheduler in a goroutine
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -311,7 +310,7 @@ func TestClosePollScheduler_Integration_MultiplePolls(t *testing.T) {
 	poll4 := createTestPoll(t, db, now.Add(-30*time.Minute), "buyer4") // Past - should close
 
 	// Create scheduler
-	scheduler := NewClosePollScheduler(closePollHandler, db)
+	scheduler := NewClosePollScheduler(closePollHandler, db, clockwork.NewRealClock())
 
 	// Close due polls
 	ctx := context.Background()
@@ -361,7 +360,7 @@ func TestClosePollScheduler_Integration_NoPolls(t *testing.T) {
 	}
 
 	// Create scheduler
-	scheduler := NewClosePollScheduler(closePollHandler, db)
+	scheduler := NewClosePollScheduler(closePollHandler, db, clockwork.NewRealClock())
 
 	// Start scheduler with no polls in the database
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)

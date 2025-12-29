@@ -1,4 +1,4 @@
-package auth
+package supabase
 
 import (
 	"encoding/json"
@@ -54,4 +54,16 @@ func (s *SupabaseService) GetUserProfilesByIDs(userIDs ...string) ([]domain.User
 		return nil, err
 	}
 	return profiles, nil
+}
+
+func (s *SupabaseService) UpdateUserProfile(userID string, avatarURL string) error {
+	_, _, err := s.supabaseClient.From("user_profiles").
+		Update(&struct {
+			AvatarURL string `json:"avatar_url,omitempty"`
+		}{
+			AvatarURL: avatarURL,
+		}, "", "").
+		Eq("id", userID).
+		Execute()
+	return err
 }
