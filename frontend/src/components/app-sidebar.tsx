@@ -1,9 +1,7 @@
 import useIsMobile from "@/hooks/use-is-mobile"
 import { createSupabaseClient } from "@/lib/supabase"
-import { fetchUser } from "@/lib/supabase/fetch-user-server-fn"
-import { useQuery } from "@tanstack/react-query"
+import { Route } from "@/routes/_protected/route"
 import { Link, type LinkOptions, useNavigate } from "@tanstack/react-router"
-import { useServerFn } from "@tanstack/react-start"
 import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-react"
 import type React from "react"
 import FluentFood32Filled from "~icons/fluent/food-32-filled"
@@ -62,8 +60,9 @@ const DATA: NavData[] = [
 ]
 
 const AppSidebar = () => {
+	const { user } = Route.useRouteContext()
+
 	const { isMobile } = useIsMobile()
-	const getUser = useServerFn(fetchUser)
 	const navigate = useNavigate()
 
 	const logOut: React.MouseEventHandler<HTMLDivElement> = async (e) => {
@@ -73,11 +72,6 @@ const AppSidebar = () => {
 			navigate({ to: "/login" })
 		})
 	}
-
-	const { data: user } = useQuery({
-		queryKey: ["user"],
-		queryFn: getUser,
-	})
 
 	return (
 		<Sidebar>
